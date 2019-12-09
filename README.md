@@ -3,7 +3,7 @@
 - Mark's personal study notes, which include:  
     1. Java
         - NEU Course
-            - [Quiz Coding](Java/quizReview.md)
+            - [Quiz Coding](INFO5100-quizReview.md)
             - Lab
             - AED
         - OOD
@@ -13,9 +13,9 @@
     2. Front-end / Back-end
         - HTML
         - CSS
-        - [JavaScript](前端/JavaScript.md)
-        - [Angular](前端/Angular.md)
-        - [Node.js](前端/Node.js.md)
+        - [JavaScript](Web-JavaScript.md)
+        - [Angular](Web-Angular.md)
+        - [Node.js](Web-Node.js.md)
 
 
 
