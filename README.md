@@ -7,8 +7,7 @@
             - Lab
             - AED
         - OOD
-        - Data Structure
-        - Algorithms
+        - [Data Structure and Algorithms](DataStructuresandAlgorithms.md)
         - Leetcode
     2. Front-end / Back-end
         - HTML
