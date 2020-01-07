@@ -568,7 +568,7 @@ class HeroNode{
     - 思路：先去定义一个节点reverseHead = new HeroNode();
     - 从头到尾遍历原来的链表，每遍历一个节点，就将其取出，并放在新的链表的最前端
     - 原来链表的head.next = reverseHead.next
-  ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/IMG_0272.PNG)
+    - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/IMG_0272.PNG)
   ```java
   //将单链表进行反转
     public static void reverseList(HeroNode head){
@@ -591,7 +591,8 @@ class HeroNode{
         head.next = reverseHead.next;
     }
   ```
-3. **从尾到头打印单链表**
+   - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/reverseLinkedList.jpg)
+4. **从尾到头打印单链表**
    - 方法一：先反转单链表，然后再遍历即可（这样做的问题是会破坏原来单链表的结构，不可取，**不建议**）
    - 方法二：可以利用**栈**的数据结构，将各个节点压入栈中，利用栈的先进后出的特点，就实现了逆序打印的效果
     ```java
