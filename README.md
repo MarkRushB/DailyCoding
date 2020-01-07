@@ -5,10 +5,11 @@
         - NEU Course
             - [Quiz Coding](INFO5100-quizReview.md)
             - Lab
-            - AED
+            - INFO5100-AED
+            - [INFO6105-DataScience](DataScience.md)
         - OOD
         - [Data Structure and Algorithms](DataStructuresandAlgorithms.md)
-        - Leetcode
+        - [Leetcode](LeetCode-MarkPractice.md)
     2. Front-end / Back-end
         - HTML
         - CSS
