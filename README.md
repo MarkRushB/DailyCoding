@@ -7,6 +7,7 @@
             - Lab
             - INFO5100-AED
             - [INFO6105-DataScience](INFO6105-DataScience.md)
+            - [INFO6205-Algorithms](INFO6205-Algorithms.md)
         - OOD
         - [Data Structure and Algorithms](DataStructuresandAlgorithms.md)
         - [Leetcode](LeetCode-MarkPractice.md)
