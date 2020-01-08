@@ -6,7 +6,7 @@
             - [Quiz Coding](INFO5100-quizReview.md)
             - Lab
             - INFO5100-AED
-            - [INFO6105-DataScience](DataScience.md)
+            - [INFO6105-DataScience](INFO6105-DataScience.md)
         - OOD
         - [Data Structure and Algorithms](DataStructuresandAlgorithms.md)
         - [Leetcode](LeetCode-MarkPractice.md)
