@@ -1,5 +1,5 @@
 
-# Content <!-- omit in toc -->
+# Data Structures & Algorithms Content <!-- omit in toc -->
 
 - [Data Structures](#data-structures)
   - [稀疏数组](#稀疏数组)
@@ -7,14 +7,24 @@
   - [LinkedList](#linkedlist)
     - [单向链表](#单向链表)
       - [单链表面试题](#单链表面试题)
+    - [单向环形链表](#单向环形链表)
     - [双向链表](#双向链表)
 - [Algorithms](#algorithms)
+  - [Union-Find](#union-find)
+  - [大O表示法](#大o表示法)
   - [手动实现ArrayList](#手动实现arraylist)
   - [手动实现LinkedList](#手动实现linkedlist)
-  - [大O表示法](#大o表示法)
   - [冒泡排序](#冒泡排序)
   - [二分查找](#二分查找)
-
+---
+| TOPIC | Data Structures & Algorithms |
+|:------------:| :-------------:|
+| data types | stack, queue, bag, union-find, priority queue |
+| sorting | quicksort, mergesort, heapsort, radix sorts |
+| searching | BST, red-black BST, hash table |
+| graphs | BFS, DFS, Prim, Kruskal, Dijkstra | 
+| strings | KMP, regular expressions, TST, Huffman, LZW |
+| advanced | B-tree, suffix array, maxflow |
 ---
 
 # Data Structures
@@ -614,6 +624,141 @@ class HeroNode{
         }
     }
     ```
+### 单向环形链表
+- 构建一个单向环形链表的思路
+  1. 先创建第一个节点，让first指向该节点，并形成环形
+  2. 后面当我们每创建一个新的节点，就把该节点，加入到已有的这个环形链表中即可
+- 遍历环形链表
+  1. 先让一个辅助变量指向first节点
+  2. 然后通过一个while循环遍历该环形链表即可 cur.next = first的时候结束循环
+```java
+//创建一个环形的单向链表
+class CircleSingleLinkedList{
+    //创建一个firs节点，当前没有编号
+    private Boy first = new Boy(-1);
+    //添加小孩，构建成一个环形链表
+    public void addBoy(int nums){
+        //nums做一个数据校验
+        if(nums < 1){
+            System.out.prinltn("nums的值不正确");
+            return;
+        }
+        Boy curBoy = null;//辅助指针，帮助构建环形链表
+        //使用for循环创建我们的环形链表
+        for(int i = 1; i <= nums; i++){
+            //根据编号创建小孩节点
+            Boy boy = new Boy(i);
+            //如果是第一个小孩
+            if(i == 1){
+                first = boy;
+                first.setNext(first);//构成环
+                curBoy = first;//让curBoy指向第一个小孩
+            }else{
+                curBoy.setNext(boy);
+                boy.serNext(first);
+                curBoy = boy;
+            }
+        }
+    }
+    //遍历当前的环形链表
+    public void showBoy(){
+        //判断链表是否为空
+        if(first = null){
+            System.out.println("链表为空");
+            return;
+        }
+        //因为first不能动，因此我们仍然使用一个辅助指针完成遍历
+        Boy curBoy = first;
+        while(true){
+            System.out.println("小孩的编号"curBoy.getNo());
+            if(curBoy.getNext() == first){
+                //说明已经遍历完毕
+                break;
+            }
+            curBoy = curBoy.getNext();//curBoy后移
+        }
+    }
+}
+//创建一个Boy类，表示一个节点
+class Boy{
+    private int no;//编号
+    private Boy next;//指向下一个节点，默认为null
+
+    public Boy(int no){
+        this.no = no;
+    }
+    public int getNo(){
+        return no;
+    }
+    public void setNo(int no){
+        this.no = no;
+    }
+    public Boy getNext(){
+        return next;
+    }
+    public void setNext(Boy next){
+        this.next = next;
+    }
+}
+```
+- 单向环形链表应用场景：Josephu问题
+  - Josephu问题为：设编号为1，2，...n的n个人围成一圈，约定编号为k(1 <= k <= n)的人从1开始报数，数到m的那个人出列，他的下一位又从1开始报数，数到m的人继续出列，以此类推，直到所有人都出列为止，由此产生一个出队编号的序列。
+  - 思路：用一个**不带头节点的循环链表**来处理Josephu问题：先构成一个有n个节点的单循环链表，然后由k节点起从1开始数，计到m时候，对应节点从链表中删除，然后再从被删除节点的下一个节点又从1开始计数，直到最后一个节点从链表中删除，算法结束。
+      1. 需要创建一个辅助变量helper，事先应该指向环形链表的**最后这个节点**
+      2. 报数前先让first和helper移动k-1次
+      3. 当小孩报数时，让first和helper**同时移动**，移动m-1次（自己要数一下）
+      4. 这时就可以将first指向的小孩节点出圈  
+        first = first.next  
+        helper.next = first  
+        原来first指向的节点就没有任何引用，就会被回收。
+```java
+//根据用户的输入，计算出小孩出圈的顺序
+//startNo：从第几个小孩开始
+//countNo：数几下
+// nums：有多小孩在圈中
+public void countBoy(int startNo, int countNum, int nums){
+    if(first == null || startNo < 1 || startNum > nums){
+        System.out.println("参数输入错误");
+        return;
+    }
+    //创建一个辅助指针，帮助完成小孩出圈
+    Boy helper = first;
+    while(true){
+        //这一步是为了让helper指向最后一个节点
+        if(helper.getNext() == first){
+            //说明helper指向了最后节点
+            break;
+        }
+        helper = helper.getNext();
+    }
+    //小孩报数前，先让first和helper移动k-1次
+    for(int j = 0; j < startNo -1; j++){
+        first = first.getNext();
+        helper = helper.getNext();
+    }
+    //当小孩报数时，让first和helper指针同时移动m-1次，然后出圈
+    //这里是一个循环操作，直到圈中只有一个节点
+    while(true){
+        if(helper == first){
+            //说明圈中只有一个节点
+            break;
+        }
+        //让first和helper同时移动countNum-1次
+        for(int j = 0; j < countNum - 1; j++){
+            first = first.getNext();
+            helper = helper.getNext();
+        }
+        //这时first指向的节点就是小孩要出圈的节点
+        System.out.printf("小孩出圈："first.getNo());
+        //这时候将first指向的小孩节点出圈
+        first = first.getNext();
+        helper.setNext(first);
+    }
+    System.out.println("最后留在圈中的小孩编号:" first.getNum());
+
+}
+```
+
 ### 双向链表
 - 单向链表的缺点分析
   - 单向链表，**查找的方向只能是一个方向**，而双向链表可以向前或者向后查找
@@ -779,6 +924,24 @@ class HeroNode2{
 }
 ```
 # Algorithms
+## Union-Find
+## 大O表示法
+- 大O表示法是一种特殊的表示法，指出了算法的速度有多快
+- 常见的大O运行时间
+  
+    Big-O | Name | Description
+    ------| ---- | -----------
+    **O(1)** | constant | **This is the best.** The algorithm always takes the same amount of time, regardless of how much data there is. Example: looking up an element of an array by its index.
+    **O(log n)** | logarithmic | **Pretty great.** These kinds of algorithms halve the amount of data with each iteration. If you have 100 items, it takes about 7 steps to find the answer. With 1,000 items, it takes 10 steps. And 1,000,000 items only take 20 steps. This is super fast even for large amounts of data. Example: binary search.
+    **O(n)** | linear | **Good performance.** If you have 100 items, this does 100 units of work. Doubling the number of items makes the algorithm take exactly twice as long (200 units of work). Example: sequential search.
+    **O(n log n)** | "linearithmic" | **Decent performance.** This is slightly worse than linear but not too bad. Example: the fastest general-purpose sorting algorithms.
+    **O(n^2)** | quadratic | **Kinda slow.** If you have 100 items, this does 100^2 = 10,000 units of work. Doubling the number of items makes it four times slower (because 2 squared equals 4). Example: algorithms using nested loops, such as insertion sort.
+    **O(n^3)** | cubic | **Poor performance.** If you have 100 items, this does 100^3 = 1,000,000 units of work. Doubling the input size makes it eight times slower. Example: matrix multiplication.
+    **O(2^n)** | exponential | **Very poor performance.** You want to avoid these kinds of algorithms, but sometimes you have no choice. Adding just one bit to the input doubles the running time. Example: traveling salesperson problem.
+    **O(n!)** | factorial | **Intolerably slow.** It literally takes a million years to do anything.  
+
+    ![Comparison of Big O computations](https://upload.wikimedia.org/wikipedia/commons/7/7e/Comparison_computational_complexity.svg)
+---
 ## 手动实现ArrayList
 ```java
 public class ArrayList<E> {
@@ -894,16 +1057,6 @@ public class LinkedList01{
     }
 }
 ```
-## 大O表示法
-- 大O表示法是一种特殊的表示法，指出了算法的速度有多快
-- 常见的大O运行时间
-    - O(1) 常量时间：给定一个大小为n的输入，该算法只需要一步就可以完成任务
-    - O(log n) 也叫对数时间，给定大小为n的输入，该算法每执行一步，它完成任务所需要的步骤数目会以一定的因子减少。这样是算法包括二分查找法
-    - O(n) 也叫线性时间，给定大小为n的输入，该算法完成任务所需要的步骤直接和n相关（1对1的关系）。这样的算法包括简单查找
-    - O(n*log n) 这样是算法包括快速排序--一种比较快的排序算法
-    - O(n2) 给定大小为n的输入，完成任务所需要的步骤是n的平方。这样的算法包括选择排序--一种比较慢的排序算法
-    - O(n!) 这样的算法包括旅行商问题的解决方案--一种非常慢的算法
----
 ## 冒泡排序
 - 什么是冒泡排序？
     - 冒泡排序是一种简单的排序算法。它重复地走访过要排序的数列，一次比较两个元素，如果他们的顺序错误就把他们交换过来。走访数列的工作是重复地进行直到没有再需要交换，也就是说该数列已经排序完成。这个算法的名字由来是因为越小的元素会经由交换慢慢“浮”到数列的顶端，如下图所示。
