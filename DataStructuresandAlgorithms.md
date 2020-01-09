@@ -11,6 +11,15 @@
     - [双向链表](#双向链表)
 - [Algorithms](#algorithms)
   - [Union-Find](#union-find)
+    - [Quick Find](#quick-find)
+    - [Conclusion](#conclusion)
+  - [大O表示法](#大o表示法)
+  - [手动实现ArrayList](#手动实现arraylist)
+  - [手动实现LinkedList](#手动实现linkedlist)
+  - [冒泡排序](#冒泡排序)
+  - [二分查找](#二分查找)
+<li>Algorithm | Initialize | union | find</li>
+</ul>](#ullialgorithm--initialize--union--findliul)
   - [大O表示法](#大o表示法)
   - [手动实现ArrayList](#手动实现arraylist)
   - [手动实现LinkedList](#手动实现linkedlist)
@@ -925,6 +934,85 @@ class HeroNode2{
 ```
 # Algorithms
 ## Union-Find
+- union find is a set of algorithms for solving the so-called dynamic connectivity problem
+- **Reference**: [CSDN-QuickFind & QuickUnion](https://blog.csdn.net/sinat_25991865/article/details/100533334)
+### Quick Find
+- So called **Eager Algorithm**
+- Data Structure used to support is an integer array indexed by object
+- ```java
+  public class QuickFindUF{
+      private int[] id;
+      public QuickFindUF(int N){
+          //set id of each objects to itself(N array accesses)
+          id = new int[N];
+          for(int i = o; i < N; i++){
+              id[i] = i;
+          }    
+      }
+      public boolean connected(int p, int q){
+          //check whether p and q are in the same component(2 array accesses) 
+          return id[p] == id[q];
+      }
+      public void union(int p, int q){
+          int pid = id[p];
+          int qid = id[q];
+          for(int i = 0; i < id.length; i++){
+              //change all entried with id[p] to id[q](at most 2N+2 array accesses)
+              if(id[i] == pid){
+                  id[i] = qid;
+              }
+          }
+      }
+  }
+  ```
+- Quadratic algorithms do not scale with technology  
+- QuickFind is too **slow** for huge problems
+### Quick Union
+- so called **lazy approach** to algorithm desgin where we try to avoid doing work until we have to
+- ```java
+    public class QuickUnionUF{
+        private int[] id;
+        public QuickUnionUF(int N){
+            //set id of each object to itself(N array accesses)
+            id = new int[N];
+            for(int i = 0; i < N; i++){
+                id[i] = i;
+            }
+        }
+        private int root(int i){
+            //chase parent pointers until reach root(depth of i array accesses)
+            while(i != id[i]){
+                i = id[i];
+                return i;
+            }
+        }
+        public boolean connected(int p, int q){
+            //check if p and q have same root(depth of p and q array accesses)
+            return root(p) == root(q);
+        }
+        public void union(int p, int q){
+            //change root of p to point to root of q(depth of p and q array accesses)
+            int i = root(p);
+            int j = root(q);
+            id[i] = j;
+        }
+    }
+  ```
+### Conclusion
+- Defects
+  - QuickFind defect
+    - Union too expensice(N array accesses)
+    - trees are flat, but too expensive to keep them flat
+  - QuickUnion defect
+    - Trees can get tall
+    - Find too expensive(could be N array accesses)
+- Algorithm | Initialize | union | find
+  :---: | :---: | :---: | :---:
+  quick-find | N | N | 1
+  quick-union | N | N† | N
+  † includes cost of finding roots
+
+
 ## 大O表示法
 - 大O表示法是一种特殊的表示法，指出了算法的速度有多快
 - 常见的大O运行时间
