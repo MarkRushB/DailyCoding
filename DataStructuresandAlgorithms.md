@@ -12,20 +12,15 @@
 - [Algorithms](#algorithms)
   - [Union-Find](#union-find)
     - [Quick Find](#quick-find)
+    - [Quick Union](#quick-union)
     - [Conclusion](#conclusion)
   - [大O表示法](#大o表示法)
   - [手动实现ArrayList](#手动实现arraylist)
   - [手动实现LinkedList](#手动实现linkedlist)
   - [冒泡排序](#冒泡排序)
   - [二分查找](#二分查找)
-<li>Algorithm | Initialize | union | find</li>
-</ul>](#ullialgorithm--initialize--union--findliul)
-  - [大O表示法](#大o表示法)
-  - [手动实现ArrayList](#手动实现arraylist)
-  - [手动实现LinkedList](#手动实现linkedlist)
-  - [冒泡排序](#冒泡排序)
-  - [二分查找](#二分查找)
 ---
+
 | TOPIC | Data Structures & Algorithms |
 |:------------:| :-------------:|
 | data types | stack, queue, bag, union-find, priority queue |
@@ -34,6 +29,7 @@
 | graphs | BFS, DFS, Prim, Kruskal, Dijkstra | 
 | strings | KMP, regular expressions, TST, Huffman, LZW |
 | advanced | B-tree, suffix array, maxflow |
+
 ---
 
 # Data Structures
@@ -936,10 +932,11 @@ class HeroNode2{
 ## Union-Find
 - union find is a set of algorithms for solving the so-called dynamic connectivity problem
 - **Reference**: [CSDN-QuickFind & QuickUnion](https://blog.csdn.net/sinat_25991865/article/details/100533334)
+
 ### Quick Find
 - So called **Eager Algorithm**
 - Data Structure used to support is an integer array indexed by object
-- ```java
+```java
   public class QuickFindUF{
       private int[] id;
       public QuickFindUF(int N){
@@ -964,12 +961,12 @@ class HeroNode2{
           }
       }
   }
-  ```
+```
 - Quadratic algorithms do not scale with technology  
 - QuickFind is too **slow** for huge problems
 ### Quick Union
 - so called **lazy approach** to algorithm desgin where we try to avoid doing work until we have to
-- ```java
+```java
     public class QuickUnionUF{
         private int[] id;
         public QuickUnionUF(int N){
@@ -997,7 +994,7 @@ class HeroNode2{
             id[i] = j;
         }
     }
-  ```
+```
 ### Conclusion
 - Defects
   - QuickFind defect
@@ -1011,8 +1008,6 @@ class HeroNode2{
   quick-find | N | N | 1
   quick-union | N | N† | N
   † includes cost of finding roots
-
-
 ## 大O表示法
 - 大O表示法是一种特殊的表示法，指出了算法的速度有多快
 - 常见的大O运行时间
