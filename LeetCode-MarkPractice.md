@@ -1,7 +1,19 @@
-# Mark's LeetCode Record
+# Mark's LeetCode Record <!-- omit in toc -->
+- [Attention](#attention)
+- [Practice](#practice)
+  - [9 Palindrome Number](#9-palindrome-number)
+  - [1 Two Sum](#1-two-sum)
+  - [Maximum Subarray](#maximum-subarray)
+  - [14 Longest Common Prefix](#14-longest-common-prefix)
+  - [204 Count Primes](#204-count-primes)
+  - [20 Valid Parentheses](#20-valid-parentheses)
+## Attention
+- [刷题需要注意的小细节](LeetCode-Attention.md)
+## Practice
 
-- Palindrome Number
-    - Determine whether an integer is a palindrome. An integer is a palindrome when it reads the same backward as forward.  
+### 9 Palindrome Number
+- [Link](https://leetcode.com/problems/palindrome-number/)
+- Determine whether an integer is a palindrome. An integer is a palindrome when it reads the same backward as forward.  
     ```java
     class Solution {
         public boolean isPalindrome(int x) {
@@ -15,14 +27,14 @@
         }
     }
     ```
-- Two Sum
-    - Given an array of integers, return indices of the two numbers such that they add up to a specific target.  
-    You may assume that each input would have exactly one solution, and you may not use the same element twice.  
-    Example:  
-    Given nums = [2, 7, 11, 15], target = 9,  
-    Because nums[0] + nums[1] = 2 + 7 = 9,
-    return [0, 1].  
-
+### 1 Two Sum
+- [Link](https://leetcode.com/problems/two-sum/)
+- Given an array of integers, return indices of the two numbers such that they add up to a specific target.  
+You may assume that each input would have exactly one solution, and you may not use the same element twice.  
+Example:  
+Given nums = [2, 7, 11, 15], target = 9,  
+Because nums[0] + nums[1] = 2 + 7 = 9,
+return [0, 1].  
     ```java
     class Solution {
         public int[] twoSum(int[] nums, int target) {   
@@ -38,89 +50,115 @@
         }
     }
     ```
-- Maximum Subarray
-    - Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.  
-    Example:  
-    Input: [-2,1,-3,4,-1,2,1,-5,4],  
-    Output: 6  
-    Explanation: [4,-1,2,1] has the largest sum = 6.
-    - 这个题的思路是：从头开始计算，一旦出现子序列和小于0的情况，就重新开始(sum=0)，因为前面的和为负数的话，后面与它相加会变小。
-    ```java
-    class Solution {
-        public int maxSubArray(int[] nums) {
+### Maximum Subarray
+- [Link]()
+- Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.  
+Example:  
+Input: [-2,1,-3,4,-1,2,1,-5,4],  
+Output: 6  
+Explanation: [4,-1,2,1] has the largest sum = 6.
+- 这个题的思路是：从头开始计算，一旦出现子序列和小于0的情况，就重新开始(sum=0)，因为前面的和为负数的话，后面与它相加会变小。
+  ```java
+  class Solution {
+      public int maxSubArray(int[] nums) {
 
-            int cur = nums[0];
-            int sum = nums[0];
+          int cur = nums[0];
+          int sum = nums[0];
 
-            for(int n : nums)
-            {
-                cur = Math.max(n, cur + n);
-                sum = Math.max(sum, cur);
-            }
-            return sum;
-        }
-    }
-
-    ```
-- Longest Common Prefix
-    - Write a function to find the longest common prefix string amongst an array of strings.  
-    If there is no common prefix, return an empty string "". 
-    <br>   
-    Example 1:  
-    Input: ["flower","flow","flight"]  
-    Output: "fl"  
-    <br> 
-    Example 2: 
-    Input: ["dog","racecar","car"]  
-    Output: ""  
-    Explanation: There is no common prefix among the input strings.
-    - 思路一：取第一位作为标准，嵌套两个循环，第一个以第一个单词的长度为标准，i++，第二个循环是以整个数组的长度为标准，目的是为了遍历每一个单词。从标准单词的第一个字母开始，每一个单词都比对一下，如果有不一样的，跳出循环，如果一样，就执行下一个。
-    ```java
-    class Solution {
-        public String longestCommonPrefix(String[] strs) {
-            if(strs.length == 0 || strs == null){
-                return "";
-            }else{
-                for(int i = 0; i < strs[0].length(); i++){
-                    for(int j = 1; j <strs.length; j++){
-                        if(i >= strs[j].length() || strs[j].charAt(i) != strs[0].charAt(i)){
-                            return strs[0].substring(0, i);
-                        }
+          for(int n : nums)
+          {
+              cur = Math.max(n, cur + n);
+              sum = Math.max(sum, cur);
+          }
+          return sum;
+      }
+  }
+  ```
+### 14 Longest Common Prefix
+- [Link](https://leetcode.com/problems/longest-common-prefix/)
+- Write a function to find the longest common prefix string amongst an array of strings.  
+If there is no common prefix, return an empty string "".  
+Example 1:  
+Input: ["flower","flow","flight"]  
+Output: "fl"  
+Example 2: 
+Input: ["dog","racecar","car"]  
+Output: ""  
+Explanation: There is no common prefix among the input strings.
+- 思路一：取第一位作为标准，嵌套两个循环，第一个以第一个单词的长度为标准，i++，第二个循环是以整个数组的长度为标准，目的是为了遍历每一个单词。从标准单词的第一个字母开始，每一个单词都比对一下，如果有不一样的，跳出循环，如果一样，就执行下一个。
+```java
+class Solution {
+    public String longestCommonPrefix(String[] strs) {
+        if(strs.length == 0 || strs == null){
+            return "";
+        }else{
+            for(int i = 0; i < strs[0].length(); i++){
+                for(int j = 1; j <strs.length; j++){
+                    if(i >= strs[j].length() || strs[j].charAt(i) != strs[0].charAt(i)){
+                        return strs[0].substring(0, i);
                     }
                 }
             }
-            return strs[0];
         }
+        return strs[0];
     }
-    ```
-    - 思路二： 这个思路比较巧妙，取第一个单词作为基准，依次和后面的单词进行比对，如果后面单词不包含第一个单词的所有字母，那就让第一个单词的最后一位减一，然后继续进行比较，知道所有单词都是以第一个单词开始为止，这个方法只需要用到一个循环。
-    ```java
-    class Solution{
-        public String longestCommonPrefix(String[] strs){
-            if(strs.length == 0 || strs == null){
-                return "";
-            }
-            String result = strs[0];
-            for(int i = 0; i < strs.length; i++){
-                if(!strs[i].starsWith(result)){
-                    result = result.substring(0, result.length()-1);
-                    i--;
-                }
-            }
-            return result;
+}
+```
+- 思路二： 这个思路比较巧妙，取第一个单词作为基准，依次和后面的单词进行比对，如果后面单词不包含第一个单词的所有字母，那就让第一个单词的最后一位减一，然后继续进行比较，知道所有单词都是以第一个单词开始为止，这个方法只需要用到一个循环。
+```java
+class Solution{
+    public String longestCommonPrefix(String[] strs){
+        if(strs.length == 0 || strs == null){
+            return "";
         }
+        String result = strs[0];
+        for(int i = 0; i < strs.length; i++){
+            if(!strs[i].starsWith(result)){
+                result = result.substring(0, result.length()-1);
+                i--;
+            }
+        }
+        return result;
     }
-    ```
-- 204 Count Primes
-    - Count the number of prime numbers less than a non-negative number, n.  
-    <br>
-    Example:  
-    Input: 10  
-    Output: 4  
-    Explanation: There are 4 prime numbers less than 10, they are 2, 3, 5, 7.
-    - 思路一:最容易想到的方法就是写两个for，让该数字从1开始除，如果可以除，那么就是素数。这个方法当面临一个特别大的数的时候，就会很耗费时间。所以不推荐
-    ```java
-    ```
-    - 思路二：利用数学方法：**埃拉托斯特尼筛法**  
-    -  ![](https://images2017.cnblogs.com/blog/1157228/201709/1157228-20170907193558741-1720107409.gif)  
-    首先，将2到n范围内的所有整数写下来。其中最小的数字2是素数。将表中所有2的倍数都划去。表中剩余的最小数字是3，它不能被更小的数整除，所以是素数。再将表中所有3的倍数全都划去。依次类推，如果表中剩余的最小数字是m时，m就是素数。然后将表中所有m的倍数全部划去。像这样反复操作，就能依次枚举n以内的素数。
+}
+```
+### 204 Count Primes
+- Count the number of prime numbers less than a non-negative number, n.  
+Example:  
+Input: 10  
+Output: 4  
+Explanation: There are 4 prime numbers less than 10, they are 2, 3, 5, 7.
+- 思路一:最容易想到的方法就是写两个for，让该数字从1开始除，如果可以除，那么就是素数。这个方法当面临一个特别大的数的时候，就会很耗费时间。所以不推荐
+  ```java
+  ```
+- 思路二：利用数学方法：**埃拉托斯特尼筛法**  
+-  ![](https://images2017.cnblogs.com/blog/1157228/201709/1157228-20170907193558741-1720107409.gif)  
+首先，将2到n范围内的所有整数写下来。其中最小的数字2是素数。将表中所有2的倍数都划去。表中剩余的最小数字是3，它不能被更小的数整除，所以是素数。再将表中所有3的倍数全都划去。依次类推，如果表中剩余的最小数字是m时，m就是素数。然后将表中所有m的倍数全部划去。像这样反复操作，就能依次枚举n以内的素数。
+
+### 20 Valid Parentheses
+- Given a string containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
+- An input string is valid if:
+  - Open brackets must be closed by the same type of brackets.
+  - Open brackets must be closed in the correct order.
+- Note that an empty string is also considered valid.
+- 思路：
+  - 这个题用Stack是最简单的，利用了Stack的特性：**先进后出，后进先出**，以左半括号为，遇到左括号就把对应的右括号push进stack里面，遇到右括号就把栈里面的pop出来。
+```java
+class Solution {
+    public boolean isValid(String s) {
+        Stack<Character> stack = new Stack<Character>();
+        for(char c: s.toCharArray()){
+            if(c == '('){
+                stack.push(')');
+            }else if(c == '{'){
+                stack.push('}');
+            }else if(c =='['){
+                stack.push(']');
+            }else if(stack.isEmpty() || stack.pop() != c){
+                return false;
+            }    
+        }
+        return stack.isEmpty();
+    }        
+}
+```

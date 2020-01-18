@@ -1010,6 +1010,32 @@ class HeroNode2{
   † includes cost of finding roots
 ## 大O表示法
 - 大O表示法是一种特殊的表示法，指出了算法的速度有多快
+-  推导大O阶方法
+   1. 用常数1取代运行时间中的所有加法常数。
+   2. 在修改后的运行次数函数中，只保留最高阶项。
+   3. 如果最高阶项存在且不是1，则去除与这个项目相乘的常数。得到的结果就是大O阶。
+- 
+    ```java
+    int sum = 0; n = 100;       /*执行一次*/
+    sum = (1 + n) * n / 2;      /*执行一次*/
+    printf("%d",sum);           /*执行一次*/
+    ```
+  - 这个算法的运行次数函数是f (n)  =3。 根据我们推导大0阶的方法，第一步就是把常数项3 改为1。在保留最高阶项时发现，它根本没有最高阶项，所以这个算法的时间复杂度为0(1)。
+  - 另外，我们试想一下，如果这个算法当中的语句 sum = (1+n)*n/2; 有10 句，则与示例给出的代码就是3次和12次的差异。这种与问题的大小无关（n的多少），执行时间恒定的算法，我们称之为具有O(1)的时间复杂度，又叫常数阶。对于分支结构而言，无论是真，还是假，执行的次数都是恒定的，不会随着n 的变大而发生变化，所以单纯的分支结构(不包含在循环结构中)，其时间复杂度也是0(1)。
+- 
+  ```java
+    int i;      
+    for(i = 0; i < n; i++){
+        /*时间复杂度为O(1)的程序步骤序列*/
+    }
+  ```
+  - 这个算法运行次数函数是 f(n) = n * 1，加法常数为0个，跳过规则一。变量n的最高阶是 n * 1，无其他项，跳过规则二。n * 1中的系数本来就是1，也可以直接跳过规则三，得到时间复杂度是O(n)。
+
+- Logarithm notation
+  - ln(x) is the natural logarithm of x, i.e. loge(x). 
+  - lg(x) is the binary logarithm of x, i.e. log2(x).
+  - log(x) is simply used when we don’t really care to distinguish—remember that the only difference between logarithms with different bases is a constant factor. We typically ignore constant factors when we study complexity.
+  - We will never ever use logarithms to the base 10.
 - 常见的大O运行时间
   
     Big-O | Name | Description
@@ -1024,6 +1050,8 @@ class HeroNode2{
     **O(n!)** | factorial | **Intolerably slow.** It literally takes a million years to do anything.  
 
     ![Comparison of Big O computations](https://upload.wikimedia.org/wikipedia/commons/7/7e/Comparison_computational_complexity.svg)
+
+
 ---
 ## 手动实现ArrayList
 ```java
@@ -1189,6 +1217,7 @@ for(int i = 0; i < value.length - 1; i++){
 - 什么是二分查找？
     - 二分查找也称折半查找（Binary Search），它是一种效率较高的查找方法。但是，折半查找要求线性表必须采用顺序存储结构，而且表中元素按关键字有序排列。
 ```java
+//Loop
 public static int myBinarySearch(int[], int value){
     int low = 0;
     int high = arr.length - 1;
@@ -1206,5 +1235,35 @@ public static int myBinarySearch(int[], int value){
         }
     }
     return -1;
+}
+//Recursion
+public class Solution {
+
+  public static void main (String args[]){
+      int[] ar = {1,2,3,4,5,6,7,8,9};
+      int res = Solution.binarySearch(ar,0,ar.length-1,3);
+      System.out.println(res);
+  }
+
+  static int binarySearch(int a[], int lo, int hi, int key)
+    {
+        if(lo > hi){
+            return -1;
+        }
+
+        int mid = lo + (hi - lo) / 2;
+        if(key == a[mid]){
+            return mid;
+        }
+        else if(key > a[mid]){
+            return binarySearch(a, mid + 1, hi, key);
+        }
+        else{
+            return binarySearch(a, lo, mid - 1, key);
+        }
+
+    }
+
+
 }
 ```
