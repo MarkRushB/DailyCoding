@@ -86,3 +86,5 @@
     - Interfaces are the chief way to reduce coupling.
 
 ## 3rd Week
+  - Bag, Stack, Queue
+  - Double LinkedList

@@ -4,6 +4,10 @@
 - [Data Structures](#data-structures)
   - [稀疏数组](#稀疏数组)
   - [队列](#队列)
+  - [Bag, Stack, Queue](#bag-stack-queue)
+    - [Diff](#diff)
+    - [Stack](#stack)
+  - [Comparison of storage methods](#comparison-of-storage-methods)
   - [LinkedList](#linkedlist)
     - [单向链表](#单向链表)
       - [单链表面试题](#单链表面试题)
@@ -14,11 +18,12 @@
     - [Quick Find](#quick-find)
     - [Quick Union](#quick-union)
     - [Conclusion](#conclusion)
-  - [大O表示法](#大o表示法)
+    - [Improvement](#improvement)
+  - [BIg O](#big-o)
   - [手动实现ArrayList](#手动实现arraylist)
   - [手动实现LinkedList](#手动实现linkedlist)
-  - [冒泡排序](#冒泡排序)
-  - [二分查找](#二分查找)
+  - [Bubble sort](#bubble-sort)
+  - [Binary Search](#binary-search)
 ---
 
 | TOPIC | Data Structures & Algorithms |
@@ -325,6 +330,74 @@ class CircleArray(){
     }
 }
 ```
+## Bag, Stack, Queue
+### Diff
+- ||Order|
+  |-|-|
+  |Bag|Random|
+  |Stack|BackWards LIFO|
+  |Queue|Forwards FIFO|
+### Stack
+- Dijkstra’s two-stack algorithm
+    ```java
+    package com.Dijkstra;
+    import com.Stack.ArrayToStack;
+    /**
+    * 利用2个栈实现简单的运算操作
+    * Dijkstra双栈算法
+    *
+    * 1、将操作数压入操作数栈；
+    * 2、将运算符压入运算符栈；
+    * 3、忽略左括号；
+    * 4、在遇到右括号时，弹出一个运算符，弹出所需数量的操作数，并将运算符和操作数的运算结果压入操作数栈
+    */
+    public class Evaluate {
+    
+        public static void main(String[] args) {
+            String s = "(1+((2+3)*(4*5)))";
+            test(s);
+        }
+    
+        public static void test(String str){
+            ArrayToStack<String> ops = new ArrayToStack<String>(10);//运算符栈
+            ArrayToStack<Double> vals = new ArrayToStack<Double>(10);//操作数栈
+    
+            for(int i =0; i<str.length();i++){
+                String s = (char)str.getBytes()[i] +""; //挨个取出字符
+                //读取字符。如果是运算符则压入栈
+                if (s.equals("("));
+                else if (s.equals("+")) ops.push(s);
+                else if (s.equals("-")) ops.push(s);
+                else if (s.equals("*")) ops.push(s);
+                else if (s.equals("/")) ops.push(s);
+                else if (s.equals("sqrt")) ops.push(s);
+                else if (s.equals(")")){  //如果是 ）(右括号) 则弹出运算符和操作数。计算结果并压入操作数栈
+                    String op = ops.pop();//取出操作运算符
+                    double v = vals.pop();//取出操作数，并与下一个操作数进行运算
+                    if(op.equals("+")) v = vals.pop() + v;
+                    else if (op.equals("-")) v = vals.pop() - v;
+                    else if (op.equals("*")) v = vals.pop() * v;
+                    else if (op.equals("/")) v = vals.pop() / v;
+                    else if (op.equals("sqrt")) v = Math.sqrt(v);
+                    vals.push(v);  //将结果压入栈中
+                }else {
+                    vals.push(Double.parseDouble(s)); //不是运算符号，则是操作数，将操作数压入操作数栈中
+                }
+            }
+            System.out.println(vals.pop());//打印出最终结果
+        }
+    }
+    ```
+## Comparison of storage methods
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200121123031.png)
+  - Except when full: in which case, a copy is required
+  - To be precise, average number of accesses is (N+1)/2
+  - why Double LinkedList is O(1)?
+    - 双向链表相比于单向链表，所谓的O(1)是指删除、插入操作。
+    - 单向链表要删除某一节点时，必须要**先通过遍历的方式找到前驱节点**（通过待删除节点序号或按值查找）。若仅仅知道待删除节点，是不能知道前驱节点的，故单链表的增删操作复杂度为O(n)。 双链表（双向链表）知道要删除某一节点p时，获取其前驱节点q的方式为 q = p->prior，不必再进行遍历。故时间复杂度为O(1)。而若只知道待删除节点的序号，则依然要按序查找，时间复杂度仍为O(n)。
+    - 单、双链表的插入操作，若给定前驱节点，则时间复杂度均为O(1)。否则只能按序或按值查找前驱节点，时间复杂度为O(n)。至于查找，二者的时间复杂度均为O(n)。 对于最基本的CRUD操作，双链表优势在于删除给定节点。但其劣势在于浪费存储空间（若从工程角度考量，则其维护性和可读性都更低）。
+    - 双链表本身的结构优势在于，可以O(1)地找到前驱节点，若算法需要对待操作节点的前驱节点做处理，则双链表相比单链表有更加便捷的优势。
+
 ## LinkedList
 ### 单向链表
 - 链表介绍
@@ -765,6 +838,10 @@ public void countBoy(int startNo, int countNum, int nums){
 ```
 
 ### 双向链表
+- **Intro**: Each element has three fields:
+  - The **value** of this element
+  - A **pointer/reference** to the **next element** (which may be null)
+  - A **pointer/reference** to the **previous element** (which may be null)
 - 单向链表的缺点分析
   - 单向链表，**查找的方向只能是一个方向**，而双向链表可以向前或者向后查找
   - 单向链表不能自我删除，需要靠辅助节点，而双向链表则可以**自我删除**，所以之前单链表删除节点时，总是需要找到temp（待删除节点的前一个节点）
@@ -1008,7 +1085,15 @@ class HeroNode2{
   quick-find | N | N | 1
   quick-union | N | N† | N
   † includes cost of finding roots
-## 大O表示法
+### Improvement
+- improvement 1: **Weighting**（带权算法 ）
+  - Modify quick-union to avoid tall trees.
+  - Keep track of size of each tree (number of objects).
+  - Balance by **linking root of smaller tree to root of larger tree**.
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200119224130.png)
+## BIg O
+- ForeWord
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200121130014.png)
 - 大O表示法是一种特殊的表示法，指出了算法的速度有多快
 -  推导大O阶方法
    1. 用常数1取代运行时间中的所有加法常数。
@@ -1030,12 +1115,6 @@ class HeroNode2{
     }
   ```
   - 这个算法运行次数函数是 f(n) = n * 1，加法常数为0个，跳过规则一。变量n的最高阶是 n * 1，无其他项，跳过规则二。n * 1中的系数本来就是1，也可以直接跳过规则三，得到时间复杂度是O(n)。
-
-- Logarithm notation
-  - ln(x) is the natural logarithm of x, i.e. loge(x). 
-  - lg(x) is the binary logarithm of x, i.e. log2(x).
-  - log(x) is simply used when we don’t really care to distinguish—remember that the only difference between logarithms with different bases is a constant factor. We typically ignore constant factors when we study complexity.
-  - We will never ever use logarithms to the base 10.
 - 常见的大O运行时间
   
     Big-O | Name | Description
@@ -1168,7 +1247,7 @@ public class LinkedList01{
     }
 }
 ```
-## 冒泡排序
+## Bubble sort
 - 什么是冒泡排序？
     - 冒泡排序是一种简单的排序算法。它重复地走访过要排序的数列，一次比较两个元素，如果他们的顺序错误就把他们交换过来。走访数列的工作是重复地进行直到没有再需要交换，也就是说该数列已经排序完成。这个算法的名字由来是因为越小的元素会经由交换慢慢“浮”到数列的顶端，如下图所示。
     - 
@@ -1213,7 +1292,7 @@ for(int i = 0; i < value.length - 1; i++){
 }
 ```
 ---
-## 二分查找
+## Binary Search
 - 什么是二分查找？
     - 二分查找也称折半查找（Binary Search），它是一种效率较高的查找方法。但是，折半查找要求线性表必须采用顺序存储结构，而且表中元素按关键字有序排列。
 ```java
