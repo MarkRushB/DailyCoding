@@ -10,6 +10,11 @@
     - [Machine Learning(ML)](#machine-learningml)
     - [Data Distributed](#data-distributed)
     - [Statistical Analysis](#statistical-analysis)
+  - [2nd Week](#2nd-week)
+    - [Basic Python skills](#basic-python-skills)
+    - [Create WordCloud By R](#create-wordcloud-by-r)
+  - [3rd Week](#3rd-week)
+    - [DataScience on Python](#datascience-on-python)
 ---
 ## Introduction
 - **Professor**:Dino
@@ -114,3 +119,70 @@
         - 2 – 3 hours per week→C
         - 4 – 5 hours per week→B
         - 8 – 9 hours per week→A
+## 2nd Week
+### Basic Python skills
+- [part-1](./DataScience%20Reference/Introduction-to-Python-sp20-start.ipynb)
+- [part-2](./DataScience%20Reference/Introduction-to-Python-sp20-part2-start.ipynb)
+### Create WordCloud By R
+- [Data processing](./DataScience%20Reference/4-textmining-cloud.R)
+- [NLP-WordCloud](./DataScience%20Reference/5-nlp.R)
+  - **Attention**
+    1. At present, I think Python is better than R in dataScience area. So this class is just a introduce for us, if I wanna do some works like WordCloud, Pyhton is a good choice
+    2. For Chinese WordCloud, Library `UDpipe` the Professor Dino Provided is bad at processing Chinese sentences, so there is another library named `JiebaR` (still aviliable on Python)
+- JiebaR-WordCloud
+  - - I used two R packages in this Chinese Word Cloud processing
+  - `jiebaR`
+    - this is a Chinese Text segmentation,keyword extraction and speech tagging for R
+    - **Author**: Qin Wenfeng, Wu Yanyi
+  - `wordcloud2`
+  - Coding in R
+      ```r
+      ## At the first, We need install these packages as below
+      install.packages("jiebaR")
+      install.packages("wordcloud2")
+
+      ## use jiebaR library
+      library(jiebaR)
+
+      ## read the .txt format document
+      text<-readLines("/Users/sichenzhao/Mark/NortheasternUniversity/INFO6150-DataScience/Assignment/Assignment1/Part2-WordCloud/ChineseWordCloud/2019GovernmentReport.txt")
+
+      ## devide paragraphs into phrases
+      seg<-worker()
+      segment(text,seg)
+
+      ## make part of speech judgement(I think this step could be omitted)
+      seg2<-worker("tag")
+      segment(text,seg2)
+
+      ## extract the key words
+      seg3<-worker(type="keywords",topn=3)
+      seg3<=text
+      ## or
+      for(i in text){a<-seg3<=i;print(a)}  
+
+      ## stopWords
+      text1<-gsub('[a-zA-Z]','',text)
+      text2<-gsub("[的|和|了|来|与|到|由|等|从|以|一|为|在|上|各|去|对|侧|多|并|千|万|年|更|向|这是]","",text1)
+
+      ## devide into phrases again
+      seg<-worker()
+      seg<=text2
+
+      ## build the word frequency list
+      freq<-freq(segment(text2,seg))
+
+      ## sort the word frequency list(descending order)
+      index <- order(-freq[,2])
+      order2<-freq[index, ]
+
+      ## use wordcloud2 library
+      library(wordcloud2)
+
+      ## make word cloud(set attributes according to your own preferences)
+      wordcloud2(order2,size = 1,minRotation = -1, maxRotation = 1,rotateRatio = 0.8,fontFamily = "微软雅黑", color = "random-light",fontWeight = "bold",shape = "triangle")
+      ```
+## 3rd Week
+### DataScience on Python
+- [numpy](./DataScience%20Reference/introduction-to-numpy-fa20-start.ipynb)
+- [pandas](./DataScience%20Reference/introduction-to-pandas-sp20-start.ipynb)
