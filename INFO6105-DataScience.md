@@ -15,6 +15,8 @@
     - [Create WordCloud By R](#create-wordcloud-by-r)
   - [3rd Week](#3rd-week)
     - [DataScience on Python](#datascience-on-python)
+  - [4rd Week](#4rd-week)
+    - [A gentle Introduction to Statistics](#a-gentle-introduction-to-statistics)
 ---
 ## Introduction
 - **Professor**:Dino
@@ -186,3 +188,47 @@
 ### DataScience on Python
 - [numpy](./DataScience%20Reference/introduction-to-numpy-fa20-start.ipynb)
 - [pandas](./DataScience%20Reference/introduction-to-pandas-sp20-start.ipynb)
+## 4rd Week
+- [fibonacci](./DataScience%20Reference/predicting-fibonacci-start.ipynb)
+- [probability1](./DataScience%20Reference/probability1-sp20-start.ipynb)
+- [birthdays](./DataScience%20Reference/probability1-birthdays.ipynb)
+### A gentle Introduction to Statistics
+- mean
+- median
+- mode
+- boxplot
+- Covariance
+  - Covariance is a measure that indicates how two variables are related from a linear perspective.
+  - A positive covariance means the variables are positively linearly related, while a negative covariance means the variables are inversely linearly related.
+  - If two variables are positively correlated, increasing one will increase also the other.I
+  - f two variables or negatively correlated, decreasing the value of one will make the other increase in value.
+  - With this measure, we can determine whether units increase or decrease together, but it is impossible to measure the degree with which the variables move together because covariance does not use one standard unit of measurement.
+- Correlation
+  - Correlation is a unit of measure that standardizes the measure of linear interdependence between two variables and, consequently, tells us how closely the two variables move.
+  - The correlation measurement, called a correlation coefficient, will always take on a value between 1 and -1.
+  - If the correlation coefficient is equal to 1, the two variables are in perfect positive linear correlation (if one increases, the other variable increases by the same amount).
+  - If the correlation coefficient is equal to -1, the two variables are in perfect negative linear correlation (if one variable decreases, the other decreases by the same amount).
+  - If the correlation coefficient is equal to 0, there is no linear correlation between the two variables (if one variable changes value, that doesn't give us any information about if the other variable is going to change as well or not).
+  - The correlation value is the same regardeless of the unit system we are working with.
+- Python中*args和**kwargs的区别
+  - *args 用来将参数打包成tuple给函数体调用
+  ```python
+  def args_test(x, y, *args):
+  print(x, y, args)
+  args_test(1,2,3,4,5)
+  1 2 (3, 4, 5)
+  ```
+  - **kwargs 打包关键字参数成dict给函数体调用
+  ```python
+  def kwargs_test(**kwargs):
+  print(kwargs)
+  kwargs_test(a=1, b=2, c=3)
+  {'a': 1, 'c': 3, 'b': 2}
+  ```
+  - 参数arg、*args、**kwargs三个参数的位置必须是一定的。必须是(arg,*args,**kwargs)这个顺序，否则程序会报错
+  ```python
+  def param_test(arg, *args, **kwargs):
+  print(arg, args, kwargs)
+  param_test(1, 3, 5, a=6, b=9)
+  1 (3, 5) {'b': 9, 'a': 6}
+  ```

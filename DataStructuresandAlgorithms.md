@@ -5,7 +5,8 @@
   - [稀疏数组](#稀疏数组)
   - [队列](#队列)
   - [Bag, Stack, Queue](#bag-stack-queue)
-    - [Diff](#diff)
+    - [Simple growable data structures](#simple-growable-data-structures)
+    - [Different](#different)
     - [Stack](#stack)
   - [Comparison of storage methods](#comparison-of-storage-methods)
   - [LinkedList](#linkedlist)
@@ -22,7 +23,8 @@
   - [BIg O](#big-o)
   - [手动实现ArrayList](#手动实现arraylist)
   - [手动实现LinkedList](#手动实现linkedlist)
-  - [Bubble sort](#bubble-sort)
+  - [Bubble Sort](#bubble-sort)
+  - [Insertion Sort](#insertion-sort)
   - [Binary Search](#binary-search)
 ---
 
@@ -331,7 +333,16 @@ class CircleArray(){
 }
 ```
 ## Bag, Stack, Queue
-### Diff
+### Simple growable data structures
+- Given an infinitely growable collection of things, what are the bare minimum operations you will need to make it useful?
+  - `void add(Thing thing)`
+  - `Thing remove() throws Exception`
+  - `Iterator<Thing> iterator()`
+  - `booleanisEmpty()`required to avoid throwingexceptionwhencallingremove().
+  - Access by index (or matching value)
+  - Navigation
+
+### Different
 - ||Order|
   |-|-|
   |Bag|Random|
@@ -1013,6 +1024,10 @@ class HeroNode2{
 ### Quick Find
 - So called **Eager Algorithm**
 - Data Structure used to support is an integer array indexed by object
+- ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200130115043.png)
+- P and q belong to the same connected component if and only if id [p] and id [q] are equal.
+- ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200130115229.png)
+- 查找操作就只要判断 id 是否相等即可，合并则需要把和 id[p] 相等的所有 id 都改成 id[q] 。
 ```java
   public class QuickFindUF{
       private int[] id;
@@ -1039,10 +1054,23 @@ class HeroNode2{
       }
   }
 ```
+- 其中`union`的for写成下面这样是错的，id[p] 在循环中变成了 id[q] ，原来相等的关系变成不等，导致数组中排在其后面的本应改变的对象无法更新 id 。举例来说，上面那张图要是这样合并 5 和 9 的话， 6 与 7 的 id 就还会是 1 ， 而不会更新成 8 。
+- 这种实现，查找操作很快，但对 n 个对象进行 n 次合并需要访问数组 n^2 次，平方级别对大规模的数据来说是**不可接受的**。
+```java
+for (int i = 0; i < id.length; i++) {
+    if (id[i] == id[p]) {
+        id[i] = id[q];
+    }
+}
+```
 - Quadratic algorithms do not scale with technology  
 - QuickFind is too **slow** for huge problems
 ### Quick Union
 - so called **lazy approach** to algorithm desgin where we try to avoid doing work until we have to
+- 将连通分量抽象成树， id[p] 表示 p 的父节点。
+- ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200130122351.png)
+- 查找操作要检查 p q 是否有相同的根节点，合并操作则只要把 p 根节点的父节点改成 q 的根节点即可，只改变了 id[] 中的一个值。
+- ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200130122415.png)
 ```java
     public class QuickUnionUF{
         private int[] id;
@@ -1057,8 +1085,8 @@ class HeroNode2{
             //chase parent pointers until reach root(depth of i array accesses)
             while(i != id[i]){
                 i = id[i];
-                return i;
             }
+            return i;
         }
         public boolean connected(int p, int q){
             //check if p and q have same root(depth of p and q array accesses)
@@ -1087,10 +1115,14 @@ class HeroNode2{
   † includes cost of finding roots
 ### Improvement
 - improvement 1: **Weighting**（带权算法 ）
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200130124238.png)
   - Modify quick-union to avoid tall trees.
   - Keep track of size of each tree (number of objects).
   - Balance by **linking root of smaller tree to root of larger tree**.
   - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200119224130.png)
+  - 这样一来任意的节点 x 的深度最多为 lgN （以 2 为底），N 为 100 w 时深度最多是 20， 10 亿时是 30 ，相对来说可以支持较大规模的数据了。
+  - **至于为什么是 lgN ，可以粗略的这么想：节点 x 的深度只有在其所在的树 T1 被合并到另一个更大的树 T2 时才会加一，而 size(T2) >= size(T1)，那么节点 x 所在的树的大小至少会变成两倍。而总共 N 个节点，最多可以两倍 lgN 次，深度加一 lgN 次，即深度最多为 lgN。**
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200130124051.png)
 ## BIg O
 - ForeWord
   - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200121130014.png)
@@ -1247,7 +1279,7 @@ public class LinkedList01{
     }
 }
 ```
-## Bubble sort
+## Bubble Sort
 - 什么是冒泡排序？
     - 冒泡排序是一种简单的排序算法。它重复地走访过要排序的数列，一次比较两个元素，如果他们的顺序错误就把他们交换过来。走访数列的工作是重复地进行直到没有再需要交换，也就是说该数列已经排序完成。这个算法的名字由来是因为越小的元素会经由交换慢慢“浮”到数列的顶端，如下图所示。
     - 
@@ -1291,6 +1323,9 @@ for(int i = 0; i < value.length - 1; i++){
     }
 }
 ```
+---
+## Insertion Sort
+
 ---
 ## Binary Search
 - 什么是二分查找？
