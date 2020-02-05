@@ -3,28 +3,30 @@
 
 - [Data Structures](#data-structures)
   - [稀疏数组](#稀疏数组)
-  - [队列](#队列)
-  - [Bag, Stack, Queue](#bag-stack-queue)
-    - [Simple growable data structures](#simple-growable-data-structures)
-    - [Different](#different)
-    - [Stack](#stack)
-  - [Comparison of storage methods](#comparison-of-storage-methods)
+  - [手动实现ArrayList](#手动实现arraylist)
   - [LinkedList](#linkedlist)
     - [单向链表](#单向链表)
       - [单链表面试题](#单链表面试题)
     - [单向环形链表](#单向环形链表)
     - [双向链表](#双向链表)
+  - [Bag, Stack, Queue](#bag-stack-queue)
+    - [Simple growable data structures](#simple-growable-data-structures)
+    - [Different](#different)
+    - [Stack](#stack)
+    - [Queue](#queue)
 - [Algorithms](#algorithms)
+  - [BIg O](#big-o)
   - [Union-Find](#union-find)
     - [Quick Find](#quick-find)
     - [Quick Union](#quick-union)
     - [Conclusion](#conclusion)
     - [Improvement](#improvement)
-  - [BIg O](#big-o)
-  - [手动实现ArrayList](#手动实现arraylist)
-  - [手动实现LinkedList](#手动实现linkedlist)
-  - [Bubble Sort](#bubble-sort)
-  - [Insertion Sort](#insertion-sort)
+  - [Sorts](#sorts)
+    - [Ten Sorts we usually use](#ten-sorts-we-usually-use)
+    - [Bubble Sort](#bubble-sort)
+    - [Selection Sort](#selection-sort)
+    - [Insertion Sort](#insertion-sort)
+    - [Shell Sort](#shell-sort)
   - [Binary Search](#binary-search)
 ---
 
@@ -112,294 +114,80 @@ public class SparseArray{
     }
 }
 ```
-
-
-## 队列 
-- 队列介绍
-    - 队列是一个有序列表，可以用数组或者是链表来实现。
-    - 遵循先入先出的原则。即：先存入队列的数据，要先取出。后存入的要后取出。
-- 数组模拟队列
-    - 队列本身是有序列表
-    - 因为队列的输出、输入是分别从前后端来处理，因此需要两个变量front和rear分别记录队列前后端的下标，front会随着数据输出而改变，而rear则是随着数据输入而改变
+## 手动实现ArrayList
 ```java
-public class ArrayQueueDemo{
-    public static void main(String[] args){
-    //测试一把
-    //创建一个队列
-    ArrayQueue queue = new ArrayQueue(3);
-    char key = ' ';//接受用户输入
-    Scanner scanner = new Scanner(System.in);
-    boolean loop = true;
-    //输出一个菜单
-        while(loop){
-            System.out.println("s(show):显示队列");
-            System.out.println("e(exit):退出程序");
-            System.out.println("a(add):添加数据到队列");
-            System.out.println("g(get):从队列取出数据");
-            System.out.println("h(head):查看队列头的数据");
-            key = scanner.next().charAt(0);//接受一个字符
-            switch(key){
-                case 's':
-                    queue.showQueue();
-                    break;
-                case 'a':
-                    System.out.println("输出一个数");
-                    int value = scanner.nextInt();
-                    queue.addQueue(value);
-                    break;
-                case 'g':
-                    try{
-                        int res = queue.getQueue();
-                        System.out.printf("取出的数据是：" res);
-                    }catch(Exception e){
-                        System.out.println(e.getMessage());
-                    }
-                    break;
-                case 'h':
-                    try{
-                        int res = queue.headQueue();
-                        System.out.printf("队列头数据是：" res);
-                    }catch(Exception e){
-                        System.out.prinltn(e.getMessage());
-                    }
-                    break;
-                case 'e':
-                    scanner.close();
-                    loop = false;
-                    break;
-                default:
-                    break;
+public class ArrayList<E> {
+    private Object[] elementData;
+    private int size;
+
+    public ArrayList(){
+        elementData = new Object[10];
+    }
+    public ArrayList(int capacity){
+        elementData = new Object[capacity];
+    }
+    // add方法
+    public void add(E element){
+        elementData[size++] = obj;
+    }
+    // 扩容
+    public void add(E element){
+        // 什么时候扩容？
+        if(size == element.length){
+            // 扩容操作
+            Object[] newArray = new Object[elementData.length+(elementData.length>>1)];
+            System.arrayCopy(elementData, 0, newArray, elementData.length);
+            elementData = newArray;
+        }
+        elementData[size++] = element
+    }
+    // 增加set和get方法
+    public E get(int index){
+        checkRange(index);
+        return (E)elementdata[index];
+    }
+    public void set(E element, int index){
+        checkRange(index);
+        elementData[index] = element;
+    }
+    public void checkRange(int index){
+        // 索引合法判断[0,size)
+        if(index < 0 || index > size-1){
+            throw new RuntimeException("索引不合法!");
+        }
+    }
+    // remove方法
+    public void remove(E element){
+        // element,将它和所有元素挨个比较，获得第一个比较为true的，返回。
+        for(int i =0; i < size; i++){
+            if(element.equals(get(i))){ //容器中所有的比较操作，都是用的equals而不是==
+                remove(i);
             }
         }
-    System.out.println("程序退出");
     }
-}
-//使用数组模拟队列-编写一个ArrayQueue类
-class ArrayQueue{
-    private int maxSize;//数组的最大容量
-    private int front;//队列头
-    private int rear;//队列尾
-    private int[] arr;//该数组用于存放数据，模拟队列
-
-    //创建队列的构造器
-    public ArrayQueue(int maxSize){
-        this.maxSize = maxSize;
-        arr = new int[maxSize];
-        front = -1;//指向队列头部，分析出front是指向队列头的前一个位置
-        rear = -1;//指向队列尾，指向队列尾的数据（即就是队列最后一个数据）
-    }
-    //判断队列是否为满
-    public boolean isFull(){
-        return rear == maxSize-1;
-    }
-    //判断队列是否为空
-    public boolean isEmpty(){
-        return rear == front;
-    }
-    //添加数据到队列
-    public void addQueue(int n){
-        //判断队列是否满
-        if(isFull()){
-            System.out.println("队列满，不能加入数据")；
-            return;
-        }
-        rear++;//让rear后移
-        arr[rear] = n;
-    }
-    //获取队列的数据，数据出队列
-    public int getQueue(){
-        //判断队列是否为空
-        if(isEmpty()){
-            //通过抛出异常
-            throw new RuntimeException("队列空，不能获取数据");
-        }
-        front++;//front后移
-        return arr[front];
-    }
-    //显示队列的所有数据
-    public void showQueue(){
-        //遍历
-        if(isEmpty()){
-            System.out.println("队列空的，没有数据");
-            return;
-        }
-        for(int i = 0; i < arr.length; i++){
-            System.out.printf("arr[%d] = %d\n",i,arr[i]);
+    public void remove(int index){
+        int numMoved = elementData.length - index - 1;
+        if(numMoved > 0){
+            System.arraycopy(elementData, index+1, elementData,
+             index, numMoved);
+             elementData[size-1] = null;
+             size--;
+        }else{
+            elementData[size-1] = null;
+            szie--;
         }
     }
-    //显示队列的头数据，注意不是取出数据
-    public int headQueue(){
-        //判断
-        if(isEmpty()){
-            throw new RuntimeException("队列空的，没有数据")
-        }
-        return arr[front + 1];
-    }
-}    
-```
-- 问题分析并优化
-    1. 目前数组使用一次就不能用了，没有达到复用的效果
-    2. 将这个数组使用算法，改进成一个环形的队列 取模：%
-    - 思路
-        1. front变量的含义做一个调整: front就指向队列的第一个元素，也就是说arr[front]就是队列的第一个元素
-        2. rear变量的含义做一个调整：rear指向队列的最后一个元素的后一个位置。因为希望空出一个空间作为约定。
-        3. 当队列满时，条件是(rear + 1) % maxSize == front【满】
-        4. 队列为空的条件，rear == front 空
-        5. 当我们这样分析，队列中有效的数据的个数 (rear + maxSize - front) % maxSize
-```java
-public class ArrayQueueDemo{
-    public static void main(String[] args){
-
-    }
-}
-
-class CircleArray(){
-    private int maxSize;//数组的最大容量
-    // front变量的含义做一个调整: front就指向队列的第一个元素，也就是说arr[front]就是队列的第一个元素
-    private int front;//队列头
-    //rear变量的含义做一个调整：rear指向队列的最后一个元素的后一个位置。因为希望空出一个空间作为约定。
-    private int rear;//队列尾
-    private int[] arr;//该数组用于存放数据，模拟队列
-    
-    public CircleArray(int arrMaxSize){
-        this.maxSize = maxSize;
-        arr = new int[maxSize];
-        front = 0;
-        rear = 0;
-    }
-    //判断队列是否为满
-    public boolean isFull(){
-        return (rear + 1) % maxSize == front;
-    }
-    //判断队列是否为空
-    public boolean isEmpty(){
-        return rear == front;
-    }
-    //添加数据到队列
-    public void addQueue(int n){
-        //判断队列是否满
-        if(isFull()){
-            System.out.println("队列满，不能加入数据")；
-            return;
-        }
-        //直接将数据加入就可以了
-        arr[rear] = n;
-        //将rear后移，这里必须考虑取模。
-        rear = (rear + 1) % maxSize;
-    }
-    //获取队列的数据，数据出队列
-    public int getQueue(){
-        //判断队列是否为空
-        if(isEmpty()){
-            //通过抛出异常
-            throw new RuntimeException("队列空，不能获取数据");
-        }
-        //这里需要分析出front是指向队列的第一个元素
-        //1.先把front对应的值保存到一个临时变量
-        //2.将front后移
-        //3.将临时保存的变量返回
-        int value = arr[front];  
-        front = (front + 1) % maxSize;
-        return value;
-    }
-    //显示队列的所有数据
-    public void showQueue(){
-        //遍历
-        if(isEmpty()){
-            System.out.println("队列空的，没有数据");
-            return;
-        }
-        //思路：从front开始遍历，遍历多少个元素
-        //动脑筋
-        for(int i = front; i < front + size(); i++){
-            System.out.printf("arr[%d] = %d\n",i % maxSize, arr[i % maxSize ]);
-        }
-    }
-    //求出当前队列有效数据个数
+    // size
     public int size(){
-        //rear = 1
-        //front = 0
-        //maxSize = 3
-        return (rear + maxSize - front) % maxSize;
+        return size;
     }
-    //显示队列的头数据，注意不是取出数据
-    public int headQueue(){
-        //判断
-        if(isEmpty()){
-            throw new RuntimeException("队列空的，没有数据")
-        }
-        return arr[front ];
+    // isEmpty
+    public boolean isEmpty(){
+        return size == 0?true;false;
     }
 }
 ```
-## Bag, Stack, Queue
-### Simple growable data structures
-- Given an infinitely growable collection of things, what are the bare minimum operations you will need to make it useful?
-  - `void add(Thing thing)`
-  - `Thing remove() throws Exception`
-  - `Iterator<Thing> iterator()`
-  - `booleanisEmpty()`required to avoid throwingexceptionwhencallingremove().
-  - Access by index (or matching value)
-  - Navigation
-
-### Different
-- ||Order|
-  |-|-|
-  |Bag|Random|
-  |Stack|BackWards LIFO|
-  |Queue|Forwards FIFO|
-### Stack
-- Dijkstra’s two-stack algorithm
-    ```java
-    package com.Dijkstra;
-    import com.Stack.ArrayToStack;
-    /**
-    * 利用2个栈实现简单的运算操作
-    * Dijkstra双栈算法
-    *
-    * 1、将操作数压入操作数栈；
-    * 2、将运算符压入运算符栈；
-    * 3、忽略左括号；
-    * 4、在遇到右括号时，弹出一个运算符，弹出所需数量的操作数，并将运算符和操作数的运算结果压入操作数栈
-    */
-    public class Evaluate {
-    
-        public static void main(String[] args) {
-            String s = "(1+((2+3)*(4*5)))";
-            test(s);
-        }
-    
-        public static void test(String str){
-            ArrayToStack<String> ops = new ArrayToStack<String>(10);//运算符栈
-            ArrayToStack<Double> vals = new ArrayToStack<Double>(10);//操作数栈
-    
-            for(int i =0; i<str.length();i++){
-                String s = (char)str.getBytes()[i] +""; //挨个取出字符
-                //读取字符。如果是运算符则压入栈
-                if (s.equals("("));
-                else if (s.equals("+")) ops.push(s);
-                else if (s.equals("-")) ops.push(s);
-                else if (s.equals("*")) ops.push(s);
-                else if (s.equals("/")) ops.push(s);
-                else if (s.equals("sqrt")) ops.push(s);
-                else if (s.equals(")")){  //如果是 ）(右括号) 则弹出运算符和操作数。计算结果并压入操作数栈
-                    String op = ops.pop();//取出操作运算符
-                    double v = vals.pop();//取出操作数，并与下一个操作数进行运算
-                    if(op.equals("+")) v = vals.pop() + v;
-                    else if (op.equals("-")) v = vals.pop() - v;
-                    else if (op.equals("*")) v = vals.pop() * v;
-                    else if (op.equals("/")) v = vals.pop() / v;
-                    else if (op.equals("sqrt")) v = Math.sqrt(v);
-                    vals.push(v);  //将结果压入栈中
-                }else {
-                    vals.push(Double.parseDouble(s)); //不是运算符号，则是操作数，将操作数压入操作数栈中
-                }
-            }
-            System.out.println(vals.pop());//打印出最终结果
-        }
-    }
-    ```
-## Comparison of storage methods
+## LinkedList
   - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200121123031.png)
   - Except when full: in which case, a copy is required
   - To be precise, average number of accesses is (N+1)/2
@@ -409,7 +197,6 @@ class CircleArray(){
     - 单、双链表的插入操作，若给定前驱节点，则时间复杂度均为O(1)。否则只能按序或按值查找前驱节点，时间复杂度为O(n)。至于查找，二者的时间复杂度均为O(n)。 对于最基本的CRUD操作，双链表优势在于删除给定节点。但其劣势在于浪费存储空间（若从工程角度考量，则其维护性和可读性都更低）。
     - 双链表本身的结构优势在于，可以O(1)地找到前驱节点，若算法需要对待操作节点的前驱节点做处理，则双链表相比单链表有更加便捷的优势。
 
-## LinkedList
 ### 单向链表
 - 链表介绍
     - 链表是有序的列表
@@ -429,7 +216,8 @@ public class SingleLinkedList{
         HeroNode hero1 = new HeroNode(1, "宋江", "及时雨");
         HeroNode hero2 = new HeroNode(2, "卢俊义", "玉麒麟");
         HeroNode hero3 = new HeroNode(3, "吴用", "智多星");
-        HeroNode hero4 = new HeroNode(4, "林冲", "豹子头");
+        HeroN
+## LinkedListode hero4 = new HeroNode(4, "林冲", "豹子头");
         //创建一个链表
         SingleLinkedList = singleLinkedList = new SingleLinkedList();
         //加入不按照编号顺序
@@ -1016,12 +804,432 @@ class HeroNode2{
     }
 }
 ```
+## Bag, Stack, Queue
+### Simple growable data structures
+- Given an infinitely growable collection of things, what are the bare minimum operations you will need to make it useful?
+  - `void add(Thing thing)`
+  - `Thing remove() throws Exception`
+  - `Iterator<Thing> iterator()`
+  - `booleanisEmpty()`required to avoid throwingexceptionwhencallingremove().
+  - Access by index (or matching value)
+  - Navigation
+
+### Different
+- ||Order|
+  |-|-|
+  |Bag|Random|
+  |Stack|BackWards LIFO|
+  |Queue|Forwards FIFO|
+### Stack
+- Why do not we increase the size of the array by 1 when we push a new item into stack?
+  - That is easy to code up, but not worth it, because it's much too expensive to do that. The reason is that you have to create a new array,  size on bigger, and copy all the items to that new array
+- How to grow array?
+  - If array is full, create a new array of **twice** the size, and copy items
+  ```java
+    public void expandCapacity(int size) {
+        int len = stack.length;
+        if (size > len) {
+            size = size * 3 / 2 + 1;//每次扩大50%
+            stack = Arrays.copyOf(stack, size);
+        }
+    }
+  ```
+- Why do not we cut it in half when it gets to be half full?
+  - Well, that one doesn't exactly work because of a phenomenon called **thrashing**(抖动). I f the client happens to do push-pop-push-pop alternating when the array is **full**, then it's going to be doubling, having, doubling, having, doubling, having. Creating new arrays on every operation. Take time proportional to N for every operation, and therefore quadratic time for everything. So I don't want to do that.
+  - The efficient solution is to **wait until the array gets one-quarter full** before you have it. And that's very easy to implement. We can just **test if the array is one quarter full**, if it is, we **resize it to half full**. And so then at that point, it's half full, and it can either grow by adding stuff or shrink by subtracting stuff. But there won't be another resizing array operation until it either gets totally full or half again full.
+  ```java
+    public String pop() {
+        String item = s[--N];
+        s[N] = null;
+        if (N > 0 && N == s.length / 4)
+            resize(s.length / 2);
+        return item;
+    }
+  ```
+- Use array to implement Stack
+    ```java
+    public class ResizingArrayStackOfStrings {
+        private String[] s;
+        private int N = 0;
+        
+        public FixedCapacityStackOfStrings(int capacity) {
+            s = new String[capacity];
+        }
+        
+        public boolean isEmpty() {
+            return N == 0;
+        }
+        
+        public void push (String item) {
+            if (N == s.length)
+                resize(2 * s.length);
+            s[N++] = item;
+        }
+        
+        public String pop() {
+            String item = s[--N];
+            s[N] = null;
+            if (N > 0 && N == s.length / 4)
+                resize(s.length / 2);
+            return item;
+        }
+        
+        private void resize(int capacity) {
+            String[] copy = new String[capacity];
+            for (int i = 0; i < N; i++)
+                copy[i] = s[i];
+            s = copy;
+        }
+        
+        public ResizingArrayStackOfStrings() {
+            s = new String[1];
+        }
+    }
+    ```
+- Use LinkedList to implement Stack
+  - 课程中有关链表的操作都使用内部类定义节点元素
+  ```java
+  private class Node {
+      String item;
+      Node next;
+  }
+  ```
+  - API 实现：
+  ```java
+  public class LinkedStackOfStrings {
+      private Node first = null;
+      
+      private class Node {
+          String item;
+          Node next;
+      }
+      
+      public boolean isEmpty() {
+          return first == null;
+      }
+      
+      public void push (String item) {
+          Node oldfirst = first;
+          first = new Node();
+          first.item = item;
+          first.next = oldfirst;
+      }
+      
+      public String pop() {
+          String item = first.item;
+          first = first.next;
+          return item;
+      }
+  }
+  ```
+- Stack implementations:  resizing array vs. linked list
+  - **Linked-list implementation**
+    - Every operation takes constant time in the **worst case**
+    - Uses extra time and space to deal with the links
+  - **Resizing-array implementation**
+    - Every operation takes constant **amortized** time
+    - Less wasted space
+  - if I want to be sure that every operation's going to be fast, I'll use a linked list. And if I don't need that guarantee, if I just care about the total amount of time, I'll probably use the resizing-array because the total will be much less, because individual operations are fast.
+- Dijkstra’s two-stack algorithm
+    ```java
+    package com.Dijkstra;
+    import com.Stack.ArrayToStack;
+    /**
+    * 利用2个栈实现简单的运算操作
+    * Dijkstra双栈算法
+    *
+    * 1、将操作数压入操作数栈；
+    * 2、将运算符压入运算符栈；
+    * 3、忽略左括号；
+    * 4、在遇到右括号时，弹出一个运算符，弹出所需数量的操作数，并将运算符和操作数的运算结果压入操作数栈
+    */
+    public class Evaluate {
+    
+        public static void main(String[] args) {
+            String s = "(1+((2+3)*(4*5)))";
+            test(s);
+        }
+    
+        public static void test(String str){
+            ArrayToStack<String> ops = new ArrayToStack<String>(10);//运算符栈
+            ArrayToStack<Double> vals = new ArrayToStack<Double>(10);//操作数栈
+    
+            for(int i =0; i<str.length();i++){
+                String s = (char)str.getBytes()[i] +""; //挨个取出字符
+                //读取字符。如果是运算符则压入栈
+                if (s.equals("("));
+                else if (s.equals("+")) ops.push(s);
+                else if (s.equals("-")) ops.push(s);
+                else if (s.equals("*")) ops.push(s);
+                else if (s.equals("/")) ops.push(s);
+                else if (s.equals("sqrt")) ops.push(s);
+                else if (s.equals(")")){  //如果是 ）(右括号) 则弹出运算符和操作数。计算结果并压入操作数栈
+                    String op = ops.pop();//取出操作运算符
+                    double v = vals.pop();//取出操作数，并与下一个操作数进行运算
+                    if(op.equals("+")) v = vals.pop() + v;
+                    else if (op.equals("-")) v = vals.pop() - v;
+                    else if (op.equals("*")) v = vals.pop() * v;
+                    else if (op.equals("/")) v = vals.pop() / v;
+                    else if (op.equals("sqrt")) v = Math.sqrt(v);
+                    vals.push(v);  //将结果压入栈中
+                }else {
+                    vals.push(Double.parseDouble(s)); //不是运算符号，则是操作数，将操作数压入操作数栈中
+                }
+            }
+            System.out.println(vals.pop());//打印出最终结果
+        }
+    }
+    ```
+### Queue 
+- 队列介绍
+    - 队列是一个有序列表，可以用数组或者是链表来实现。
+    - 遵循先入先出的原则。即：先存入队列的数据，要先取出。后存入的要后取出。
+- 数组模拟队列
+    - 队列本身是有序列表
+    - 因为队列的输出、输入是分别从前后端来处理，因此需要两个变量front和rear分别记录队列前后端的下标，front会随着数据输出而改变，而rear则是随着数据输入而改变
+```java
+public class ArrayQueueDemo{
+    public static void main(String[] args){
+    //测试一把
+    //创建一个队列
+    ArrayQueue queue = new ArrayQueue(3);
+    char key = ' ';//接受用户输入
+    Scanner scanner = new Scanner(System.in);
+    boolean loop = true;
+    //输出一个菜单
+        while(loop){
+            System.out.println("s(show):显示队列");
+            System.out.println("e(exit):退出程序");
+            System.out.println("a(add):添加数据到队列");
+            System.out.println("g(get):从队列取出数据");
+            System.out.println("h(head):查看队列头的数据");
+            key = scanner.next().charAt(0);//接受一个字符
+            switch(key){
+                case 's':
+                    queue.showQueue();
+                    break;
+                case 'a':
+                    System.out.println("输出一个数");
+                    int value = scanner.nextInt();
+                    queue.addQueue(value);
+                    break;
+                case 'g':
+                    try{
+                        int res = queue.getQueue();
+                        System.out.printf("取出的数据是：" res);
+                    }catch(Exception e){
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+                case 'h':
+                    try{
+                        int res = queue.headQueue();
+                        System.out.printf("队列头数据是：" res);
+                    }catch(Exception e){
+                        System.out.prinltn(e.getMessage());
+                    }
+                    break;
+                case 'e':
+                    scanner.close();
+                    loop = false;
+                    break;
+                default:
+                    break;
+            }
+        }
+    System.out.println("程序退出");
+    }
+}
+//使用数组模拟队列-编写一个ArrayQueue类
+class ArrayQueue{
+    private int maxSize;//数组的最大容量
+    private int front;//队列头
+    private int rear;//队列尾
+    private int[] arr;//该数组用于存放数据，模拟队列
+
+    //创建队列的构造器
+    public ArrayQueue(int maxSize){
+        this.maxSize = maxSize;
+        arr = new int[maxSize];
+        front = -1;//指向队列头部，分析出front是指向队列头的前一个位置
+        rear = -1;//指向队列尾，指向队列尾的数据（即就是队列最后一个数据）
+    }
+    //判断队列是否为满
+    public boolean isFull(){
+        return rear == maxSize-1;
+    }
+    //判断队列是否为空
+    public boolean isEmpty(){
+        return rear == front;
+    }
+    //添加数据到队列
+    public void addQueue(int n){
+        //判断队列是否满
+        if(isFull()){
+            System.out.println("队列满，不能加入数据")；
+            return;
+        }
+        rear++;//让rear后移
+        arr[rear] = n;
+    }
+    //获取队列的数据，数据出队列
+    public int getQueue(){
+        //判断队列是否为空
+        if(isEmpty()){
+            //通过抛出异常
+            throw new RuntimeException("队列空，不能获取数据");
+        }
+        front++;//front后移
+        return arr[front];
+    }
+    //显示队列的所有数据
+    public void showQueue(){
+        //遍历
+        if(isEmpty()){
+            System.out.println("队列空的，没有数据");
+            return;
+        }
+        for(int i = 0; i < arr.length; i++){
+            System.out.printf("arr[%d] = %d\n",i,arr[i]);
+        }
+    }
+    //显示队列的头数据，注意不是取出数据
+    public int headQueue(){
+        //判断
+        if(isEmpty()){
+            throw new RuntimeException("队列空的，没有数据")
+        }
+        return arr[front + 1];
+    }
+}    
+```
+- 问题分析并优化
+    1. 目前数组使用一次就不能用了，没有达到复用的效果
+    2. 将这个数组使用算法，改进成一个环形的队列 取模：%
+    - 思路
+        1. front变量的含义做一个调整: front就指向队列的第一个元素，也就是说arr[front]就是队列的第一个元素
+        2. rear变量的含义做一个调整：rear指向队列的最后一个元素的后一个位置。因为希望空出一个空间作为约定。
+        3. 当队列满时，条件是(rear + 1) % maxSize == front【满】
+        4. 队列为空的条件，rear == front 空
+        5. 当我们这样分析，队列中有效的数据的个数 (rear + maxSize - front) % maxSize
+```java
+public class ArrayQueueDemo{
+    public static void main(String[] args){
+
+    }
+}
+
+class CircleArray(){
+    private int maxSize;//数组的最大容量
+    // front变量的含义做一个调整: front就指向队列的第一个元素，也就是说arr[front]就是队列的第一个元素
+    private int front;//队列头
+    //rear变量的含义做一个调整：rear指向队列的最后一个元素的后一个位置。因为希望空出一个空间作为约定。
+    private int rear;//队列尾
+    private int[] arr;//该数组用于存放数据，模拟队列
+    
+    public CircleArray(int arrMaxSize){
+        this.maxSize = maxSize;
+        arr = new int[maxSize];
+        front = 0;
+        rear = 0;
+    }
+    //判断队列是否为满
+    public boolean isFull(){
+        return (rear + 1) % maxSize == front;
+    }
+    //判断队列是否为空
+    public boolean isEmpty(){
+        return rear == front;
+    }
+    //添加数据到队列
+    public void addQueue(int n){
+        //判断队列是否满
+        if(isFull()){
+            System.out.println("队列满，不能加入数据")；
+            return;
+        }
+        //直接将数据加入就可以了
+        arr[rear] = n;
+        //将rear后移，这里必须考虑取模。
+        rear = (rear + 1) % maxSize;
+    }
+    //获取队列的数据，数据出队列
+    public int getQueue(){
+        //判断队列是否为空
+        if(isEmpty()){
+            //通过抛出异常
+            throw new RuntimeException("队列空，不能获取数据");
+        }
+        //这里需要分析出front是指向队列的第一个元素
+        //1.先把front对应的值保存到一个临时变量
+        //2.将front后移
+        //3.将临时保存的变量返回
+        int value = arr[front];  
+        front = (front + 1) % maxSize;
+        return value;
+    }
+    //显示队列的所有数据
+    public void showQueue(){
+        //遍历
+        if(isEmpty()){
+            System.out.println("队列空的，没有数据");
+            return;
+        }
+        //思路：从front开始遍历，遍历多少个元素
+        //动脑筋
+        for(int i = front; i < front + size(); i++){
+            System.out.printf("arr[%d] = %d\n",i % maxSize, arr[i % maxSize ]);
+        }
+    }
+    //求出当前队列有效数据个数
+    public int size(){
+        //rear = 1
+        //front = 0
+        //maxSize = 3
+        return (rear + maxSize - front) % maxSize;
+    }
+    //显示队列的头数据，注意不是取出数据
+    public int headQueue(){
+        //判断
+        if(isEmpty()){
+            throw new RuntimeException("队列空的，没有数据")
+        }
+        return arr[front ];
+    }
+}
+```
+
 # Algorithms
+## BIg O
+- ForeWord
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200121130014.png)
+- 大O表示法是一种特殊的表示法，指出了算法的速度有多快
+-  推导大O阶方法
+   1. 用常数1取代运行时间中的所有加法常数。
+   2. 在修改后的运行次数函数中，只保留最高阶项。
+   3. 如果最高阶项存在且不是1，则去除与这个项目相乘的常数。得到的结果就是大O阶。
+- 常见的大O运行时间
+  
+  
+    Big-O | Name | Description
+    ------| ---- | -----------
+    **O(1)** | constant | **This is the best.** The algorithm always takes the same amount of time, regardless of how much data there is. Example: looking up an element of an array by its index.
+    **O(log n)** | logarithmic | **Pretty great.** These kinds of algorithms halve the amount of data with each iteration. If you have 100 items, it takes about 7 steps to find the answer. With 1,000 items, it takes 10 steps. And 1,000,000 items only take 20 steps. This is super fast even for large amounts of data. Example: binary search.
+    **O(n)** | linear | **Good performance.** If you have 100 items, this does 100 units of work. Doubling the number of items makes the algorithm take exactly twice as long (200 units of work). Example: sequential search.
+    **O(n log n)** | "linearithmic" | **Decent performance.** This is slightly worse than linear but not too bad. Example: the fastest general-purpose sorting algorithms.
+    **O(n^2)** | quadratic | **Kinda slow.** If you have 100 items, this does 100^2 = 10,000 units of work. Doubling the number of items makes it four times slower (because 2 squared equals 4). Example: algorithms using nested loops, such as insertion sort.
+    **O(n^3)** | cubic | **Poor performance.** If you have 100 items, this does 100^3 = 1,000,000 units of work. Doubling the input size makes it eight times slower. Example: matrix multiplication.
+    **O(2^n)** | exponential | **Very poor performance.** You want to avoid these kinds of algorithms, but sometimes you have no choice. Adding just one bit to the input doubles the running time. Example: traveling salesperson problem.
+    **O(n!)** | factorial | **Intolerably slow.** It literally takes a million years to do anything.  
+
+    ![Comparison of Big O computations](https://upload.wikimedia.org/wikipedia/commons/7/7e/Comparison_computational_complexity.svg)
+
 ## Union-Find
 - union find is a set of algorithms for solving the so-called dynamic connectivity problem
 - **Reference**: [CSDN-QuickFind & QuickUnion](https://blog.csdn.net/sinat_25991865/article/details/100533334)
 
 ### Quick Find
+- At the Begining, we do not use tree structure to store the data, so if we wanna link 2 nodes, we need to chage every ids of the nodes
 - So called **Eager Algorithm**
 - Data Structure used to support is an integer array indexed by object
 - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200130115043.png)
@@ -1122,169 +1330,75 @@ for (int i = 0; i < id.length; i++) {
   - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200119224130.png)
   - 这样一来任意的节点 x 的深度最多为 lgN （以 2 为底），N 为 100 w 时深度最多是 20， 10 亿时是 30 ，相对来说可以支持较大规模的数据了。
   - **至于为什么是 lgN ，可以粗略的这么想：节点 x 的深度只有在其所在的树 T1 被合并到另一个更大的树 T2 时才会加一，而 size(T2) >= size(T1)，那么节点 x 所在的树的大小至少会变成两倍。而总共 N 个节点，最多可以两倍 lgN 次，深度加一 lgN 次，即深度最多为 lgN。**
+  - 什么时候树的深度会至少翻倍呢，只有当两颗树合并的时候才会出现这种情况。当**一个节点加到一棵树上**的时候，**无论如何也不会出现深度增加的情况**。
   - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200130124051.png)
-## BIg O
-- ForeWord
-  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200121130014.png)
-- 大O表示法是一种特殊的表示法，指出了算法的速度有多快
--  推导大O阶方法
-   1. 用常数1取代运行时间中的所有加法常数。
-   2. 在修改后的运行次数函数中，只保留最高阶项。
-   3. 如果最高阶项存在且不是1，则去除与这个项目相乘的常数。得到的结果就是大O阶。
-- 
-    ```java
-    int sum = 0; n = 100;       /*执行一次*/
-    sum = (1 + n) * n / 2;      /*执行一次*/
-    printf("%d",sum);           /*执行一次*/
-    ```
-  - 这个算法的运行次数函数是f (n)  =3。 根据我们推导大0阶的方法，第一步就是把常数项3 改为1。在保留最高阶项时发现，它根本没有最高阶项，所以这个算法的时间复杂度为0(1)。
-  - 另外，我们试想一下，如果这个算法当中的语句 sum = (1+n)*n/2; 有10 句，则与示例给出的代码就是3次和12次的差异。这种与问题的大小无关（n的多少），执行时间恒定的算法，我们称之为具有O(1)的时间复杂度，又叫常数阶。对于分支结构而言，无论是真，还是假，执行的次数都是恒定的，不会随着n 的变大而发生变化，所以单纯的分支结构(不包含在循环结构中)，其时间复杂度也是0(1)。
-- 
   ```java
-    int i;      
-    for(i = 0; i < n; i++){
-        /*时间复杂度为O(1)的程序步骤序列*/
+  //总体来说，weighted quick-union多了以下介个代码块
+
+  //（由触点索引的）各个根节点所对应的分量的大小
+  private int[] sz;
+  public WeightedQuickUnionUf(int N){
+      //...
+      //此处省略
+      sz = new int[N];
+      for(int i = 0; i < N; i++){
+          sz[i] = 1;
+      }  
+  }
+  private int root(int p){
+    //跟随链接找到跟节点
+    while(p != id[p]){
+        p = id[p];
     }
+    return p;
+  }
+  public void union(int p, int q){
+      int i = root(p);
+      int j = root(q);
+      if(i == j){
+          return;
+      }
+      //将小树的根节点连接到大树的根节点
+      if(sz[i] < sz[j]){
+          id[i] = j;
+          sz[j] += sz[i];
+      }else{
+          id[j] = i;
+          sz[i] += sz[j];
+      }
+      count--
+  }
   ```
-  - 这个算法运行次数函数是 f(n) = n * 1，加法常数为0个，跳过规则一。变量n的最高阶是 n * 1，无其他项，跳过规则二。n * 1中的系数本来就是1，也可以直接跳过规则三，得到时间复杂度是O(n)。
-- 常见的大O运行时间
-  
-    Big-O | Name | Description
-    ------| ---- | -----------
-    **O(1)** | constant | **This is the best.** The algorithm always takes the same amount of time, regardless of how much data there is. Example: looking up an element of an array by its index.
-    **O(log n)** | logarithmic | **Pretty great.** These kinds of algorithms halve the amount of data with each iteration. If you have 100 items, it takes about 7 steps to find the answer. With 1,000 items, it takes 10 steps. And 1,000,000 items only take 20 steps. This is super fast even for large amounts of data. Example: binary search.
-    **O(n)** | linear | **Good performance.** If you have 100 items, this does 100 units of work. Doubling the number of items makes the algorithm take exactly twice as long (200 units of work). Example: sequential search.
-    **O(n log n)** | "linearithmic" | **Decent performance.** This is slightly worse than linear but not too bad. Example: the fastest general-purpose sorting algorithms.
-    **O(n^2)** | quadratic | **Kinda slow.** If you have 100 items, this does 100^2 = 10,000 units of work. Doubling the number of items makes it four times slower (because 2 squared equals 4). Example: algorithms using nested loops, such as insertion sort.
-    **O(n^3)** | cubic | **Poor performance.** If you have 100 items, this does 100^3 = 1,000,000 units of work. Doubling the input size makes it eight times slower. Example: matrix multiplication.
-    **O(2^n)** | exponential | **Very poor performance.** You want to avoid these kinds of algorithms, but sometimes you have no choice. Adding just one bit to the input doubles the running time. Example: traveling salesperson problem.
-    **O(n!)** | factorial | **Intolerably slow.** It literally takes a million years to do anything.  
-
-    ![Comparison of Big O computations](https://upload.wikimedia.org/wikipedia/commons/7/7e/Comparison_computational_complexity.svg)
-
-
----
-## 手动实现ArrayList
-```java
-public class ArrayList<E> {
-    private Object[] elementData;
-    private int size;
-
-    public ArrayList(){
-        elementData = new Object[10];
-    }
-    public ArrayList(int capacity){
-        elementData = new Object[capacity];
-    }
-    // add方法
-    public void add(E element){
-        elementData[size++] = obj;
-    }
-    // 扩容
-    public void add(E element){
-        // 什么时候扩容？
-        if(size == element.length){
-            // 扩容操作
-            Object[] newArray = new Object[elementData.length+(elementData.length>>1)];
-            System.arrayCopy(elementData, 0, newArray, elementData.length);
-            elementData = newArray;
-        }
-        elementData[size++] = element
-    }
-    // 增加set和get方法
-    public E get(int index){
-        checkRange(index);
-        return (E)elementdata[index];
-    }
-    public void set(E element, int index){
-        checkRange(index);
-        elementData[index] = element;
-    }
-    public void checkRange(int index){
-        // 索引合法判断[0,size)
-        if(index < 0 || index > size-1){
-            throw new RuntimeException("索引不合法!");
-        }
-    }
-    // remove方法
-    public void remove(E element){
-        // element,将它和所有元素挨个比较，获得第一个比较为true的，返回。
-        for(int i =0; i < size; i++){
-            if(element.equals(get(i))){ //容器中所有的比较操作，都是用的equals而不是==
-                remove(i);
-            }
-        }
-    }
-    public void remove(int index){
-        int numMoved = elementData.length - index - 1;
-        if(numMoved > 0){
-            System.arraycopy(elementData, index+1, elementData,
-             index, numMoved);
-             elementData[size-1] = null;
-             size--;
-        }else{
-            elementData[size-1] = null;
-            szie--;
-        }
-    }
-    // size
-    public int size(){
-        return size;
-    }
-    // isEmpty
-    public boolean isEmpty(){
-        return size == 0?true;false;
-    }
-}
-```
-## 手动实现LinkedList
-```java
-public class Node{
-    Node Previous;
-    Node next;
-    Node element;
-
-    public Node(Node Previous, Node next, Node eleent){
-        super();
-        this.previous = previous;
-        this.next = next;
-        this.element = element;
-    }
-    public Node(Object element){
-        super();
-        this.element = element;
-    }
-}
-
-public class LinkedList01{
-    private Node first;
-    private Node last;
-    private int size;
-
-    public void add(Object obj){
-        Node node = new Node(obj);
-
-        if(first == null){
-        //  node.previous = null;
-        //  node.next = null;
-            first = node;
-            last = node;
-        }else{
-            node.previous = last;
-            node.next =null;
-
-            last.next = node;
-            last = node;
-        }
-    }
-}
-```
-## Bubble Sort
+- improvement 2: **Path Compression**（路径压缩）
+  - 理想情况下，我们希望每个节点直接链接到根节点，但又不想像quick-find那样修改大量的链接。实现的方式很简单：就在检查节点的同时将这些节点全部链接到根节点。实现这样的路径压缩，只需要在find()添加一个循环，将在路径上遇到的所有节点直接连接到根节点上即可
+  ```java
+  private int root(int p){
+  //跟随链接找到跟节点
+  while(p != id[p]){
+      id[p] = id[id[p]];
+      p = id[p];
+  }
+  return p;
+  }
+  ```
+- ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200203113926.png) 
+## Sorts
+### Ten Sorts we usually use
+- ![](https://www.runoob.com/wp-content/uploads/2019/03/sort.png)
+- ![](https://www.runoob.com/wp-content/uploads/2019/03/0B319B38-B70E-4118-B897-74EFA7E368F9.png)
+- Big O for these sorts
+  - 平方阶 **(O(n2))** 排序: 各类简单排序: 直接插入、直接选择和冒泡排序
+  - 线性对数阶 **(O(nlog2n))** 排序: 快速排序、堆排序和归并排序
+  -  **O(n1+§))** 排序，§ 是介于 0 和 1 之间的常数: 希尔排序
+  - 线性阶 **(O(n))** 排序: 基数排序，此外还有桶、箱排序
+- Stability
+  - 稳定的排序算法: 冒泡排序、插入排序、归并排序和基数排序
+  - 不稳定的排序算法: 选择排序、快速排序、希尔排序、堆排序
+### Bubble Sort
 - 什么是冒泡排序？
     - 冒泡排序是一种简单的排序算法。它重复地走访过要排序的数列，一次比较两个元素，如果他们的顺序错误就把他们交换过来。走访数列的工作是重复地进行直到没有再需要交换，也就是说该数列已经排序完成。这个算法的名字由来是因为越小的元素会经由交换慢慢“浮”到数列的顶端，如下图所示。
-    - 
-    ![avatar](https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20veW9qaWFrdS92aXN1YWxBbGdvcml0aG0vcmF3L21hc3Rlci9hbGdvcml0aG1Eb2N1bWVudC9saUppYVRvbmcvcGljL0J1YmJsZV9zb3J0X2FuaW1hdGlvbi5naWY)  
-    冒泡排序对 n 个项目需要 O( n^2) 的比较次数，且可以原地排序。尽管这个算法是最简单了解和实现的排序算法之一，但它对于包含大量的元素的数列排序是很没有效率的。
+    - ![avatar](https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20veW9qaWFrdS92aXN1YWxBbGdvcml0aG0vcmF3L21hc3Rlci9hbGdvcml0aG1Eb2N1bWVudC9saUppYVRvbmcvcGljL0J1YmJsZV9zb3J0X2FuaW1hdGlvbi5naWY)  
+    - 冒泡排序对 n 个项目需要 O( n^2) 的比较次数，且可以原地排序。尽管这个算法是最简单了解和实现的排序算法之一，但它对于包含大量的元素的数列排序是很没有效率的。
 - 下面就是冒泡排序的基本思路，从左到右比较，如果左边的数字大于右边的数字，调换两个数字的位置，往复如此。但是下面这个代码存在瑕疵，
 ```java
 int[] values = {3,1,6,2,9,0,7,4,5,8};
@@ -1323,10 +1437,13 @@ for(int i = 0; i < value.length - 1; i++){
     }
 }
 ```
----
-## Insertion Sort
+### Selection Sort
+- ![](https://www.runoob.com/wp-content/uploads/2019/03/selectionSort.gif)
+### Insertion Sort
+- ![](https://www.runoob.com/wp-content/uploads/2019/03/insertionSort.gif)
+### Shell Sort
 
----
+
 ## Binary Search
 - 什么是二分查找？
     - 二分查找也称折半查找（Binary Search），它是一种效率较高的查找方法。但是，折半查找要求线性表必须采用顺序存储结构，而且表中元素按关键字有序排列。
