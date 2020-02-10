@@ -3,20 +3,22 @@
 ---
 ## Content <!-- omit in toc -->
 - [INFO6105-Data Science](#info6105-data-science)
+  - [- ](#ulliliul)
   - [Introduction](#introduction)
-  - [1st Week](#1st-week)
+  - [Week 1](#week-1)
     - [Anaconda](#anaconda)
     - [R](#r)
     - [Machine Learning(ML)](#machine-learningml)
     - [Data Distributed](#data-distributed)
     - [Statistical Analysis](#statistical-analysis)
-  - [2nd Week](#2nd-week)
+  - [Week 2](#week-2)
     - [Basic Python skills](#basic-python-skills)
     - [Create WordCloud By R](#create-wordcloud-by-r)
-  - [3rd Week](#3rd-week)
+  - [Week 3](#week-3)
     - [DataScience on Python](#datascience-on-python)
-  - [4rd Week](#4rd-week)
+  - [Week 4](#week-4)
     - [A gentle Introduction to Statistics](#a-gentle-introduction-to-statistics)
+  - [Week 5](#week-5)
 ---
 ## Introduction
 - **Professor**:Dino
@@ -30,7 +32,7 @@
     2. R
     3. Anaconda
 ---
-## 1st Week
+## Week 1
 ### Anaconda
   - create new conda environments  
     ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200107200127.png)
@@ -121,7 +123,7 @@
         - 2 – 3 hours per week→C
         - 4 – 5 hours per week→B
         - 8 – 9 hours per week→A
-## 2nd Week
+## Week 2
 ### Basic Python skills
 - [part-1](./DataScience%20Reference/Introduction-to-Python-sp20-start.ipynb)
 - [part-2](./DataScience%20Reference/Introduction-to-Python-sp20-part2-start.ipynb)
@@ -184,11 +186,13 @@
       ## make word cloud(set attributes according to your own preferences)
       wordcloud2(order2,size = 1,minRotation = -1, maxRotation = 1,rotateRatio = 0.8,fontFamily = "微软雅黑", color = "random-light",fontWeight = "bold",shape = "triangle")
       ```
-## 3rd Week
+## Week 3
 ### DataScience on Python
 - [numpy](./DataScience%20Reference/introduction-to-numpy-fa20-start.ipynb)
 - [pandas](./DataScience%20Reference/introduction-to-pandas-sp20-start.ipynb)
-## 4rd Week
+- Learn how to use Pyhton to predict the Stock
+  - [WolfofWallStreet](./DataScience%20Reference/wolf-of-wall-street.ipynb)
+## Week 4
 - [fibonacci](./DataScience%20Reference/predicting-fibonacci-start.ipynb)
 - [probability1](./DataScience%20Reference/probability1-sp20-start.ipynb)
 - [birthdays](./DataScience%20Reference/probability1-birthdays.ipynb)
@@ -232,3 +236,4 @@
   param_test(1, 3, 5, a=6, b=9)
   1 (3, 5) {'b': 9, 'a': 6}
   ```
+  ## Week 5
