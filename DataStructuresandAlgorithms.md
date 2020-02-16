@@ -27,6 +27,7 @@
     - [Selection Sort](#selection-sort)
     - [Insertion Sort](#insertion-sort)
     - [Shell Sort](#shell-sort)
+    - [Merge Sort](#merge-sort)
   - [Binary Search](#binary-search)
   - [Random Walk](#random-walk)
     - [Introduce](#introduce)
@@ -1485,25 +1486,160 @@ public class SelectSort {
   - 重复步骤2~5。
 - ![](https://www.runoob.com/wp-content/uploads/2019/03/insertionSort.gif)
 ```java
-public static int[] insertionSort(int[] array) {
-    if (array.length == 0)
-        return array;
-    int current;
-    for (int i = 0; i < array.length - 1; i++) {
-        current = array[i + 1];
-        int preIndex = i;
-        while (preIndex >= 0 && current < array[preIndex]) {
-            array[preIndex + 1] = array[preIndex];
-            preIndex--;
+//Method 1
+public static int[] sort(int[] ins){
+    for(int i=1; i<ins.length; i++){
+        for(int j=i; j>0; j--){
+            if(ins[j]<ins[j-1]){
+                int temp = ins[j-1];
+                ins[j-1] = ins[j];
+                ins[j] = temp;
+            }
         }
-        array[preIndex + 1] = current;
     }
-    return array;
+    return ins;
+}
+// Improvement
+public void insertionSort() {
+    for (int i = 1; i < array.length; i++) {
+        int key = array[i];
+        int j = i - 1;
+        while (j >= 0 && array[j] > key) {
+            array[j + 1] = array[j];
+            j--;
+        }
+        array[j + 1] = key;
+    }
 }
 ```
 ### Shell Sort
+- 希尔排序，也称递减增量排序算法，是插入排序的一种更高效的改进版本。但希尔排序是非稳定排序算法。
+- 希尔排序是基于插入排序的以下两点性质而提出改进方法的：
+  - 插入排序在对几乎已经排好序的数据操作时，效率高，即可以达到线性排序的效率；
+  - 但插入排序一般来说是低效的，因为插入排序每次只能将数据移动一位；
+  - 希尔排序的基本思想是：先将整个待排序的记录序列分割成为若干子序列分别进行直接插入排序，待整个序列中的记录"基本有序"时，再对全体记录进行依次直接插入排序。
+- STEP
+  - 选择一个增量序列 t1，t2，……，tk，其中 ti > tj, tk = 1；
+  - 按增量序列个数 k，对序列进行 k 趟排序；
+  - 每趟排序，根据对应的增量 ti，将待排序列分割成若干长度为 m 的子序列，分别对各子表进行直接插入排序。仅增量因子为 1 时，整个序列作为一个表来处理，表长度即为整个序列的长度。
+- ![](https://www.runoob.com/wp-content/uploads/2019/03/Sorting_shellsort_anim.gif)
+  ```java
+  //希尔排序时，对有序序列在插入时采用交换法
+  //这个方法比较慢，甚至比插入排序还要慢
+  public static void ShellSort(int[] arr){
+      int temp = 0;
+      int count = 0;
+      for(int gap = arr.length / 2; gap > 0; gap /= 2){
+          for(int i = gap; i < arr.length; i++){
+              for(int j = i - gap; j >= 0; j -= gap){
+                  if(arr[j] > arr[j + gap]){
+                      temp = arr[j];
+                      arr[j] = arr[j + gap];
+                      arr[j + gap] = temp;
+                  }
+              }
+          }
+      }
+  }
+  //希尔排序的改进，对有序序列在插入时采用移位法
+  public static void ShellSort(int[] arr){
+    for(int gap = arr.length / 2; gap > 0; gap /= 2){
+        //从第gap个元素，逐个对其所在的组进行直接插入排序
+        for(int i = gap; i < arr.length; i++){
+            int j = i;
+            int temp = arr[j];
+                while(j - gap >= 0 && temp < arr[j - gap]){
+                    //移动
+                    arr[j] = arr[j - gap];
+                    j -= gap;
+                }
+                //当退出while后，就给temp找到插入的位置
+                arr[j] = temp;
+        }
+    }
+  }
 
-
+  ```
+### Merge Sort
+- 思路
+  - 归并排序（MergeSort），是创建在归并操作上的一种有效的排序算法，效率为O(nlogn) 。1945年由约翰·冯·诺伊曼首次提出。该算法是采用分治法（Divide and Conquer）的一个非常典型的应用，且各层分治递归可以同时进行。
+- 实现
+  - 递归法: 自顶向下（Top-Down）
+    - 直接在原序列上直接归并排序，每次归并排序分别对左右两边进行归并排序，直至细分到两两分组。
+  - 迭代法：自底向上（Bottom-Up）
+    - 假设序列共有 n 个元素：
+      1. 先相邻两两分组进行归并排序
+      2. 再相邻四四分组进行归并排序
+      3. 再相邻八八分组进行归并排序
+      4. 重复扩大分组规模，直到所有元素排序完毕
+      5. …
+- 复杂度
+  - 平均时间复杂度：O(nlogn)
+  - 最坏时间复杂度：O(nlogn)
+  - 最优时间复杂度：O(nlogn)
+  - 最坏空间复杂度：O(n)
+- ![](https://img-blog.csdn.net/20170612234617785?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveGlhb3BpbmcwOTE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+- ![](https://upload.wikimedia.org/wikipedia/commons/c/cc/Merge-sort-example-300px.gif)
+- ![](https://upload.wikimedia.org/wikipedia/commons/c/c5/Merge_sort_animation2.gif)
+  ```java
+  public class MergeSort(){
+      //合并的方法
+      /**
+      arr 排序的原始数组
+      left 左边有序序列的初始索引
+      mid 中间索引
+      right 右边索引
+      temp 做中转的数组
+      **/
+      public static void merge(int[] arr, int left, int mid, int right){
+          //用于存储归并后的临时数组
+          int[] temp = new int[right - left + 1];
+          //用于记录第一个数组中需要遍历的下标
+          int i = low;
+          //记录第二个数组中需要遍历的下标
+          int j = mid + 1;
+          //用于记录在临时数组中存放的下标
+          int index = 0;
+          //遍历两个数组取出小的数字，放入临时数组中
+          while(i <= mid && j <= right){
+              //第一个数组的数据更小
+              if(arr[i] <= arr[j]){
+                  //把小的数据放入临时数组中
+                  temp[index] = arr[i];
+                  //让下标向后移一位
+                  i++;
+              }else{
+                  temp[index] = arr[j];
+                  j++;
+              }
+              index++;
+          }
+          //处理多余的数据
+          while(j <= right){
+              temp[index] = arr[j];
+              j++;
+              index++;
+          }
+          while(i <= mid){
+              temp[index] = arr[i];
+              i++;
+              index++;
+          }
+          //把临时数组中的数据重新存入原数组
+          for(int k = 0; k < temp.lenght; k++){
+              arr[k + left] = arr[j];
+          }
+      }
+      public static void mergeSort(int[] arr, int left, int right){
+          int mid = (right + left) / 2;
+          if(left < high){
+            mergeSort(arr, left, mid);
+            mergeSort(arr, mid+1, right);
+            merge(arr, left, mid, right);
+          }
+      }
+  }
+  ```
 ## Binary Search
 - 什么是二分查找？
     - 二分查找也称折半查找（Binary Search），它是一种效率较高的查找方法。但是，折半查找要求线性表必须采用顺序存储结构，而且表中元素按关键字有序排列。

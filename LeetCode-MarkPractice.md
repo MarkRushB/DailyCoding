@@ -7,6 +7,8 @@
   - [14 Longest Common Prefix](#14-longest-common-prefix)
   - [204 Count Primes](#204-count-primes)
   - [20 Valid Parentheses](#20-valid-parentheses)
+  - [169 Majority Element](#169-majority-element)
+  - [28 Implement strStr()](#28-implement-strstr)
 ## Attention
 - [刷题需要注意的小细节](LeetCode-Attention.md)
 ## Practice
@@ -162,3 +164,64 @@ class Solution {
     }        
 }
 ```
+### 169 Majority Element
+- Given an array of size n, find the majority element. The majority element is the element that appears **more than** ⌊ n/2 ⌋ times. You may assume that the array is non-empty and the majority element always exist in the array.
+**Example 1:** 
+Input: [3,2,3]
+Output: 3
+**Example 2:**
+Input: [2,2,1,1,1,2,2]
+Output: 2
+- 思路一：
+  - 看到这个题的时候，第一时间反应是利用hashmap存储，遍历sums中的元素，存在hashmap中，因为是返回众数，所以在存进map的时候可以直接做个判断，如果key的数量 > nums.length / 2，直接返回就行。
+  - 缺点就是太慢了
+  ```java
+    class Solution {
+        public int majorityElement(int[] nums) {
+            HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+            int res = -1;
+            if(nums.length == 1){
+                return nums[0];
+            }
+            for(int n : nums){
+                if(map.containsKey(n)){
+                    map.put(n,map.get(n)+1);
+                    if(map.get(n) > nums.length / 2){
+                        res = n;
+                    }
+                }else{
+                    map.put(n, 1);
+                }
+            }
+            return res;
+        }
+    }
+  ```
+  - 思路二：
+    - 思路很巧妙，直接对nums进行排序，直接返回中间的元素即可。如果是数量最多的数字(> n / 2 )，那么中间的数字必定是我们需要的结果。
+    ```java
+    class Solution {
+        public int majorityElement(int[] nums) {
+            Arrays.sort(nums);
+            return nums[nums.length/2];
+        }
+    }
+    ```
+### 28 Implement strStr()
+Implement strStr().
+
+Return the index of the first occurrence of needle in haystack, or -1 if needle is not part of haystack.
+
+Example 1:
+
+Input: haystack = "hello", needle = "ll"
+Output: 2
+Example 2:
+
+Input: haystack = "aaaaa", needle = "bba"
+Output: -1
+Clarification:
+
+What should we return when needle is an empty string? This is a great question to ask during an interview.
+
+For the purpose of this problem, we will return 0 when needle is an empty string. This is consistent to C's strstr() and Java's indexOf().
