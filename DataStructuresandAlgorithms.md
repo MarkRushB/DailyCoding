@@ -1486,6 +1486,7 @@ public class SelectSort {
   - 重复步骤2~5。
 - ![](https://www.runoob.com/wp-content/uploads/2019/03/insertionSort.gif)
 ```java
+<<<<<<< HEAD
 //Method 1
 public static int[] sort(int[] ins){
     for(int i=1; i<ins.length; i++){
@@ -1510,8 +1511,26 @@ public void insertionSort() {
         }
         array[j + 1] = key;
     }
+=======
+public static int[] insertionSort(int[] array) {
+    if (array.length == 0)
+        return array;
+    int current;
+    for (int i = 0; i < array.length - 1; i++) 02{
+        current = array[i + 1];
+        int preIndex = i;
+        while (preIndex >= 0 && current < array[preIndex]) {
+            array[preIndex + 1] = array[preIndex];
+            preIndex--;
+        }
+        array[preIndex + 1] = current;
+    }
+    return array;
+>>>>>>> f1f2ffe7720b779fd037f0c2d119841f23e0763d
 }
 ```
+
+
 ### Shell Sort
 - 希尔排序，也称递减增量排序算法，是插入排序的一种更高效的改进版本。但希尔排序是非稳定排序算法。
 - 希尔排序是基于插入排序的以下两点性质而提出改进方法的：
