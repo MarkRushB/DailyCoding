@@ -13,6 +13,11 @@
   - [Classical Statistical Data Analysis with analytic distributions](#classical-statistical-data-analysis-with-analytic-distributions)
     - [The Uniform distribution](#the-uniform-distribution)
   - [Statistical hypothesis testing](#statistical-hypothesis-testing)
+  - [Random variates from arbitrary distribution](#random-variates-from-arbitrary-distribution)
+    - [Inverse Transform Method](#inverse-transform-method)
+    - [Acceptance-Rejection Method](#acceptance-rejection-method)
+  - [Markov Chain (MC)](#markov-chain-mc)
+    - [Reference of Hidden Markov Chain](#reference-of-hidden-markov-chain)
 ## Anaconda
   - create new conda environments  
     ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200107200127.png)
@@ -310,3 +315,18 @@ Simplest of all: same probability  𝑦  for all possible values of the random v
 A **hypothesis** is proposed for the statistical relationship between two data sets (or two data columns), and this is compared as an alternative to an idealized `null hypothesis` that proposes ***no relationship between them**. 
 
 >**Hypothesis testing** is such a badly-taught subject in statistics that *few students clearly understand the theory behind it*, and just blindly call `SciPy` statistincal testing APIs. Bad preofessors! ***We*** have a secret weapon: we can *code* in python, run simulations, and *count*! Let's put our secret weapon to good use and learn *everything* about hypothesis testing.
+## Random variates from arbitrary distribution
+### Inverse Transform Method
+- 首先生成一个均匀分布的随机数，再求指定分布的分布函数F(x)，然后求得F(x)的逆函数G(x)，将随机数带入逆函数得到的即为指定分布的随机数。
+- [Reference from Wiki](https://en.wikipedia.org/wiki/Inverse_transform_sampling)
+- ![](https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Inverse_transformation_method_for_exponential_distribution.jpg/800px-Inverse_transformation_method_for_exponential_distribution.jpg)
+- Note that the image of the cumulative distribution function (CDF) 𝐹𝑋 is the interval [0,1] on the 𝑦 axis. (Purists will discuss whether the endpoints should be included or not.) Also note that the CDF is of course monotone.
+- In inverse transform sampling, we sample uniformly from this image, i.e., 𝑈[0,1]. These are the dots on the 𝑦 axis. We then go right from these dots to the graph of 𝐹𝑋, then down to the 𝑥 axis. This is where the "inverse" comes in: because we start from the 𝑦 axis and end up on the 𝑥 axis.
+- The result on the 𝑥 axis is distributed according to 𝐹𝑋.
+  - Where 𝐹𝑋 is steep (i.e., the density 𝑓𝑋 is large), 𝑦 values that are close together yield 𝑥 values that are close together. We get a high density of 𝑥 values.
+  - Where 𝐹𝑋 is flat (i.e., 𝑓𝑋 is small), 𝑦 values that are close together yield 𝑥 values that are farther apart. We get a low density of 𝑥 values.
+### Acceptance-Rejection Method
+- 首先生成一个均匀分布随机数a，设概率密度函数为f(x)，然后再生成一个均匀分布随机数b，若b<=f(a)，则成功得到指定分布的随机数，否则从头开始。
+## Markov Chain (MC)
+### Reference of Hidden Markov Chain
+- [用骰子讲解隐马尔可夫链](https://www.cnblogs.com/fulcra/p/11065474.html)
