@@ -28,6 +28,7 @@
     - [Insertion Sort](#insertion-sort)
     - [Shell Sort](#shell-sort)
     - [Merge Sort](#merge-sort)
+    - [Quick Sort](#quick-sort)
   - [Binary Search](#binary-search)
   - [Random Walk](#random-walk)
     - [Introduce](#introduce)
@@ -1641,6 +1642,72 @@ public void insertionSort() {
           }
       }
   }
+  ```
+### Quick Sort
+- 思路
+  - 方法其实很简单：分别从初始序列“6 1 2 7 9 3 4 5 10 8”两端开始“探测”。先从右往左找一个小于6的数，再从左往右找一个大于6的数，然后交换他们。这里可以用两个变量i和j，分别指向序列最左边和最右边。我们为这两个变量起个好听的名字“哨兵i”和“哨兵j”。刚开始的时候让哨兵i指向序列的最左边（即i=1），指向数字6。让哨兵j指向序列的最右边（即=10），指向数字。
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218121956.png)
+  - 首先哨兵j开始出动。因为此处设置的基准数是最左边的数，所以需要让哨兵j先出动，这一点非常重要（请自己想一想为什么）。哨兵j一步一步地向左挪动（即j–），直到找到一个小于6的数停下来。接下来哨兵i再一步一步向右挪动（即i++），直到找到一个数大于6的数停下来。最后哨兵j停在了数字5面前，哨兵i停在了数字7面前。
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122030.png)
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122042.png)
+  - 现在交换哨兵i和哨兵j所指向的元素的值。交换之后的序列如下：
+    `6 1 2 5 9 3 4 7 10 8`
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122148.png)
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122203.png)
+  - 到此，第一次交换结束。接下来开始哨兵j继续向左挪动（再友情提醒，每次必须是哨兵j先出发）。他发现了4（比基准数6要小，满足要求）之后停了下来。哨兵i也继续向右挪动的，他发现了9（比基准数6要大，满足要求）之后停了下来。此时再次进行交换，交换之后的序列如下：
+    `6 1 2 5 4 3 9 7 10 8`
+  - 第二次交换结束，“探测”继续。哨兵j继续向左挪动，他发现了3（比基准数6要小，满足要求）之后又停了下来。哨兵i继续向右移动，糟啦！此时哨兵i和哨兵j相遇了，哨兵i和哨兵j都走到3面前。说明此时“探测”结束。我们将基准数6和3进行交换。交换之后的序列如下：
+    `3 1 2 5 4 6 9 7 10 8`
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122258.png)
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122321.png)
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122330.png)
+  - 到此第一轮“探测”真正结束。此时以基准数6为分界点，6左边的数都小于等于6，6右边的数都大于等于6。回顾一下刚才的过程，其实哨兵j的使命就是要找小于基准数的数，而哨兵i的使命就是要找大于基准数的数，直到i和j碰头为止。
+  - OK，解释完毕。现在基准数6已经归位，它正好处在序列的第6位。此时我们已经将原来的序列，以6为分界点拆分成了两个序列，左边的序列是“3 1 2 5 4”，右边的序列是“9 7 10 8”。接下来还需要分别处理这两个序列。因为6左边和右边的序列目前都还是很混乱的。不过不要紧，我们已经掌握了方法，接下来只要模拟刚才的方法分别处理6左边和右边的序列即可。现在先来处理6左边的序列现吧。
+  - 左边的序列是“3 1 2 5 4”。请将这个序列以3为基准数进行调整，使得3左边的数都小于等于3，3右边的数都大于等于3。好了开始动笔吧
+  - 如果你模拟的没有错，调整完毕之后的序列的顺序应该是：
+    `2 1 3 5 4`  
+  - OK，现在3已经归位。接下来需要处理3左边的序列“2 1”和右边的序列“5 4”。对序列“2 1”以2为基准数进行调整，处理完毕之后的序列为“1 2”，到此2已经归位。序列“1”只有一个数，也不需要进行任何处理。至此我们对序列“2 1”已全部处理完毕，得到序列是“1 2”。序列“5 4”的处理也仿照此方法，最后得到的序列如下：
+    `1 2 3 4 5 6 9 7 10 8`
+  - 对于序列“9 7 10 8”也模拟刚才的过程，直到不可拆分出新的子序列为止。最终将会得到这样的序列，如下
+    `1 2 3 4 5 6 7 8 9 10`
+  - 到此，排序完全结束。细心的同学可能已经发现，快速排序的每一轮处理其实就是将这一轮的基准数归位，直到所有的数都归位为止，排序就结束了。
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218123926.png)
+  - 快速排序之所比较快，因为相比冒泡排序，每次交换是跳跃式的。每次排序的时候设置一个基准点，将小于等于基准点的数全部放到基准点的左边，将大于等于基准点的数全部放到基准点的右边。这样在每次交换的时候就不会像冒泡排序一样每次只能在相邻的数之间进行交换，交换的距离就大的多了。因此总的比较和交换次数就少了，速度自然就提高了。当然在最坏的情况下，仍可能是相邻的两个数进行了交换。因此快速排序的最差时间复杂度和冒泡排序是一样的都是O(N2)，它的平均时间复杂度为O(NlogN)。其实快速排序是基于一种叫做“二分”的思想。
+  ```java
+    public class QuickSort {
+        public static void QuickSortTest(int[] arr, int left, int right){
+            if(left > right){
+                return;
+            }
+            int base = arr[left];
+            int i = left;
+            int j = right;
+            while(i != j){
+                while(arr[j] >= base && i < j){
+                    j--;
+                }
+                while(arr[i] <= base && i < j){
+                    i++;
+                }
+                if(i < j){
+                    int temp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = temp;
+                }
+            }
+            arr[left] = arr[i];
+            arr[i] = base;
+
+            QuickSortTest(arr, left, i - 1);
+            QuickSortTest(arr, i + 1, right);
+        }
+
+        public static void main(String[] args) {
+            int[] m = {2,4,1,80,5,23,57,13,0,35};
+            QuickSort.QuickSortTest(m, 0, m.length -1);
+            System.out.println(Arrays.toString(m));
+        }
+    }
   ```
 ## Binary Search
 - 什么是二分查找？
