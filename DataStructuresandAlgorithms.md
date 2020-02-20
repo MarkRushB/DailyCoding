@@ -13,6 +13,7 @@
     - [Simple growable data structures](#simple-growable-data-structures)
     - [Different](#different)
     - [Stack](#stack)
+      - [Stack实现综合计算器](#stack实现综合计算器)
     - [Queue](#queue)
 - [Algorithms](#algorithms)
   - [BIg O](#big-o)
@@ -986,6 +987,19 @@ class HeroNode2{
         }
     }
     ```
+#### Stack实现综合计算器
+- 基本思路
+  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200220123053.png)
+  - 创建两个栈，一个是**numStack**，用来存放数字，一个是**operStack**，用来存放运算符
+    1. 通过一个index值（索引），来遍历我们的表达式
+    2. 如果我们发现是一个数字，就直接入数栈
+    3. 如果发现是一个符号，就分如下情况：
+       1. 如果当前的符号栈**是空**，就直接入栈
+       2. 如果符号栈**有操作符号**，就进行比较：
+          1. 如果当前操作符的优先级**小于或者等于**栈中的操作符，就需要从数栈中pop出两个数，再从符号栈中pop出一个符号，进行运算，将得到的结果入数栈，然后将当前的操作符入符号栈
+          2. 如果当前操作符的优先级**大于**栈中的操作符，就直接入符号栈
+    4. 当表达式扫描完毕后，就顺序的从数栈和符号栈中pop出相应的数和符号，并运行
+    5. 最后在数栈只有一个数字，就是表达式的结果
 ### Queue 
 - 队列介绍
     - 队列是一个有序列表，可以用数组或者是链表来实现。
