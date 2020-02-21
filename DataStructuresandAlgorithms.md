@@ -15,6 +15,8 @@
     - [Stack](#stack)
       - [Stack实现综合计算器](#stack实现综合计算器)
     - [Queue](#queue)
+  - [Heap](#heap)
+  - [Priority Queue](#priority-queue)
 - [Algorithms](#algorithms)
   - [BIg O](#big-o)
   - [Union-Find](#union-find)
@@ -1218,6 +1220,12 @@ class CircleArray(){
     }
 }
 ```
+## Heap
+未完待续
+
+## Priority Queue
+- **优先队列**：是用堆实现的数据结构（也可以用数组实现），优先队列可以随时取队中最大值，插入等，手动实现也可以一定程度上实现删除
+
 
 # Algorithms
 ## BIg O
@@ -1243,6 +1251,11 @@ class CircleArray(){
     **O(n!)** | factorial | **Intolerably slow.** It literally takes a million years to do anything.  
 
     ![Comparison of Big O computations](https://upload.wikimedia.org/wikipedia/commons/7/7e/Comparison_computational_complexity.svg)
+- Reference
+  - [十分钟搞定时间复杂度](https://www.jianshu.com/p/f4cca5ce055a)
+  - [从经典算法题看时间复杂度](https://zhuanlan.zhihu.com/p/73731500)
+  - [如何理解算法时间复杂度的表示法，例如 O(n²)、O(n)、O(1)、O(nlogn) 等？](https://www.zhihu.com/question/21387264)
+  - [各种排序算法的时间复杂度](https://blog.csdn.net/qq_30815237/article/details/90766878)
 
 ## Union-Find
 - union find is a set of algorithms for solving the so-called dynamic connectivity problem
