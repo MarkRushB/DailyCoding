@@ -13,11 +13,15 @@
     - [Simple growable data structures](#simple-growable-data-structures)
     - [Different](#different)
     - [Stack](#stack)
-      - [Stack实现综合计算器](#stack实现综合计算器)
+      - [Stack实现综合计算器（中缀表达式）](#stack实现综合计算器中缀表达式)
+      - [前缀、中缀、后缀表达式（逆波兰表达式）](#前缀中缀后缀表达式逆波兰表达式)
+        - [逆波兰计算器](#逆波兰计算器)
     - [Queue](#queue)
   - [Heap](#heap)
   - [Priority Queue](#priority-queue)
 - [Algorithms](#algorithms)
+  - [Arbitrary Substitution Principle](#arbitrary-substitution-principle)
+  - [Entropy](#entropy)
   - [BIg O](#big-o)
   - [Union-Find](#union-find)
     - [Quick Find](#quick-find)
@@ -989,7 +993,7 @@ class HeroNode2{
         }
     }
     ```
-#### Stack实现综合计算器
+#### Stack实现综合计算器（中缀表达式）
 - 基本思路
   - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200220123053.png)
   - 创建两个栈，一个是**numStack**，用来存放数字，一个是**operStack**，用来存放运算符
@@ -1002,6 +1006,291 @@ class HeroNode2{
           2. 如果当前操作符的优先级**大于**栈中的操作符，就直接入符号栈
     4. 当表达式扫描完毕后，就顺序的从数栈和符号栈中pop出相应的数和符号，并运行
     5. 最后在数栈只有一个数字，就是表达式的结果
+```java
+import java.util.Arrays;
+
+public class Calculator {
+    //创建一个栈
+    public static class ArrayStack {
+        private int[] s;
+        private int N = 0;
+
+        public void FixedCapacityStackOfStrings(int capacity) {
+            s = new int[capacity];
+        }
+
+        public boolean isEmpty() {
+            return N == 0;
+        }
+
+        public void push (int item) {
+            if (N == s.length)
+                resize(2 * s.length);
+            s[N++] = item;
+        }
+
+        public int pop() {
+            int item = s[--N];
+            s[N] = 0;
+            if (N > 0 && N == s.length / 4)
+                resize(s.length / 2);
+            return item;
+        }
+
+        public int peek(){
+            return s[N - 1];
+        }
+
+        private void resize(int capacity) {
+            int[] copy = new int[capacity];
+            for (int i = 0; i < N; i++)
+                copy[i] = s[i];
+            s = copy;
+        }
+
+        public ArrayStack() {
+            s = new int[1];
+        }
+
+        public void list(){
+            if(isEmpty()){
+                System.out.println("void, no data");
+                return;
+            }
+            for(int i = N-1; i >= 0; i--){
+                System.out.print(s[i]);
+            }
+        }
+        //计算器用的栈需要扩展功能
+        //返回运算符的优先级
+        public int priority(int oper){
+            if(oper == '*' || oper == '/'){
+                return 1;
+            }else if(oper == '+' || oper == '-'){
+                return 0;
+            }else{
+                return -1;
+            }
+        }
+        //判断是不是一个运算符
+        public boolean isOper(char val){
+            return val == '+' || val == '-' || val == '*' || val == '/';
+        }
+        //计算方法
+        public int cal(int num1, int num2, int oper){
+            int res = 0;
+            switch(oper){
+                case '+' :
+                    res = num1 + num2;
+                    break;
+                case '-' :
+                    res = num2 - num1;
+                    break;
+                case '*' :
+                    res = num2 * num1;
+                    break;
+                case '?' :
+                    res = num2 / num1;
+                    break;
+                default:
+                    break;
+            }
+            return res;
+        }
+    }
+
+    public static void main(String[] args) {
+        String expression = "3+2*6-2";
+        ArrayStack numStack = new ArrayStack();
+        ArrayStack operStack = new ArrayStack();
+        //定义需要的相关变量
+        int index = 0;
+        int num1 = 0;
+        int num2 = 0;
+        int oper = 0;
+        int res = 0;
+        char ch = ' ';//将每次扫描得到的char保存到ch
+        while(true){
+            //依次得到expression的每一个字符
+            ch = expression.substring(index, index+1).charAt(0);
+            //判断ch是什么，然后做相应的处理
+            if(operStack.isOper(ch)){
+                //如果是运算符
+                //判断当前的符号栈是否为空
+                if(!operStack.isEmpty()){
+                    //如果当前操作符的优先级小于或者等于栈中的操作符，就需要从数栈中pop出两个数
+                    //再从符号栈中pop出一个符号，进行运算，入数盏，然后将当前的操作符入符号栈
+                    if(operStack.priority(ch) <= operStack.priority(operStack.peek())){
+                        num1 = numStack.pop();
+                        num2 = numStack.pop();
+                        oper = operStack.pop();
+                        res = numStack.cal(num1,num2,oper);
+                        //把运算的结果入数栈
+                        numStack.push(res);
+                        //将当前的操作符入符号栈
+                        operStack.push(ch);
+                    }else{
+                        //如果当前的操作符的优先级大于栈中的操作符，就直接入符号栈
+                        operStack.push(ch);
+                    }
+                }else{
+                    //如果为空直接入符号栈
+                    operStack.push(ch);
+                }
+            }else{//如果是数，则直接入数栈
+                numStack.push(ch - 48);
+            }
+            //让index + 1，并判断是否扫描到expression最后
+            index++;
+            if(index >= expression.length()){
+                break;
+            }
+        }
+        //当表达式扫描完毕，就顺序的从数栈和符号栈中pop出相应的数和符号，并运行
+        while(true){
+            //如果符号栈为空，则计算到最后的结果，数栈中只有一个数字[结果]
+            if(operStack.isEmpty()){
+                break;
+            }
+            num1 = numStack.pop();
+            num2 = numStack.pop();
+            oper = operStack.pop();
+            res = numStack.cal(num1,num2,oper);
+            numStack.push(res);
+        }
+        System.out.println("表达式:" + expression + " = "+ numStack.pop());
+    }
+}
+```
+>存在缺陷，当数字存在多位数的时候，计算器失效
+- Improvement
+```java
+String KeepNum = "";//用于拼接多位数
+//
+//......
+//
+}else{//如果是数，则直接入数栈
+    //原代码
+    numStack.push(ch - 48);
+//--------------------------------------------------------------
+    //分析思路：
+    //1. 当处理多位数时，不能发现是一个数就立即入栈，因为可能是多位数
+    //2. 在处理数，需要向expression的表达式的index后再看一位，如果是数字就进行扫描，如果是符号才入栈
+    //3. 因此我们需要定义一个变量（字符串）用于拼接
+
+    //处理多位数
+    KeepNum += ch;
+
+    //如果ch已经是expression的最后一位，直接入栈
+    if(index == expression.length() - 1){
+        numStack.push(integer.parseInt(keepNum));
+    }else{
+        //判断下一个数字是不是数组，如果是数字，就继续扫描，如果是运算符，则入栈
+        if(operStack.isOper(expression.substring(index + 1, index + 2).charAt(0))){
+            //如果后以为是运算符，则入栈
+            numStack.push(integer.parseInt(keepNum));
+            //重要！！！！！！！！清空KeepNum
+            KeepNum = "";
+        }
+    }
+}
+```
+#### 前缀、中缀、后缀表达式（逆波兰表达式）
+- 前缀表达式（波兰表达式）
+  - 前缀表达式的运算符位于两个相应操作数之前，前缀表达式又被称为前缀记法或波兰式
+  - 前缀表达式的计算机求值
+    1. 从右至左扫描表达式
+    2. 遇到数字时，将数字压入堆栈，遇到运算符时，弹出栈顶的两个数，用运算符对它们做相应的计算（**栈顶元素 op 次顶元素**），并将结果入栈
+    3. 重复上述过程直到表达式最左端，最后运算得出的值即为表达式的结果
+    - 示例：计算前缀表达式的值：- + 1 × + 2 3 4 5
+      1. 从右至左扫描，将5，4，3，2压入堆栈；
+      2. 遇到+运算符，弹出2和3（2为栈顶元素，3为次顶元素），计算2+3的值，得到5，将5压入栈；
+      3. 遇到×运算符，弹出5和4，计算5×4的值，得到20，将20压入栈；
+      4. 遇到1，将1压入栈；
+      5. 遇到+运算符，弹出1和20，计算1+20的值，得到21，将21压入栈；
+      6. 遇到-运算符，弹出21和5，计算21-5的值，得到16为最终结果
+  - 可以看到，用计算机计算前缀表达式是非常容易的，不像计算后缀表达式需要使用正则匹配
+- 后缀表达式（逆波兰表达式）
+  - 后缀表达式与前缀表达式类似，只是运算符位于两个相应操作数之后，后缀表达式也被称为后缀记法或逆波兰式
+  - 后缀表达式的计算机求值，与前缀表达式类似，只是顺序是从左至右：
+    1. 从左至右扫描表达式
+    2. 遇到数字时，将数字压入堆栈，遇到运算符时，弹出栈顶的两个数，用运算符对它们做相应的计算（**次顶元素op 栈顶元素** ），并将结果入栈
+    3. 重复上述过程直到表达式最右端，最后运算得出的值即为表达式的结果
+    - 示例：计算后缀表达式的值：1 2 3 + 4 × + 5 -
+      1. 从左至右扫描，将1，2，3压入栈；
+      2. 遇到+运算符，3和2弹出，计算2+3的值，得到5，将5压入栈；
+      3. 遇到4，将4压入栈
+      4. 遇到×运算符，弹出4和5，计算5×4的值，得到20，将20压入栈；
+      5. 遇到+运算符，弹出20和1，计算1+20的值，得到21，将21压入栈；
+      6. 遇到5，将5压入栈；
+      7. 遇到-运算符，弹出5和21，计算21-5的值，得到16为最终结果
+##### 逆波兰计算器
+```java
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Stack;
+
+public class PolandNotation {
+    public static void main(String[] args) {
+        //先定义逆波兰表达式
+        //(3 + 4) * 5 - 6  => 3 4 + 5 * 6 -
+        //为了方便，逆波兰表达式数字和符号使用空格隔开
+        String suffixExpression = "3 4 + 5 * 6 -";
+        //思路
+        //1. 先将"3 4 + 5 * 6 -"放到ArrayList中
+        //2. 将ArrayList传给一个方法，遍历，配合栈完成计算
+
+        List<String> rpnList = getListString(suffixExpression);
+        System.out.println(rpnList);
+        int res = calculate(rpnList);
+        System.out.println(res);
+    }
+    //将一个逆波兰表达式，依次将数据和运算符放入到ArrayList中
+    public static List<String> getListString(String suffixExpression){
+        //将suffixExpression分割
+        String[] split = suffixExpression.split(" ");
+        List<String> list = new ArrayList<String>();
+        for(String ele: split){
+            list.add(ele);
+        }
+        return list;
+    }
+
+    public static int calculate(List<String> ls){
+        //创建栈，只需要一个栈即可
+        Stack<String> stack = new Stack<String>();
+        //遍历ls
+        for(String item: ls){
+            //使用正则表达式取出数
+            if(item.matches("\\d+")){//匹配的是多位是
+                //入栈
+                stack.push(item);
+            }else{
+                //pop出两个数，并运算，再入栈
+                int num2 = Integer.parseInt(stack.pop());
+                int num1 = Integer.parseInt(stack.pop());
+                int res = 0;
+                if(item.equals("+")){
+                    res = num1 + num2;
+                }else if (item.equals("-")){
+                    res = num1 -num2;
+                }else if(item.equals("*")){
+                    res = num1 * num2;
+                }else if(item.equals("/")){
+                    res = num1 / num2;
+                }else{
+                    throw new RuntimeException("运算符号有误");
+                }
+                //把res入栈
+                stack.push(""+res);
+            }
+        }
+        //最后留在stack中的数据就是运算结果
+        return Integer.parseInt(stack.pop());
+    }
+}
+```
 ### Queue 
 - 队列介绍
     - 队列是一个有序列表，可以用数组或者是链表来实现。
@@ -1228,6 +1517,44 @@ class CircleArray(){
 
 
 # Algorithms
+## Arbitrary Substitution Principle
+- When you have a choice of writing two different programs by substituting one variable (or argument) for another... 
+  -  ... then the arbitrary substitution principle (ASP) applies. 
+- You should always be on your guard in such circumstances: in my opinion, you should annotate such code with a comment or annotation such as @asp. 
+- Failure so to do may result in you getting bitten!
+- **What is a non-arbitrary substitution?**
+  - Suppose you write: 
+    - int x = a + b 
+  - What would happen if you wrote instead: 
+    - int x = b + a 
+  - You’d be writing the exact same program because the + operator commutes. 
+  - The alternative substitution here is immaterial so cannot be said to be chosen arbitrarily.
+- **What is an arbitrary substitution?**
+  - Suppose you write: 
+    - boolean y = a(x) && b(x) 
+    - where a(x) is a boolean function and b(x) is a different boolean function. 
+  - What would happen if you wrote instead: 
+    - boolean y = b(x) && a(x) 
+  - You’d be writing a different program because the && operator does not commute. [That’s because it is a “short-circuit” operator.] 
+  - To another programmer reading this code, it is not at all obvious why you chose the particular form that you did. I think that programmer is entitled to an explanation, or at least a comment to the effect that you think it doesn’t matter.
+  - **Does it really matter?**
+  - If a(x) and b(x) are pure functions (i.e. no side-effects), then it might not matter
+    - But suppose that a(x) takes 10 μsec while b(x) takes 10 msec, it might matter quite a lot. 
+  - Choosing one option arbitrarily over another should always be considered a code smell. 
+  - Not only that, but such a situation can lead to an insight that improves performance:
+    - Example: **Weighted Quick Union**.
+
+
+
+## Entropy
+>$-\sum_{i=1}^np(x_i)logp(x_i)$
+- [信息熵及其相关概念](https://blog.csdn.net/am290333566/article/details/81187124)
+- 信息论之父克劳德·香农给出的信息熵的三个性质：
+  1. 单调性，发生概率越高的事件，其携带的信息量越低；
+  2. 非负性，信息熵可以看作为一种广度量，非负性是一种合理的必然；
+  3. 累加性，即多随机事件同时发生存在的总不确定性的量度是可以表示为各事件不确定性的量度的和，这也是广度量的一种体现。
+- ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200223145600.png)
+
 ## BIg O
 - ForeWord
   - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200121130014.png)
