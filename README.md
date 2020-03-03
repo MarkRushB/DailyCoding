@@ -36,7 +36,7 @@
 ### NEU Course
 - [Quiz Coding](INFO5100-quizReview.md)
 ## Data Structure and Algorithms
-- [个人总结]((DataStructuresandAlgorithms.md))
+- [个人总结](DataStructuresandAlgorithms.md)
 ## Front-end / Back-end
 - HTML
 - CSS
