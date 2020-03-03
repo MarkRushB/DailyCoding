@@ -1309,6 +1309,7 @@ public class PolandNotation {
   6. 重复步骤2-5，直到表达式的最右边
   7. 将s1中剩余的运算符依次弹出并压入s2
   8. 依次弹出s2中的元素并输出，结果的逆序即为中缀表达式对应的后缀表达式
+
 ```java
 //中缀转后缀
 //说明
@@ -1700,13 +1701,24 @@ class CircleArray(){
   - [从经典算法题看时间复杂度](https://zhuanlan.zhihu.com/p/73731500)
   - [如何理解算法时间复杂度的表示法，例如 O(n²)、O(n)、O(1)、O(nlogn) 等？](https://www.zhihu.com/question/21387264)
   - [各种排序算法的时间复杂度](https://blog.csdn.net/qq_30815237/article/details/90766878)
+
+
 ## Recursion（递归）
-- 递归用于解决什么问题？
-  - 数学问题：八皇后问题，汉诺塔，阶乘，迷宫，球和篮子
-  - 算法中也会用到递归：快排，归并，二分查找
-  - 将用栈解决的问题，用递归比较简洁
+递归用于解决什么问题？
+- 数学问题：八皇后问题，汉诺塔，阶乘，迷宫，球和篮子
+- 算法中也会用到递归：快排，归并，二分查找
+- 将用栈解决的问题，用递归比较简洁
+
+递归需要遵守的重要规则
+- 执行一个方法时，就创建一个**新的受保护的独立空间**（栈空间）
+- 方法的局部变量是**独立**的，不会相互影响
+- 如果方法中使用的是引用类型的变量（比如数组），就会共享该引用类型的数据
+- 递归必须向退出递归的条件**逼近**，否则就是无限递归，陷入死循环
+- 当一个方法执行完毕，或者遇到return,就会返回，遵守谁调用，就把结果返回给谁。同时当方法执行完毕或者返回时，该方法也就执行完毕。
+
+
 ## Union-Find
-- union find is a set of algorithms for solving the so-called dynamic connectivity problem
+union find is a set of algorithms for solving the so-called dynamic connectivity problem
 - **Reference**: [CSDN-QuickFind & QuickUnion](https://blog.csdn.net/sinat_25991865/article/details/100533334)
 
 ### Quick Find
@@ -1790,7 +1802,7 @@ for (int i = 0; i < id.length; i++) {
     }
 ```
 ### Conclusion
-- Defects
+Defects
   - QuickFind defect
     - Union too expensice(N array accesses)
     - trees are flat, but too expensive to keep them flat
@@ -1865,8 +1877,8 @@ for (int i = 0; i < id.length; i++) {
 - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200203113926.png) 
 ## Sorts
 ### Ten Sorts we usually use
-- ![](https://www.runoob.com/wp-content/uploads/2019/03/sort.png)
-- ![](https://www.runoob.com/wp-content/uploads/2019/03/0B319B38-B70E-4118-B897-74EFA7E368F9.png)
+![](https://www.runoob.com/wp-content/uploads/2019/03/sort.png)
+![](https://www.runoob.com/wp-content/uploads/2019/03/0B319B38-B70E-4118-B897-74EFA7E368F9.png)
 - Big O for these sorts
   - 平方阶 **(O(n2))** 排序: 各类简单排序: 直接插入、直接选择和冒泡排序
   - 线性对数阶 **(O(nlog2n))** 排序: 快速排序、堆排序和归并排序
