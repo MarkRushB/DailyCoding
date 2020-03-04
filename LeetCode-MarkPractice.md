@@ -10,6 +10,8 @@
 - [28 Implement strStr()](#28-implement-strstr)
 - [21 Merge Two Sorted Lists](#21-merge-two-sorted-lists)
 - [27 Remove Element](#27-remove-element)
+- [58 Length of Last Word](#58-length-of-last-word)
+
 ## Attention
 - [刷题需要注意的小细节](LeetCode-Attention.md)
 - 
@@ -349,10 +351,13 @@ The order of elements can be changed. It doesn't matter what you leave beyond th
 **方法一：**
 
 **思路：**
+- 原地改**数组**
+- 定义k = 0；用来记录数组中不等于val的元素的个数
+- 从头开始遍历数组（n =0），若数组中元素与val不相等（ 即 nums[n] != val）则将nums[n]赋给nums[k],然后将k + 1;然后执行下一次循环；若数组中元素与val值相等即（nums[n] != val），则执行下一次循环; 直到循环执行结束
+- 最后返回k
 
-- 定义j = 0；用来记录数组中不等于val的元素的个数
-- 从头开始遍历数组（ i =0 ），若数组中元素与val不相等（ 即 nums[ i] != val）则将nums[i]赋给nums[j],然后将j + 1;然后执行下一次循环；若数组中元素与val值相等即（nums[i] != val），则执行下一次循环; z直到循环执行结束
-- 最后返回j
+**注意：**
+这个题其实一开始我很晕，虽然很简单，但是要搞清楚题目的意思，不用管数组的长度和剩下的元素，只用替换掉前k个元素并且返回k就可以了！
 
 ```java
 class Solution {
@@ -365,6 +370,38 @@ class Solution {
             }
         }
         return k;
+    }
+}
+```
+## 58 [Length of Last Word](https://leetcode.com/problems/length-of-last-word/)
+
+Given a string s consists of upper/lower-case alphabets and empty space characters ' ', return the length of last word (last word means the last appearing word if we loop from left to right) in the string.
+
+If the last word does not exist, return 0.
+
+Note: A word is defined as a maximal substring consisting of non-space characters only.
+
+**Example:**
+
+    Input: "Hello World"
+    Output: 5
+
+思路：
+这个题没难度，为什么我要写出来呢？就是需要注意，有一个小坑，如果字符串最后一个字符是空格的话，那么常规思路写的算法，看答案学到了一个java的方法：`.trim()`，目的是去除字符串两端的多余的空格。
+
+```java
+class Solution {
+    public int lengthOfLastWord(String s) {
+        s = s.trim();
+        int count = 0;
+        for(int k = s.length() - 1; k >=0; k--){
+           if(s.charAt(k) != ' '){
+               count++;
+           }else{
+               break;
+           }
+        }
+        return count;
     }
 }
 ```
