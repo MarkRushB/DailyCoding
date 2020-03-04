@@ -20,6 +20,7 @@
     - [Queue](#queue)
   - [Heap](#heap)
   - [Priority Queue](#priority-queue)
+    - [二叉堆](#二叉堆)
 - [Algorithms](#algorithms)
   - [Arbitrary Substitution Principle](#arbitrary-substitution-principle)
   - [Entropy](#entropy)
@@ -1627,13 +1628,98 @@ class CircleArray(){
     }
 }
 ```
+
+
 ## Heap
 未完待续
 
+
+
 ## Priority Queue
-- **优先队列**：是用堆实现的数据结构（也可以用数组实现），优先队列可以随时取队中最大值，插入等，手动实现也可以一定程度上实现删除
+**优先队列**：是用堆实现的数据结构（也可以用数组实现），优先队列在入队时与传统队列相同，而出队时可以指定规则，比如最大元素/最小元素出队等，下面是一个简单的 API：
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200304002335.png)
 
+### 二叉堆
+二叉堆是堆有序的完全二叉树，键值存储在节点上，且父元素的键值比子元素的键值大。我们可以推测出最大的键值在根节点上，也就是 a[1]（不使用数组的第一个位置）。
 
+二叉堆实际存储在数组中，如果一个节点的索引是 k，那么它的父节点的索引是 k / 2， 子节点的索引是 2k 和 2k + 1。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200304002558.png)
+
+如果某一节点的堆有序被破坏了（子节点比父节点大），我们可以使用下面的算法恢复：
+```java
+private void swim(int k) {
+    while (k > 1 && less(k / 2, k)) {
+        exch(k, k / 2);
+        k = k / 2;
+    }
+}
+```
+
+因此实现添加操作时将待添加的元素插入到树的下一个子节点，然后通过 swim() 方法将其移动到正确的位置上，这个操作最多需要 1 + lgN 次比较。
+```java
+public void insert(Key x) {
+    pq[++N] = x;
+    swim(N);
+}
+```
+
+还有一种情况是父节点比两个子节点小，使用“下沉”的思想可以很好解决它：
+```java
+private void sink(int k) {
+    while (2 * k <= N) {
+        int j = 2 * k;
+        if (j < N && less(j, j + 1))
+            j++;
+        if (!less(k, j))
+            break;
+        exch(k, j);
+        k = j;
+    }
+}
+```
+
+sink() 方法利于实现删除操作，将首节点和尾节点互换位置，删除尾节点，再将首节点移动到合适的位置。这个操作最多需要 2lgN 次比较。
+```java
+public Key delMax() {
+    Key max = pq[1];
+    exch(1, N--);
+    sink(1);
+    pq[N + 1] = null;
+    return max;
+}
+```
+
+下面是完整的二叉堆的实现，这种实现的插入和删除操作都是 logN 的时间复杂度。
+```java
+public class MaxPQ<Key extends Comparable<Key>> {
+    private Key[] pq;
+    private int N;
+    
+    public MaxPQ(int capacity) {
+        pq = (Key[]) new Comparable[capacity + 1];
+    }
+    
+    public boolean isEmpty() {
+        return N == 0;
+    }
+    
+    public void insert(Key key)
+    public Key delMax()
+    private void swim(int k)
+    private void sink(int k)
+    
+    private boolean less(int i, int j) {
+        return pq[i].compareTo(pq[j]) < 0;
+    }
+    
+    private void exch(int i, int j) {
+        Key t = pq[i];
+        pq[i] = pq[j];
+        pq[j] = t;
+    }
+}
+```
 # Algorithms
 ## Arbitrary Substitution Principle
 - When you have a choice of writing two different programs by substituting one variable (or argument) for another... 
@@ -1773,33 +1859,33 @@ for (int i = 0; i < id.length; i++) {
 - 查找操作要检查 p q 是否有相同的根节点，合并操作则只要把 p 根节点的父节点改成 q 的根节点即可，只改变了 id[] 中的一个值。
 - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200130122415.png)
 ```java
-    public class QuickUnionUF{
-        private int[] id;
-        public QuickUnionUF(int N){
-            //set id of each object to itself(N array accesses)
-            id = new int[N];
-            for(int i = 0; i < N; i++){
-                id[i] = i;
-            }
-        }
-        private int root(int i){
-            //chase parent pointers until reach root(depth of i array accesses)
-            while(i != id[i]){
-                i = id[i];
-            }
-            return i;
-        }
-        public boolean connected(int p, int q){
-            //check if p and q have same root(depth of p and q array accesses)
-            return root(p) == root(q);
-        }
-        public void union(int p, int q){
-            //change root of p to point to root of q(depth of p and q array accesses)
-            int i = root(p);
-            int j = root(q);
-            id[i] = j;
+public class QuickUnionUF{
+    private int[] id;
+    public QuickUnionUF(int N){
+        //set id of each object to itself(N array accesses)
+        id = new int[N];
+        for(int i = 0; i < N; i++){
+            id[i] = i;
         }
     }
+    private int root(int i){
+        //chase parent pointers until reach root(depth of i array accesses)
+        while(i != id[i]){
+            i = id[i];
+        }
+        return i;
+    }
+    public boolean connected(int p, int q){
+        //check if p and q have same root(depth of p and q array accesses)
+        return root(p) == root(q);
+    }
+    public void union(int p, int q){
+        //change root of p to point to root of q(depth of p and q array accesses)
+        int i = root(p);
+        int j = root(q);
+        id[i] = j;
+    }
+}
 ```
 ### Conclusion
 Defects
