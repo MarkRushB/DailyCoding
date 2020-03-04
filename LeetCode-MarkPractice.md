@@ -1,21 +1,19 @@
 # Mark's LeetCode Record <!-- omit in toc -->
 - [Attention](#attention)
-- [Practice](#practice)
-  - [9 Palindrome Number](#9-palindrome-number)
-  - [1 Two Sum](#1-two-sum)
-  - [Maximum Subarray](#maximum-subarray)
-  - [14 Longest Common Prefix](#14-longest-common-prefix)
-  - [204 Count Primes](#204-count-primes)
-  - [20 Valid Parentheses](#20-valid-parentheses)
-  - [169 Majority Element](#169-majority-element)
-  - [28 Implement strStr()](#28-implement-strstr)
-  - [21 Merge Two Sorted Lists](#21-merge-two-sorted-lists)
-  - [27 Remove Element](#27-remove-element)
+- [9 Palindrome Number](#9-palindrome-number)
+- [1 Two Sum](#1-two-sum)
+- [Maximum Subarray](#maximum-subarray)
+- [14 Longest Common Prefix](#14-longest-common-prefix)
+- [204 Count Primes](#204-count-primes)
+- [20 Valid Parentheses](#20-valid-parentheses)
+- [169 Majority Element](#169-majority-element)
+- [28 Implement strStr()](#28-implement-strstr)
+- [21 Merge Two Sorted Lists](#21-merge-two-sorted-lists)
+- [27 Remove Element](#27-remove-element)
 ## Attention
 - [刷题需要注意的小细节](LeetCode-Attention.md)
-## Practice
-
-### 9 [Palindrome Number](https://leetcode.com/problems/palindrome-number/)
+- 
+## 9 [Palindrome Number](https://leetcode.com/problems/palindrome-number/)
 
 Determine whether an integer is a palindrome. An integer is a palindrome when it reads the same backward as forward.  
 ```java
@@ -31,7 +29,7 @@ class Solution {
     }
 }
 ```
-### 1 [Two Sum](https://leetcode.com/problems/two-sum/)
+## 1 [Two Sum](https://leetcode.com/problems/two-sum/)
 Given an array of integers, return indices of the two numbers such that they add up to a specific target.
 
 You may assume that each input would have exactly one solution, and you may not use the same element twice.
@@ -57,7 +55,7 @@ class Solution {
     }
 }
 ```
-### Maximum Subarray
+## Maximum Subarray
 Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.  
 
 **Example:  **
@@ -83,7 +81,7 @@ class Solution {
     }
 }
 ```
-### 14 [Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/)
+## 14 [Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/)
 Write a function to find the longest common prefix string amongst an array of strings.  
 If there is no common prefix, return an empty string "".
 
@@ -136,7 +134,7 @@ class Solution{
     }
 }
 ```
-### 204 Count Primes
+## 204 Count Primes
 Count the number of prime numbers less than a non-negative number, n.  
 
 **Example:**  
@@ -155,7 +153,7 @@ Explanation: There are 4 prime numbers less than 10, they are 2, 3, 5, 7.
 
 首先，将2到n范围内的所有整数写下来。其中最小的数字2是素数。将表中所有2的倍数都划去。表中剩余的最小数字是3，它不能被更小的数整除，所以是素数。再将表中所有3的倍数全都划去。依次类推，如果表中剩余的最小数字是m时，m就是素数。然后将表中所有m的倍数全部划去。像这样反复操作，就能依次枚举n以内的素数。
 
-### 20 Valid Parentheses
+## 20 Valid Parentheses
 Given a string containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
 
 An input string is valid if:
@@ -184,7 +182,7 @@ class Solution {
     }        
 }
 ```
-### 169 Majority Element
+## 169 Majority Element
 Given an array of size n, find the majority element. The majority element is the element that appears **more than** ⌊ n/2 ⌋ times. You may assume that the array is non-empty and the majority element always exist in the array.
 
 **Example 1:**
@@ -234,7 +232,7 @@ class Solution {
     }
 }
 ```
-### 28 Implement strStr()
+## 28 Implement strStr()
 Return the index of the first occurrence of needle in haystack, or -1 if needle is not part of haystack.
 
 **Example 1:**
@@ -253,7 +251,7 @@ What should we return when needle is an empty string? This is a great question t
 
 For the purpose of this problem, we will return 0 when needle is an empty string. This is consistent to C's strstr() and Java's indexOf().
 
-### 21 [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
+## 21 [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
 Merge two sorted linked lists and return it as a new list. The new list should be made by splicing together the nodes of the first two lists.
 
 **Example:**
@@ -324,7 +322,7 @@ public ListNode mergeTwoLists(ListNode l1, ListNode l2){
 --- | --- | --- | --- 
 O(n) | O(1) | 6ms | 41.3MB
 
-### 27 [Remove Element](https://leetcode.com/problems/remove-element/)
+## 27 [Remove Element](https://leetcode.com/problems/remove-element/)
 Given an array nums and a value val, remove all instances of that value in-place and return the new length.
 
 Do not allocate extra space for another array, you must do this by **modifying the input array** in-place with O(1) extra memory.
