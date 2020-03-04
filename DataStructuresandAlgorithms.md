@@ -2003,7 +2003,7 @@ public void insertionSort() {
 
 
 ### Shell Sort
-- 希尔排序，也称递减增量排序算法，是插入排序的一种更高效的改进版本。但希尔排序是非稳定排序算法。
+希尔排序，也称递减增量排序算法，是插入排序的一种更高效的改进版本。但希尔排序是非稳定排序算法。
 - 希尔排序是基于插入排序的以下两点性质而提出改进方法的：
   - 插入排序在对几乎已经排好序的数据操作时，效率高，即可以达到线性排序的效率；
   - 但插入排序一般来说是低效的，因为插入排序每次只能将数据移动一位；
@@ -2051,115 +2051,134 @@ public void insertionSort() {
 
   ```
 ### Merge Sort
-- 思路
-  - 归并排序（MergeSort），是创建在归并操作上的一种有效的排序算法，效率为O(nlogn) 。1945年由约翰·冯·诺伊曼首次提出。该算法是采用分治法（Divide and Conquer）的一个非常典型的应用，且各层分治递归可以同时进行。
-- 实现
-  - 递归法: 自顶向下（Top-Down）
-    - 直接在原序列上直接归并排序，每次归并排序分别对左右两边进行归并排序，直至细分到两两分组。
-  - 迭代法：自底向上（Bottom-Up）
-    - 假设序列共有 n 个元素：
-      1. 先相邻两两分组进行归并排序
-      2. 再相邻四四分组进行归并排序
-      3. 再相邻八八分组进行归并排序
-      4. 重复扩大分组规模，直到所有元素排序完毕
-      5. …
-- 复杂度
-  - 平均时间复杂度：O(nlogn)
-  - 最坏时间复杂度：O(nlogn)
-  - 最优时间复杂度：O(nlogn)
-  - 最坏空间复杂度：O(n)
-- ![](https://img-blog.csdn.net/20170612234617785?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveGlhb3BpbmcwOTE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
-- ![](https://upload.wikimedia.org/wikipedia/commons/c/cc/Merge-sort-example-300px.gif)
-- ![](https://upload.wikimedia.org/wikipedia/commons/c/c5/Merge_sort_animation2.gif)
-  ```java
-  public class MergeSort(){
-      //合并的方法
-      /**
-      arr 排序的原始数组
-      left 左边有序序列的初始索引
-      mid 中间索引
-      right 右边索引
-      temp 做中转的数组
-      **/
-      public static void merge(int[] arr, int left, int mid, int right){
-          //用于存储归并后的临时数组
-          int[] temp = new int[right - left + 1];
-          //用于记录第一个数组中需要遍历的下标
-          int i = low;
-          //记录第二个数组中需要遍历的下标
-          int j = mid + 1;
-          //用于记录在临时数组中存放的下标
-          int index = 0;
-          //遍历两个数组取出小的数字，放入临时数组中
-          while(i <= mid && j <= right){
-              //第一个数组的数据更小
-              if(arr[i] <= arr[j]){
-                  //把小的数据放入临时数组中
-                  temp[index] = arr[i];
-                  //让下标向后移一位
-                  i++;
-              }else{
-                  temp[index] = arr[j];
-                  j++;
-              }
-              index++;
-          }
-          //处理多余的数据
-          while(j <= right){
-              temp[index] = arr[j];
-              j++;
-              index++;
-          }
-          while(i <= mid){
-              temp[index] = arr[i];
-              i++;
-              index++;
-          }
-          //把临时数组中的数据重新存入原数组
-          for(int k = 0; k < temp.lenght; k++){
-              arr[k + left] = arr[j];
-          }
-      }
-      public static void mergeSort(int[] arr, int left, int right){
-          int mid = (right + left) / 2;
-          if(left < high){
-            mergeSort(arr, left, mid);
-            mergeSort(arr, mid+1, right);
-            merge(arr, left, mid, right);
-          }
-      }
-  }
-  ```
+思路
+- 归并排序（MergeSort），是创建在归并操作上的一种有效的排序算法，效率为O(nlogn) 。1945年由约翰·冯·诺伊曼首次提出。该算法是采用分治法（Divide and Conquer）的一个非常典型的应用，且各层分治递归可以同时进行。
+
+复杂度
+- 归并排序可用于大量数据的排序，对于 million 和 billion 级别的数据，插入排序难以完成的任务归并排序可能几分钟就完成了。
+- 对于 N 个元素，归并排序最多需要 NlgN 次比较和 6NlgN 次对数组的访问，并且要使用 N 个空间的辅助数组。
+- 平均时间复杂度：O(nlogn)
+- 最坏时间复杂度：O(nlogn)
+- 最优时间复杂度：O(nlogn)
+- 最坏空间复杂度：O(n)
+
+![](https://img-blog.csdn.net/20170612234617785?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveGlhb3BpbmcwOTE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+![](https://upload.wikimedia.org/wikipedia/commons/c/cc/Merge-sort-example-300px.gif)
+
+![](https://upload.wikimedia.org/wikipedia/commons/c/c5/Merge_sort_animation2.gif)
+
+实现
+- 递归法: 自顶向下（Top-Down）
+  - 直接在原序列上直接归并排序，每次归并排序分别对左右两边进行归并排序，直至细分到两两分组。
+```java
+public class MergeSort(){
+    //合并的方法
+    /**
+    arr 排序的原始数组
+    left 左边有序序列的初始索引
+    mid 中间索引
+    right 右边索引
+    temp 做中转的数组
+    **/
+    public static void merge(int[] arr, int left, int mid, int right){
+        //用于存储归并后的临时数组
+        int[] temp = new int[right - left + 1];
+        //用于记录第一个数组中需要遍历的下标
+        int i = left;
+        //记录第二个数组中需要遍历的下标
+        int j = mid + 1;
+        //用于记录在临时数组中存放的下标
+        int index = 0;
+        //遍历两个数组取出小的数字，放入临时数组中
+        while(i <= mid && j <= right){
+            //第一个数组的数据更小
+            if(arr[i] <= arr[j]){
+                //把小的数据放入临时数组中
+                temp[index] = arr[i];
+                //让下标向后移一位
+                i++;
+            }else{
+                temp[index] = arr[j];
+                j++;
+            }
+            index++;
+        }
+        //处理多余的数据
+        while(j <= right){
+            temp[index] = arr[j];
+            j++;
+            index++;
+        }
+        while(i <= mid){
+            temp[index] = arr[i];
+            i++;
+            index++;
+        }
+        //把临时数组中的数据重新存入原数组
+        for(int k = 0; k < temp.lenght; k++){
+            arr[k + left] = temp[k];
+        }
+    }
+    public static void mergeSort(int[] arr, int left, int right){
+        int mid = (right + left) / 2;
+        if(left < high){
+        mergeSort(arr, left, mid);
+        mergeSort(arr, mid+1, right);
+        merge(arr, left, mid, right);
+        }
+    }
+}
+```
+- 迭代法：自底向上（Bottom-Up）
+  - 假设序列共有 n 个元素：
+    1. 先相邻两两分组进行归并排序
+    2. 再相邻四四分组进行归并排序
+    3. 再相邻八八分组进行归并排序
+    4. 重复扩大分组规模，直到所有元素排序完毕
+    5. …
+```java
+public static void mergeSort(Comparable[] a) {
+    int N = a.length;
+    aux = new Comparable[N];
+    for (int sz = 1; sz < N; sz = sz + sz) 
+        for (int lo = 0; lo < N - sz; lo += sz + sz)
+            merge(a, lo, lo + sz - 1, Math.min(lo+sz+sz-1, N-1));
+}
+```
 ### Quick Sort
-- 思路
-  - 方法其实很简单：分别从初始序列“6 1 2 7 9 3 4 5 10 8”两端开始“探测”。先从右往左找一个小于6的数，再从左往右找一个大于6的数，然后交换他们。这里可以用两个变量i和j，分别指向序列最左边和最右边。我们为这两个变量起个好听的名字“哨兵i”和“哨兵j”。刚开始的时候让哨兵i指向序列的最左边（即i=1），指向数字6。让哨兵j指向序列的最右边（即=10），指向数字。
-  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218121956.png)
-  - 首先哨兵j开始出动。因为此处设置的基准数是最左边的数，所以需要让哨兵j先出动，这一点非常重要（请自己想一想为什么）。哨兵j一步一步地向左挪动（即j–），直到找到一个小于6的数停下来。接下来哨兵i再一步一步向右挪动（即i++），直到找到一个数大于6的数停下来。最后哨兵j停在了数字5面前，哨兵i停在了数字7面前。
-  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122030.png)
-  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122042.png)
-  - 现在交换哨兵i和哨兵j所指向的元素的值。交换之后的序列如下：
-    `6 1 2 5 9 3 4 7 10 8`
-  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122148.png)
-  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122203.png)
-  - 到此，第一次交换结束。接下来开始哨兵j继续向左挪动（再友情提醒，每次必须是哨兵j先出发）。他发现了4（比基准数6要小，满足要求）之后停了下来。哨兵i也继续向右挪动的，他发现了9（比基准数6要大，满足要求）之后停了下来。此时再次进行交换，交换之后的序列如下：
-    `6 1 2 5 4 3 9 7 10 8`
-  - 第二次交换结束，“探测”继续。哨兵j继续向左挪动，他发现了3（比基准数6要小，满足要求）之后又停了下来。哨兵i继续向右移动，糟啦！此时哨兵i和哨兵j相遇了，哨兵i和哨兵j都走到3面前。说明此时“探测”结束。我们将基准数6和3进行交换。交换之后的序列如下：
-    `3 1 2 5 4 6 9 7 10 8`
-  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122258.png)
-  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122321.png)
-  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122330.png)
-  - 到此第一轮“探测”真正结束。此时以基准数6为分界点，6左边的数都小于等于6，6右边的数都大于等于6。回顾一下刚才的过程，其实哨兵j的使命就是要找小于基准数的数，而哨兵i的使命就是要找大于基准数的数，直到i和j碰头为止。
-  - OK，解释完毕。现在基准数6已经归位，它正好处在序列的第6位。此时我们已经将原来的序列，以6为分界点拆分成了两个序列，左边的序列是“3 1 2 5 4”，右边的序列是“9 7 10 8”。接下来还需要分别处理这两个序列。因为6左边和右边的序列目前都还是很混乱的。不过不要紧，我们已经掌握了方法，接下来只要模拟刚才的方法分别处理6左边和右边的序列即可。现在先来处理6左边的序列现吧。
-  - 左边的序列是“3 1 2 5 4”。请将这个序列以3为基准数进行调整，使得3左边的数都小于等于3，3右边的数都大于等于3。好了开始动笔吧
-  - 如果你模拟的没有错，调整完毕之后的序列的顺序应该是：
-    `2 1 3 5 4`  
-  - OK，现在3已经归位。接下来需要处理3左边的序列“2 1”和右边的序列“5 4”。对序列“2 1”以2为基准数进行调整，处理完毕之后的序列为“1 2”，到此2已经归位。序列“1”只有一个数，也不需要进行任何处理。至此我们对序列“2 1”已全部处理完毕，得到序列是“1 2”。序列“5 4”的处理也仿照此方法，最后得到的序列如下：
-    `1 2 3 4 5 6 9 7 10 8`
-  - 对于序列“9 7 10 8”也模拟刚才的过程，直到不可拆分出新的子序列为止。最终将会得到这样的序列，如下
-    `1 2 3 4 5 6 7 8 9 10`
-  - 到此，排序完全结束。细心的同学可能已经发现，快速排序的每一轮处理其实就是将这一轮的基准数归位，直到所有的数都归位为止，排序就结束了。
-  - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218123926.png)
-  - 快速排序之所比较快，因为相比冒泡排序，每次交换是跳跃式的。每次排序的时候设置一个基准点，将小于等于基准点的数全部放到基准点的左边，将大于等于基准点的数全部放到基准点的右边。这样在每次交换的时候就不会像冒泡排序一样每次只能在相邻的数之间进行交换，交换的距离就大的多了。因此总的比较和交换次数就少了，速度自然就提高了。当然在最坏的情况下，仍可能是相邻的两个数进行了交换。因此快速排序的最差时间复杂度和冒泡排序是一样的都是O(N2)，它的平均时间复杂度为O(NlogN)。其实快速排序是基于一种叫做“二分”的思想。
+简介
+- 快速排序广泛运用于系统排序和其他应用中。它也是一个递归过程，与归并排序不同的是，它先进行操作然后再递归，而不是归并排序先进性递归然后再进行 merge。
+
+思路
+- 方法其实很简单：分别从初始序列“6 1 2 7 9 3 4 5 10 8”两端开始“探测”。先从右往左找一个小于6的数，再从左往右找一个大于6的数，然后交换他们。这里可以用两个变量i和j，分别指向序列最左边和最右边。我们为这两个变量起个好听的名字“哨兵i”和“哨兵j”。刚开始的时候让哨兵i指向序列的最左边（即i=1），指向数字6。让哨兵j指向序列的最右边（即=10），指向数字。
+- ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218121956.png)
+- 首先哨兵j开始出动。因为此处设置的基准数是最左边的数，所以需要让哨兵j先出动，这一点非常重要（请自己想一想为什么）。哨兵j一步一步地向左挪动（即j–），直到找到一个小于6的数停下来。接下来哨兵i再一步一步向右挪动（即i++），直到找到一个数大于6的数停下来。最后哨兵j停在了数字5面前，哨兵i停在了数字7面前。
+- ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122030.png)
+- ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122042.png)
+- 现在交换哨兵i和哨兵j所指向的元素的值。交换之后的序列如下：
+  `6 1 2 5 9 3 4 7 10 8`
+- ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122148.png)
+- ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122203.png)
+- 到此，第一次交换结束。接下来开始哨兵j继续向左挪动（再友情提醒，每次必须是哨兵j先出发）。他发现了4（比基准数6要小，满足要求）之后停了下来。哨兵i也继续向右挪动的，他发现了9（比基准数6要大，满足要求）之后停了下来。此时再次进行交换，交换之后的序列如下：
+  `6 1 2 5 4 3 9 7 10 8`
+- 第二次交换结束，“探测”继续。哨兵j继续向左挪动，他发现了3（比基准数6要小，满足要求）之后又停了下来。哨兵i继续向右移动，糟啦！此时哨兵i和哨兵j相遇了，哨兵i和哨兵j都走到3面前。说明此时“探测”结束。我们将基准数6和3进行交换。交换之后的序列如下：
+  `3 1 2 5 4 6 9 7 10 8`
+- ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122258.png)
+- ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122321.png)
+- ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218122330.png)
+- 到此第一轮“探测”真正结束。此时以基准数6为分界点，6左边的数都小于等于6，6右边的数都大于等于6。回顾一下刚才的过程，其实哨兵j的使命就是要找小于基准数的数，而哨兵i的使命就是要找大于基准数的数，直到i和j碰头为止。
+- OK，解释完毕。现在基准数6已经归位，它正好处在序列的第6位。此时我们已经将原来的序列，以6为分界点拆分成了两个序列，左边的序列是“3 1 2 5 4”，右边的序列是“9 7 10 8”。接下来还需要分别处理这两个序列。因为6左边和右边的序列目前都还是很混乱的。不过不要紧，我们已经掌握了方法，接下来只要模拟刚才的方法分别处理6左边和右边的序列即可。现在先来处理6左边的序列现吧。
+- 左边的序列是“3 1 2 5 4”。请将这个序列以3为基准数进行调整，使得3左边的数都小于等于3，3右边的数都大于等于3。好了开始动笔吧
+- 如果你模拟的没有错，调整完毕之后的序列的顺序应该是：
+  `2 1 3 5 4`  
+- OK，现在3已经归位。接下来需要处理3左边的序列“2 1”和右边的序列“5 4”。对序列“2 1”以2为基准数进行调整，处理完毕之后的序列为“1 2”，到此2已经归位。序列“1”只有一个数，也不需要进行任何处理。至此我们对序列“2 1”已全部处理完毕，得到序列是“1 2”。序列“5 4”的处理也仿照此方法，最后得到的序列如下：
+  `1 2 3 4 5 6 9 7 10 8`
+- 对于序列“9 7 10 8”也模拟刚才的过程，直到不可拆分出新的子序列为止。最终将会得到这样的序列，如下
+  `1 2 3 4 5 6 7 8 9 10`
+- 到此，排序完全结束。细心的同学可能已经发现，快速排序的每一轮处理其实就是将这一轮的基准数归位，直到所有的数都归位为止，排序就结束了。
+- ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200218123926.png)
+- 快速排序之所比较快，因为相比冒泡排序，每次交换是跳跃式的。每次排序的时候设置一个基准点，将小于等于基准点的数全部放到基准点的左边，将大于等于基准点的数全部放到基准点的右边。这样在每次交换的时候就不会像冒泡排序一样每次只能在相邻的数之间进行交换，交换的距离就大的多了。因此总的比较和交换次数就少了，速度自然就提高了。当然在最坏的情况下，仍可能是相邻的两个数进行了交换。因此快速排序的最差时间复杂度和冒泡排序是一样的都是O(N2)，它的平均时间复杂度为O(NlogN)。其实快速排序是基于一种叫做“二分”的思想。
   ```java
     public class QuickSort {
         public static void QuickSortTest(int[] arr, int left, int right){

@@ -1,6 +1,7 @@
 # DailyCoding
-
+![](https://img.shields.io/badge/Daily-Coding-red) ![](https://img.shields.io/badge/Author-Mark-lightblue)
 > Mark's personal study notes, which include:  
+
 ## Java
 ### 基础
 - Java8
