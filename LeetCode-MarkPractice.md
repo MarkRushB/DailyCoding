@@ -10,6 +10,7 @@
   - [169 Majority Element](#169-majority-element)
   - [28 Implement strStr()](#28-implement-strstr)
   - [21 Merge Two Sorted Lists](#21-merge-two-sorted-lists)
+  - [27 Remove Element](#27-remove-element)
 ## Attention
 - [刷题需要注意的小细节](LeetCode-Attention.md)
 ## Practice
@@ -35,10 +36,12 @@ Given an array of integers, return indices of the two numbers such that they add
 
 You may assume that each input would have exactly one solution, and you may not use the same element twice.
 
->Example:  
->- Given nums = [2, 7, 11, 15], target = 9,
->- Because nums[0] + nums[1] = 2 + 7 = 9,
->- return [0, 1].  
+**Example:**  
+
+    Given nums = [2, 7, 11, 15], target = 9,
+    Because nums[0] + nums[1] = 2 + 7 = 9,
+    return [0, 1]. 
+
 ```java
 class Solution {
     public int[] twoSum(int[] nums, int target) {   
@@ -57,10 +60,11 @@ class Solution {
 ### Maximum Subarray
 Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.  
 
->Example:  
->- Input: [-2,1,-3,4,-1,2,1,-5,4],  
->- Output: 6  
->- Explanation: [4,-1,2,1] has the largest sum = 6.
+**Example:  **
+
+    Input: [-2,1,-3,4,-1,2,1,-5,4],  
+    Output: 6  
+    Explanation: [4,-1,2,1] has the largest sum = 6.
 
 这个题的思路是：从头开始计算，一旦出现子序列和小于0的情况，就重新开始(sum=0)，因为前面的和为负数的话，后面与它相加会变小。
 ```java
@@ -83,13 +87,15 @@ class Solution {
 Write a function to find the longest common prefix string amongst an array of strings.  
 If there is no common prefix, return an empty string "".
 
->Example 1:
->- Input: ["flower","flow","flight"]  
->- Output: "fl"  
+**Example 1:**
 
->Example 2: 
->- Input: ["dog","racecar","car"]  
->- Output: ""  
+    Input: ["flower","flow","flight"]  
+    Output: "fl"  
+
+**Example 2:**
+
+    Input: ["dog","racecar","car"]  
+    Output: ""  
 
 Explanation: There is no common prefix among the input strings.
 
@@ -133,9 +139,10 @@ class Solution{
 ### 204 Count Primes
 Count the number of prime numbers less than a non-negative number, n.  
 
->Example:  
->- Input: 10  
->- Output: 4  
+**Example:**  
+
+    Input: 10  
+    Output: 4  
 
 Explanation: There are 4 prime numbers less than 10, they are 2, 3, 5, 7.
 
@@ -180,13 +187,15 @@ class Solution {
 ### 169 Majority Element
 Given an array of size n, find the majority element. The majority element is the element that appears **more than** ⌊ n/2 ⌋ times. You may assume that the array is non-empty and the majority element always exist in the array.
 
->Example 1:
->- Input: [3,2,3]
->- Output: 3
+**Example 1:**
 
->Example 2:
->- Input: [2,2,1,1,1,2,2]
->- Output: 2
+    Input: [3,2,3]
+    Output: 3
+
+**Example 2:**
+
+    Input: [2,2,1,1,1,2,2]
+    Output: 2
 
 **思路一：**
 
@@ -228,13 +237,15 @@ class Solution {
 ### 28 Implement strStr()
 Return the index of the first occurrence of needle in haystack, or -1 if needle is not part of haystack.
 
->Example 1:
->- Input: haystack = "hello", needle = "ll"
->- Output: 2
+**Example 1:**
 
->Example 2:
->- Input: haystack = "aaaaa", needle = "bba"
->- Output: -1
+    Input: haystack = "hello", needle = "ll"
+    Output: 2
+
+**Example 2:**
+
+    Input: haystack = "aaaaa", needle = "bba"
+    Output: -1
 
 **Clarification:**
 
@@ -245,9 +256,10 @@ For the purpose of this problem, we will return 0 when needle is an empty string
 ### 21 [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
 Merge two sorted linked lists and return it as a new list. The new list should be made by splicing together the nodes of the first two lists.
 
->Example:
->- Input: 1->2->4, 1->3->4
->- Output: 1->1->2->3->4->4
+**Example:**
+
+    Input: 1->2->4, 1->3->4
+    Output: 1->1->2->3->4->4
 
 **思路一：** 链表合并
  
@@ -311,3 +323,50 @@ public ListNode mergeTwoLists(ListNode l1, ListNode l2){
 时间复杂度| 空间复杂度 | 耗时 | 内存 
 --- | --- | --- | --- 
 O(n) | O(1) | 6ms | 41.3MB
+
+### 27 [Remove Element](https://leetcode.com/problems/remove-element/)
+Given an array nums and a value val, remove all instances of that value in-place and return the new length.
+
+Do not allocate extra space for another array, you must do this by **modifying the input array** in-place with O(1) extra memory.
+
+The order of elements can be changed. It doesn't matter what you leave beyond the new length.
+
+**Example 1:**
+
+    Given nums = [3,2,2,3], val = 3,
+
+    Your function should return length = 2, with the first two elements of nums being 2.
+
+    It doesn't matter what you leave beyond the returned length.
+**Example 2:**
+
+    Given nums = [0,1,2,2,3,0,4,2], val = 2,
+
+    Your function should return length = 5, with the first five elements of nums containing 0, 1, 3, 0, and 4.
+
+    Note that the order of those five elements can be arbitrary.
+
+    It doesn't matter what values are set beyond the returned length.
+
+**方法一：**
+
+**思路：**
+
+- 定义j = 0；用来记录数组中不等于val的元素的个数
+- 从头开始遍历数组（ i =0 ），若数组中元素与val不相等（ 即 nums[ i] != val）则将nums[i]赋给nums[j],然后将j + 1;然后执行下一次循环；若数组中元素与val值相等即（nums[i] != val），则执行下一次循环; z直到循环执行结束
+- 最后返回j
+
+```java
+class Solution {
+    public int removeElement(int[] nums, int val) {
+        int k = 0;
+        for(int n = 0; n < nums.length; n++){
+            if(nums[n] != val){
+                nums[k] = nums[n];
+                k++;
+            }
+        }
+        return k;
+    }
+}
+```
