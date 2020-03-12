@@ -46,8 +46,6 @@
 - [JavaScript](Front-end/Web-JavaScript.md)
 - [Angular](Front-end/Web-Angular.md)
 - [Node.js](Front-end/Web-Node.js.md)
-## Data Science
-  - [DataScience](DataScience/DataScience.md)
 
 
 
