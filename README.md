@@ -43,11 +43,11 @@
 ## Front-end / Back-end
 - HTML
 - CSS
-- [JavaScript](Web-JavaScript.md)
-- [Angular](Web-Angular.md)
-- [Node.js](Web-Node.js.md)
+- [JavaScript](Front-end/Web-JavaScript.md)
+- [Angular](Front-end/Web-Angular.md)
+- [Node.js](Front-end/Web-Node.js.md)
 ## Data Science
-  - [DataScience](DataScience.md)
+  - [DataScience](DataScience/DataScience.md)
 
 
 
