@@ -11,10 +11,12 @@
 - [21 Merge Two Sorted Lists](#21-merge-two-sorted-lists)
 - [27 Remove Element](#27-remove-element)
 - [58 Length of Last Word](#58-length-of-last-word)
+- [83 Remove Duplicates from Sorted List](#83-remove-duplicates-from-sorted-list)
 
 ## Attention
 - [刷题需要注意的小细节](LeetCode-Attention.md)
-- 
+
+
 ## 9 [Palindrome Number](https://leetcode.com/problems/palindrome-number/)
 
 Determine whether an integer is a palindrome. An integer is a palindrome when it reads the same backward as forward.  
@@ -402,6 +404,34 @@ class Solution {
            }
         }
         return count;
+    }
+}
+```
+## 83 [Remove Duplicates from Sorted List](https://leetcode.com/problems/remove-duplicates-from-sorted-list/)
+Given a sorted linked list, delete all duplicates such that each element appear only once.
+
+**Example 1:**
+
+    Input: 1->1->2
+    Output: 1->2    
+**Example 2:**
+
+    Input: 1->1->2->3->3
+    Output: 1->2->3
+
+思路：
+很简单的一道题，考的就是对Java链表结点操作的熟练程度。在一开始我们定义一个指针`cur`，利用cur判断当前与下一个结点的val，相等的话就让cur的next指向next.next。记住每次操作完将cur向后移动一个位置就可以了。
+```java
+class Solution {
+    public ListNode deleteDuplicates(ListNode head) {
+        ListNode cur = head;
+        while(cur != null){
+            while(cur.next != null && cur.val == cur.next.val){
+                cur.next = cur.next.next;
+            }
+            cur = cur.next;
+        }
+        return head;
     }
 }
 ```
