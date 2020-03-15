@@ -1,9 +1,12 @@
 # DailyCoding
 ![](https://img.shields.io/badge/Daily-Coding-red) ![](https://img.shields.io/badge/Author-Mark-lightblue)
-> Mark's personal study notes, which include:  
+> - Transfer to Programmer, Keep Learning.
+> - Mark's personal study notes, which include:  
 
 ## Java
 ### 基础
+![](https://img.shields.io/badge/Status-Updating-black)
+> 这一部分是对Java知识的查漏补缺
 - Java8
   - [Lambda表达式总结](Java/Java8/Lambda表达式总结.md)
   - [Stream](Java/Java8/Stream.md)
@@ -34,13 +37,25 @@
   - [NIO-1-基础](Java/NIO/NIO-1-基础.md)
   - [NIO底层原理](Java/NIO/NIO底层原理.md) 
 ### Leetcode
+![](https://img.shields.io/badge/Status-Updating-black)
+>Mark的刷题总结，保持更新
 - [Practice](LeetCode-MarkPractice.md)
 - [Attention](LeetCode-Attention.md)
 ### NEU Course
+![](https://img.shields.io/badge/Status-Closed-black)
+>Mark NEU AED课程的quiz题，已完结
 - [Quiz Coding](INFO5100-quizReview.md)
 ## Data Structure and Algorithms
+![](https://img.shields.io/badge/Status-Updating-black)
+>基于Java的数据结构和算法总结
+>刚开始更新的时候缺少规划，没有分页，所以导致所有的内容都在同一个`Markdown`文件内。
+>开头有content，可以检索并直接跳转
 - [个人总结](./DataStructure&Algorithm/DataStructuresandAlgorithms.md)
 ## Front-end / Back-end
+![](https://img.shields.io/badge/Status-Updating-black)
+>课上讲的和自学的一些前端的知识，保持更新
+>- 编程语言
+>- 框架｜服务器搭建
 - HTML
 - CSS
 - [JavaScript](Front-end/Web-JavaScript.md)

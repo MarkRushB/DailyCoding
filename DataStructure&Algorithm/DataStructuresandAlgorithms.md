@@ -46,6 +46,7 @@
     - [Conclusion](#conclusion)
     - [Improvement](#improvement)
   - [Sorts](#sorts)
+    - [How to choose a sort algorithm?](#how-to-choose-a-sort-algorithm)
     - [Ten Sorts we usually use](#ten-sorts-we-usually-use)
     - [Bubble Sort](#bubble-sort)
     - [Selection Sort](#selection-sort)
@@ -2113,6 +2114,9 @@ Defects
   ```
 - ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200203113926.png) 
 ## Sorts
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200315172500.png)
+### How to choose a sort algorithm?
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200315172645.png)
 ### Ten Sorts we usually use
 ![](https://www.runoob.com/wp-content/uploads/2019/03/sort.png)
 ![](https://www.runoob.com/wp-content/uploads/2019/03/0B319B38-B70E-4118-B897-74EFA7E368F9.png)
