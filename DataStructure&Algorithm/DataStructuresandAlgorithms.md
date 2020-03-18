@@ -35,6 +35,13 @@
     - [二叉堆实现优先队列API](#二叉堆实现优先队列api)
       - [示例代码](#示例代码)
       - [时间复杂度分析](#时间复杂度分析-2)
+  - [Symbol table](#symbol-table)
+    - [基本概念](#基本概念)
+    - [API](#api)
+    - [equal()方法详解](#equal方法详解)
+    - [简单应用](#简单应用)
+    - [基本实现](#基本实现)
+    - [符号表的操作](#符号表的操作)
 - [Algorithms](#algorithms)
   - [Arbitrary Substitution Principle](#arbitrary-substitution-principle)
   - [Entropy](#entropy)
@@ -56,6 +63,11 @@
     - [Quick Sort](#quick-sort)
     - [Heap Sort](#heap-sort)
   - [Binary Search](#binary-search)
+  - [Binary Search Trees](#binary-search-trees)
+    - [基本概念](#基本概念-1)
+    - [基本操作](#基本操作)
+    - [其他操作](#其他操作)
+    - [删除操作](#删除操作)
   - [Random Walk](#random-walk)
     - [Introduce](#introduce)
     - [Implement](#implement)
@@ -1850,17 +1862,132 @@ public Key deleteMax(){
 2. 输出集合里的元素：调用deleteMax()，数组元素从M个缩减为0个，删除第一个元素之后，是在（M-1）个元素里执行下沉，所以时间复杂度为`2*(⌊log2(M-1)⌋ + ⌊log2(M-2)⌋ + … + ⌊log21⌋) = (2Mlog2M) - 4(M-1)`。
 
 求和之后得到`3Nlog2M - 6M + 6 ≈ O(Nlog2M)`。
+## Symbol table
+### 基本概念
+符号表是一种键值对(key-value)的数据结构，其基本操作包括：插入一个键值对，根据键查找其对应的值。
+符号表在现实中最常见的应用有：DNS域名解析系统（如下图），routing table路由表，file system文件系统等。
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR1MHRmcHBqMjBkYTA2dmdsdy5qcGc?x-oss-process=image/format,png)
 
+### API
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200316175939.png)
+符号表中value的类型可以是任意的（泛型），但key的类型必须要满足以下条件：
+- key是Comparable的，使用compareTo()方法来比较大小；
+- key可以是泛型，但必须使用equals()方法来判断是否相等；
+- key可以是泛型，但必须使用equals()方法来判断是否相等，使用hashCode()来置乱key。
 
+实践证明，key最好使用不可更改类型(immutable)，如Integer, Double, String等常用类型。
+### equal()方法详解
+所有的java类都继承了equals()方法，但使用equals()方法必须满足等价关系,具体描述成：
 
+- 自反性：x.equals(x)是正确的;
+- 对称性：如果x.equals(y)，则必有y.equals(x);
+- 传递性：如果x.equals(y), y.equals(z), 则必有x.equals(z);
+- 非空性：x.equals(null)是错误的。
 
+因此，如果要判断x是否为空，不能用equals()，只能x==null。另外，一切不满足等价关系的变量均不能使用equals()。
 
+用户自定义的类也可以重写equals()方法，一般重写equals()方法遵守以下套路：
+```java
+//必须传入Object对象
+public boolean equals(Object y){
+    //如果是本类对象的引用，绝对是相等的（自反性）
+    if (y == this) return true;
+    //如果对象为null，绝对不相等（非空性）
+    if (y == null) return false;
+    //如果不同类，绝对不相等
+    if (y.getClass() != this.getClass())
+        return false;
 
+    //强制类型转换
+    Date that = (Date) y;
+    //判断，如果是基本类型使用==，如果是对象使用equals()，如果是数组使用Arrays.equals(a,b)
+    if (this.day != that.day ) return false;
+    if (this.month != that.month) return false;
+    if (this.year != that.year ) return false;
+    return true;
+}
+```
+### 简单应用
+想象一个场景：程序顺序读取文件的内容（字符串）最为key，同时关联读取的顺序i作为value
+代码如下：
+```java
+public static void main(String[] args){
 
-
-
-
-
+    ST<String, Integer> st = new ST<String, Integer>();
+    //插入
+    for (int i = 0; !StdIn.isEmpty(); i++){
+        String key = StdIn.readString();
+        st.put(key, i);
+    }
+    //查询
+    for (String s : st.keys())
+        StdOut.println(s + " " + st.get(s));
+}
+```
+结果如下：
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDEuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR2anhtcmVqMjBlazAyZXdlZS5qcGc?x-oss-process=image/format,png)
+### 基本实现
+下面介绍符号表的两种实现方法：顺序查找法和二叉树法
+**顺序查找**
+顺序查找法通过无序链表来保存键值对。查找时,按指针顺序查找，直到找到匹配的key；插入时，先查找，若找到匹配的可以则要替换value，若找不到则在链表前面插入节点。如下图所示:
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDIuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR1ZnZ4OW5qMjBqaTBhZzN6dS5qcGc?x-oss-process=image/format,png)
+**二叉树法**
+二叉树法是通过两个有序数组来保存键值对的，一个保存键，另一个在相应位置保存值。**查找**时，使用二分查找法，能够非常高效地找到匹配的可以（或确认不存在）；**插入**时，将项插入到有序数组最后，在跟前面大于该项的其他项交换位置，直至有序，同时存储键的数组也要做相应交换。
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDQuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR0Nms3NjlqMjBtcTBiNTc1bi5qcGc?x-oss-process=image/format,png)
+二叉树法中，需要运用到一个很方便的辅助函数rank(key)：返回key的排位。代码实现如下：
+```java
+//返回key在有序数组中的排位，二分查找法
+private int rank(Key key){
+    int lo = 0, hi = N-1;
+    while (lo <= hi){
+        int mid = lo + (hi - lo) / 2;
+        int cmp = key.compareTo(keys[mid]);
+        if (cmp < 0) hi = mid - 1;
+        else if (cmp > 0) lo = mid + 1;
+        else return mid;
+    }
+    return lo;
+}
+```
+有了rank(key)方法之后，get(key)的实现将相当简单。
+```java
+public Value get(Key key){
+    if (isEmpty()) return null;
+    //查到key的排位，同时也是value的排位
+    int i = rank(key);
+    if (i < N && keys[i].compareTo(key) == 0) return vals[i];
+    else return null;
+}
+```
+顺序链表和二叉树的性能对比如下：
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDQuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR2cHFuZWhqMjBtbDA4MHQ5ZC5qcGc?x-oss-process=image/format,png)
+从表中可以看出，二叉树在查找上显示了极优的性能，但在插入上仍然不能满足性能要求，这一点将会在下一小节分析的二叉搜索树得以解决。
+### 符号表的操作
+对于符号表，除了查找和插入操作之外，还有其他极其丰富的操作接口，详细的API如下所示：
+```java
+public class ST<Key extends Comparable<Key>, Value>{
+    ST() //构造函数
+    void put(Key key, Value val) //插入键值对
+    Value get(Key key) //根据键key获取其值value，如果没有返回null
+    void delete(Key key) //根据键key删除键值对
+    boolean contains(Key key) //查找是否包含该键
+    boolean isEmpty() //判空
+    int size() //大小
+    Key min() //查找最小的key
+    Key max() //查找最大的key
+    Key floor(Key key) //查找小于或等于key中最大的那个
+    Key ceiling(Key key) //查找大于或等于key中最小的那个
+    int rank(Key key) //根据可以返回其排位
+    Key select(int k) //根据排序查找key
+    void deleteMin() //删除最小的key
+    void deleteMax() //删除最大的key
+    int size(Key lo, Key hi) //key lo到key hi之间key的数量
+    Iterable<Key> keys(Key lo, Key hi) //迭代key lo到key hi之间key
+    Iterable<Key> keys() //迭代所有的key
+}
+```
+通过顺序查找法和二叉树法实现的符号表中，其操作的时间性能如下图所示：
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDEuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR2eGNpc3pqMjBjbTBkM214aC5qcGc?x-oss-process=image/format,png)
 
 
 
@@ -2840,6 +2967,197 @@ public class Solution {
 
 }
 ```
+
+## Binary Search Trees
+### 基本概念
+二叉搜索树是拥有**对称顺序**的**二叉树**。
+所谓的**二叉树**其左右子树均是二叉树或空（递归定义）。
+所谓**对称顺序**是指二叉树的任意一个节点的值大于其左子树的节点值，小于其右子树的节点值。
+如图所示:
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR0OWJlcjBqMjA5azA1andlci5qcGc?x-oss-process=image/format,png)
+
+二叉搜索树BST的API如下：
+```java
+public class BST<Key extends Comparable<Key>, Value>{
+    //树根
+    private Node root;
+    //树的节点类
+    private class Node{
+        private Key key;//键
+        private Value val;//值
+        private Node left;//左链接
+        private Node right;//右链接
+        private int count;//左右子树节点总数
+    }
+    public void put(Key key, Value val);//插入键值对
+    public Value get(Key key);//根据key查找
+    public void delete(Key key);//根据key删除
+    public Iterable<Key> iterator();//迭代所有key
+}
+```
+### 基本操作
+**查找**：二分查找，若小于root往左边；若大于root往右边；若相等返回root。
+
+**插入**：先用二分查找法找到key的合适位置，创建节点后插入。插入节点后需要修改上层root节点的count值。假设在查找过程中遇到匹配key的节点，则直接替换其value。
+
+一般情况下，查找和插入操作使用递归法会比较简洁。
+```java
+//查找
+public Value get(Key key){
+    Node x = root;
+    while (x != null){
+        int cmp = key.compareTo(x.key);
+        if (cmp < 0) x = x.left;
+        else if (cmp > 0) x = x.right;
+        else if (cmp == 0) return x.val;
+    }
+    return null;
+}
+//插入
+public void put(Key key, Value val){
+    root = put(root, key, val);
+}
+
+private Node put(Node x, Key key, Value val){
+    if (x == null)
+        return new Node(key, val, 1);
+
+    int cmp = key.compareTo(x.key);
+    if (cmp < 0)
+        x.left = put(x.left, key, val);
+    else if (cmp > 0)
+        x.right = put(x.right, key, val);
+    else
+        x.val = val;
+    //修改上层root节点的count
+    x.count = 1 + size(x.left) + size(x.right);
+    return x;
+}
+```
+由上面代码可以发现，查找和插入的时间性能都是取决于树的高度。一旦树的高度变得非常陡峭的话，时间性能就会变坏，如图所示。而树高取决于节点的插入顺序，因此尽量随机插入数字，避免树过于陡峭。
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDEuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR2MTl3cTVqMjA2MDA1am14My5qcGc?x-oss-process=image/format,png)
+
+如果没有相同的key，且随机插入的话，BST的时间性能与快速排序的partitioning一样的。
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDIuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR3MGlmOG9qMjBuazA5NjB0ZC5qcGc?x-oss-process=image/format,png)
+### 其他操作
+**最小key**：查找左子树直到null
+**最大key**：查找右子树直到null
+**Floor向下取整**：如Floor(G)是查找小于G中的最大值
+**Ceiling向上取整**：如Ceiling(G)是查找大于G中的最小值
+
+这里重点分析Floor（Ceilling同理），代码和图示如下
+```java
+public Key floor(Key key){
+    Node x = floor(root, key);
+    if (x == null) return null;
+    return x.key;
+}
+private Node floor(Node x, Key key){
+    if (x == null) return null;
+    int cmp = key.compareTo(x.key);
+
+    if (cmp == 0) return x;
+    if (cmp < 0) return floor(x.left, key);
+
+    Node t = floor(x.right, key);
+    if (t != null) return t;
+    else return x;
+}
+```
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDQuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR1NGQzODlqMjA5ajBoMnQ5ay5qcGc?x-oss-process=image/format,png)
+
+**Size大小**：返回root节点的count（子树节点数量）
+**Rank节点的排位**：关键就暗示借助count值。若==root，排位k则为root的count值；若 < root，排位k则为左子树root的count；若 > root，则为左子树root的count + 1 +右子树root的count。
+```java
+public int rank(Key key){
+    return rank(key, root);
+}
+private int rank(Key key, Node x){
+    if (x == null) return 0;
+    int cmp = key.compareTo(x.key);
+    // < root
+    if (cmp < 0) return rank(key, x.left);
+    // > root
+    else if (cmp > 0) return 1 + size(x.left) + rank(key, x.right);
+    // == root
+    else  return size(x.left);
+}
+```
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDIuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR1am1qMW9qMjA3azA1Y3EyeS5qcGc?x-oss-process=image/format,png)
+
+**Inorder Traversal中序遍历**：中序遍历按照如下顺序递归遍历：遍历左子树——>root——>遍历右子树。
+```java
+public Iterable<Key> keys(){
+    Queue<Key> q = new Queue<Key>();
+    inorder(root, q);
+    return q;
+}
+private void inorder(Node x, Queue<Key> q){
+    if (x == null) return;
+    //遍历左子树
+    inorder(x.left, q);
+    //root
+    q.enqueue(x.key);
+    //遍历右子树
+    inorder(x.right, q);
+}
+```
+**时间性能对比**
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDIuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR3M3E1MndqMjBvczBkMzB0aC5qcGc?x-oss-process=image/format,png)
+### 删除操作
+在BST中，由于删除操作会打破BST的规则，需要调整BST，故在此处着重分析。
+
+**方法一**
+
+直接将匹配key的节点的value设置成null。
+这种方法属于偷懒型的方法，实际上节点仍然存在，且BST没有变化。只是根据key查找时将返回null而已。
+这种方法的时间主要消耗在查找上，故与查找一致，为~2lgN。
+
+**方法二**
+
+真正地删除节点，并调整BST
+
+**case1**：如果待删除的节点没有子节点，则直接删除（设置其父节点的链接为null）。
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDQuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR0YzRqdW1qMjBtbTBhMXQ5aC5qcGc?x-oss-process=image/format,png)
+
+**case2**：如果待删除的节点只有一个子节点，则删除该节点后（设置其父节点的链接为替换节点，设置其链接为null），其位置用子节点替换。
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR0azhhcjJqMjBtMzA4ZmdtOC5qcGc?x-oss-process=image/format,png)
+
+**case3**：如果待删除的节点有两个子节点，则删除该节点后（设置其父节点的链接为替换节点，设置其链接为null），其位置用右子树的最小节点替换。
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR0bjBtcXZqMjBodjBhZmdtZy5qcGc?x-oss-process=image/format,png)
+
+```java
+public void delete(Key key){
+    root = delete(root, key);
+}
+
+private Node delete(Node x, Key key) {
+    if (x == null) return null;
+
+    int cmp = key.compareTo(x.key);
+
+    if (cmp < 0) x.left = delete(x.left, key);
+    else if (cmp > 0) x.right = delete(x.right, key);
+
+    else {
+        //没有子节点或只有一个子节点的情况
+        if (x.right == null) return x.left;
+        if (x.left == null) return x.right;
+        //有连个子节点的情况
+        Node t = x;
+        //找到右子树最小节点
+        x = min(t.right);
+        //删除：t的位置由X替代，且左子树不变，右子树替换成删除min之后的子树
+        x.right = deleteMin(t.right);
+        x.left = t.left;
+    }
+    //调整count值
+    x.count = size(x.left) + size(x.right) + 1;
+    return x;
+}
+```
+**时间性能**：大量实验证明，BST的删除操作的时间性能与（根号N）成正比，~√N。
+
 ## Random Walk
 ### Introduce
 ### Implement
