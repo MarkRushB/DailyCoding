@@ -68,6 +68,19 @@
     - [基本操作](#基本操作)
     - [其他操作](#其他操作)
     - [删除操作](#删除操作)
+  - [Blanced Search Tree](#blanced-search-tree)
+    - [2-3 Search Tree](#2-3-search-tree)
+      - [基本概念](#基本概念-2)
+      - [基本操作](#基本操作-1)
+      - [性能分析](#性能分析)
+      - [存在问题](#存在问题)
+    - [Red-Black BSTs](#red-black-bsts)
+      - [基本操作](#基本操作-2)
+      - [性能分析](#性能分析-1)
+      - [应用](#应用)
+    - [B Tree](#b-tree)
+      - [基本概念](#基本概念-3)
+      - [基本操作](#基本操作-3)
   - [Random Walk](#random-walk)
     - [Introduce](#introduce)
     - [Implement](#implement)
@@ -2974,6 +2987,7 @@ public class Solution {
 所谓的**二叉树**其左右子树均是二叉树或空（递归定义）。
 所谓**对称顺序**是指二叉树的任意一个节点的值大于其左子树的节点值，小于其右子树的节点值。
 如图所示:
+
 ![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR0OWJlcjBqMjA5azA1andlci5qcGc?x-oss-process=image/format,png)
 
 二叉搜索树BST的API如下：
@@ -3020,7 +3034,9 @@ public void put(Key key, Value val){
 
 private Node put(Node x, Key key, Value val){
     if (x == null)
+    //如果根节点为空，证明BST没有任何节点，所以直接设置一个根节点就可以了
         return new Node(key, val, 1);
+        
 
     int cmp = key.compareTo(x.key);
     if (cmp < 0)
@@ -3035,9 +3051,11 @@ private Node put(Node x, Key key, Value val){
 }
 ```
 由上面代码可以发现，查找和插入的时间性能都是取决于树的高度。一旦树的高度变得非常陡峭的话，时间性能就会变坏，如图所示。而树高取决于节点的插入顺序，因此尽量随机插入数字，避免树过于陡峭。
+
 ![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDEuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR2MTl3cTVqMjA2MDA1am14My5qcGc?x-oss-process=image/format,png)
 
 如果没有相同的key，且随机插入的话，BST的时间性能与快速排序的partitioning一样的。
+
 ![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDIuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR3MGlmOG9qMjBuazA5NjB0ZC5qcGc?x-oss-process=image/format,png)
 ### 其他操作
 **最小key**：查找左子树直到null
@@ -3067,6 +3085,17 @@ private Node floor(Node x, Key key){
 ![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDQuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR1NGQzODlqMjA5ajBoMnQ5ay5qcGc?x-oss-process=image/format,png)
 
 **Size大小**：返回root节点的count（子树节点数量）
+```java
+public int size() {
+    return size(root);
+}
+
+private int size(Node x) {
+    if (x == null)
+        return 0;
+    return x.count;
+}
+```
 **Rank节点的排位**：关键就暗示借助count值。若==root，排位k则为root的count值；若 < root，排位k则为左子树root的count；若 > root，则为左子树root的count + 1 +右子树root的count。
 ```java
 public int rank(Key key){
@@ -3103,6 +3132,7 @@ private void inorder(Node x, Queue<Key> q){
 }
 ```
 **时间性能对比**
+
 ![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDIuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR3M3E1MndqMjBvczBkMzB0aC5qcGc?x-oss-process=image/format,png)
 ### 删除操作
 在BST中，由于删除操作会打破BST的规则，需要调整BST，故在此处着重分析。
@@ -3118,12 +3148,15 @@ private void inorder(Node x, Queue<Key> q){
 真正地删除节点，并调整BST
 
 **case1**：如果待删除的节点没有子节点，则直接删除（设置其父节点的链接为null）。
+
 ![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDQuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR0YzRqdW1qMjBtbTBhMXQ5aC5qcGc?x-oss-process=image/format,png)
 
 **case2**：如果待删除的节点只有一个子节点，则删除该节点后（设置其父节点的链接为替换节点，设置其链接为null），其位置用子节点替换。
+
 ![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR0azhhcjJqMjBtMzA4ZmdtOC5qcGc?x-oss-process=image/format,png)
 
 **case3**：如果待删除的节点有两个子节点，则删除该节点后（设置其父节点的链接为替换节点，设置其链接为null），其位置用右子树的最小节点替换。
+
 ![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR0bjBtcXZqMjBodjBhZmdtZy5qcGc?x-oss-process=image/format,png)
 
 ```java
@@ -3157,6 +3190,217 @@ private Node delete(Node x, Key key) {
 }
 ```
 **时间性能**：大量实验证明，BST的删除操作的时间性能与（根号N）成正比，~√N。
+
+## Blanced Search Tree
+>- [数据结构_平衡二叉搜索树(AVL树)](https://blog.csdn.net/xc13212777631/article/details/80760427)
+>- [【Algorithms公开课学习笔记9】 符号表part2——平衡搜索树](https://blog.csdn.net/a791693310/article/details/82946331)
+
+在二叉搜索树中，已经知道search、insert和remove等主要接口的运行时间均正比于树的高度。但是在最坏的情况下，二叉搜索树可能退化成列表，此时查找的效率会降至O(n)。因此，通常通过控制树高，来控制最坏情况下的时间复杂度。
+对于节点数目固定的BST，越是平衡，最坏情况下的查找速度越快，如下图所示：
+
+![](https://img-blog.csdn.net/2018062114300839?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3hjMTMyMTI3Nzc2MzE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+
+### 2-3 Search Tree
+#### 基本概念
+2-3树的是由若干个2-节点(2-node)和3-节点(3-node)构成的树。其基本特征是有序对称(symmetric order)和绝对平衡(perfect balance)。
+
+- **2-节点**：2-节点具有一个key和两个子链接
+- **3-节点**：3-节点具有两个key和三个子链接
+- **有序对称**：通过中序遍历将得到递增的序列（升序序列）
+- **绝对平衡**：从根节点到空链接的路径都是相同长度的
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDVmbXlrdnJqMjBobzA5aW14aC5qcGc?x-oss-process=image/format,png)
+#### 基本操作
+>比较有意思的是它的插入过程。比如在上图的树中插入元素 Z，我们可以一直对比到最右下角的 S/X 节点，将 Z 插入该节点，这样它就变成了一个四分支节点。然后进行节点分裂，X 与父节点 R 组合在一起，S 和 Z 节点分离生成两个新节点。
+
+**查找操作**：对比节点key值，如果大于key，查右子树；如果小于key，查左子树；直到等于key或查到空链接。特别地，对于3-节点，如果小于左key，查左子树；如果大于左key小于右key，查中子树；如果大于右key，查右子树；直到等于key或查到为空链接。
+
+**插入操作**：查找到该节点key值的合适位置，插入节点。如果该节点变成3-节点，无需操作；如果该节点变成4-节点，则要将中间key值的节点上浮到父节点，以此类推。在上浮过程中，如果root节点成为4-节点，则中间key值节点成为新root节点，左右key值节点分离成为新root节点的子节点。
+
+下图示意了三种上浮的情况：
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDEuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDVneGwyZzJqMjBubDA5cXEzdC5qcGc?x-oss-process=image/format,png)
+
+#### 性能分析
+操作、插入、删除操作均~clgN，其中系数c取决于实现方法（0< c <1）
+分析所得，最坏的情况下是lgN，做好的情况下是log3N（约为0.631 lgN。
+#### 存在问题
+现实中，直接实现2-3树是非常复杂的，主要有以下原因：
+- 维持多种类型的节点是冗余的（至少需要维持2-节点、3-节点和4-节点）
+- 需要多种比较才能降低树高
+- 需要增加树高以分离4-节点
+- 分离节点时的情况太多
+
+因为 2-3 树的平衡性很好，所以增删改查等操作仅仅需要 clgN 的时间复杂度。不过它太过复杂，需要考虑很多这种情况，所以并没有给出具体实现代码。我们有更好的解决方案。
+
+### Red-Black BSTs
+在普林斯顿算法课程中，老爷子在开讲前说了这么一段话：
+>On a personal note, I wrote a research paper on this topic in 1979 with Leo Givas and we thought we pretty well understood these data structures at that time and people around the world use them in implementing various different systems. But just a few years ago for this course I found a much simpler implementation of red-black trees and this is just the a case study showing that there are simple algorithms still out there waiting to be discovered and this is one of them that we're going to talk about.
+
+没想到屏幕后的教授就是红黑树的作者之一，并且在准备这门课时又想出了一种更简单的实现方法。能有幸听到红黑树作者讲红黑树，这是一件多么幸福的事啊。
+
+上一节分析了2-3树存在的问题就是实现起来非常复杂，因此引入了（左倾）红黑树来表示2-3树。（**这样的话，实现红黑树就相当于实现了2-3树**）
+
+在红黑树中，存在以下特征：（结合下图）
+- 没有节点连接两条红链接
+- 每一条从根到空链接的路径中黑链接的数量的相等的
+- 红链接都是左倾的
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDVnMGJqMG5qMjBmeTA2dHdlbC5qcGc?x-oss-process=image/format,png)
+
+当理解红黑树的特征之后，接着看看用红黑树来表示2-3树的方法：将红黑树中左倾的红链接水平放置，那么红链接所连接的两节点就构成了2-3树的3-节点，其他的构成2-节点。（结合下图）
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDVncXp0dHZqMjBlNDBkNzB0Yi5qcGc?x-oss-process=image/format,png)
+#### 基本操作
+**节点表示Node**
+由于每一个节点仅有一个链接指向父节点，因此对此链接标色，以区别红黑链接
+```java
+private static final boolean RED = true;
+private static final boolean BLACK = false;
+
+private class Node{
+    Key key;
+    Value val;
+    Node left, right;
+    boolean color; // 父链接的标色
+}
+
+private boolean isRed(Node x){
+    if (x == null) return false;
+    return x.color == RED;
+}
+```
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDVnYmYzOHhqMjBiYTAzeTc0OS5qcGc?x-oss-process=image/format,png)
+
+**左旋left rotation**
+```java
+private Node rotateLeft(Node h){
+    assert isRed(h.right);//判断右链接是否红，即是否右倾的情况
+    Node x = h.right;
+    h.right = x.left;
+    x.left = h;
+    x.color = h.color;
+    h.color = RED;
+    return x;
+}
+```
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDIuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDVoeDdsYjNqMjBvMzA4ZnEzYy5qcGc?x-oss-process=image/format,png)
+
+**右旋right rotation**
+```java
+private Node rotateRight(Node h){
+    assert isRed(h.left);//判断左链接是否红，即是否左倾的情况
+    Node x = h.left;
+    h.left = x.right;
+    x.right = h;
+    x.color = h.color;
+    h.color = RED;
+    return x;
+}
+```
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDIuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDVpODdjcXVqMjBsbDA4M214ai5qcGc?x-oss-process=image/format,png)
+
+**跳色color flip**
+在插入时，有的节点可能会产生三个键值，我们需要让子节点分裂，中间节点合并到父节点中，改变节点的颜色就可以完成这个操作。
+```java
+private void flipColors(Node h){
+    assert !isRed(h);//判断
+    assert isRed(h.left);
+    assert isRed(h.right);
+    h.color = RED;
+    h.left.color = BLACK;
+    h.right.color = BLACK;
+}
+```
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDVndXM0YzlqMjBzNDA4ZmdtaC5qcGc?x-oss-process=image/format,png)
+
+通过左旋、右旋、跳色等操作，可以保持红黑树的对称有序和绝对平衡的特点。
+
+**查找**
+基于红黑树实现的BSTs的查找操作与基本的BST的查找操作是一致的。
+```java
+
+public Val get(Key key){
+    Node x = root;
+    while (x != null){
+        int cmp = key.compareTo(x.key);
+        if (cmp < 0) x = x.left;
+        else if (cmp > 0) x = x.right;
+        else return x.val;
+    }
+    return null;
+}
+```
+**插入**
+当插入一个节点（节点C）到一棵红黑树中，为了保持绝对平衡和对称有序的特点，存在以下情况：
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDVnNjd6OGZqMjBuazBkb3dnYi5qcGc?x-oss-process=image/format,png)
+
+插入的节本操作可以描述成：（结合下图）
+
+- 基本的BST插入操作，同时新插入的节点的附链接标成红色
+- 如果需要的话，左右旋转去平衡4-节点（一个节点同时连接两个红链接）
+- 通过跳色操作将红链接往上一层传递
+- 如果需要的话，旋转以保持所有的红链接左倾
+- 循环操作直到满足红黑树的所有特征
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDQuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDVnOHQ4b2NqMjBvNDA5dWFiNi5qcGc?x-oss-process=image/format,png)
+
+总结起来，在递归的场景下，就是以下三种情况：
+
+- 右链接红，左链接黑：左旋
+- 左链接红，左子节点的左链接红：右旋
+- 左右链接红：跳色
+```java
+private Node put(Node h, Key key, Value val){
+
+    if (h == null) return new Node(key, val, RED);//插入节点（递归出口）
+    int cmp = key.compareTo(h.key);
+    if (cmp < 0) h.left = put(h.left, key, val);
+    else if (cmp > 0) h.right = put(h.right, key, val);
+    else  h.val = val;
+
+    if (isRed(h.right) && !isRed(h.left)) h = rotateLeft(h);
+    if (isRed(h.left) && isRed(h.left.left)) h = rotateRight(h);
+    if (isRed(h.left) && isRed(h.right)) flipColors(h);
+
+    return h;
+}
+```
+#### 性能分析
+通过红黑树实现的BST，其树高在通常情况下 ~lgN，在最坏的情况下不超过 ~2lgN。
+#### 应用
+JAVA:java.util.TreeMap ,java.util.TreeSet等数据结构
+C++ STL：map, mutilmap, mutilset等数据结构
+linux内核
+
+### B Tree
+#### 基本概念
+B树是2-3树的泛化：在B树中，每个节点允许有M-1个子节点（子链接）。（M的取值视实际情况而定）
+B树的特征如下：（结合下图）
+
+- 根节点至少有两个子链接
+- 其他节点至少有M/2个子链接
+- 外部节点包含内部节点的key（叶节点就是外部节点）
+- 内部节点包含每个外部节点的首个key（用于索引）
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDEuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDVnM29sdjRqMjBtcTA3eHQ5aC5qcGc?x-oss-process=image/format,png)
+
+#### 基本操作
+**查找**
+- 从根节点开始
+- 通过内部节点对比key，确定对应的链接
+- 通过链接确定存储key的外部节点
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDVpYXpndndqMjBtYzA4bHQ5YS5qcGc?x-oss-process=image/format,png)
+
+**插入**
+- 先查找新key的位置
+- 插入
+- 如果溢出，则要分离节点，并将首key存储在上一级的内部节点
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDIuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDVoM2R4Y21qMjBqZjBka3Q5cC5qcGc?x-oss-process=image/format,png)
+
+**应用**
+B树被广泛地应用在各操作系统的文件系统和数据库中。如windows的NTFS、Mac的HFS和SQL、ORACLE等各种主流数据库。
 
 ## Random Walk
 ### Introduce
