@@ -35,13 +35,26 @@
     - [二叉堆实现优先队列API](#二叉堆实现优先队列api)
       - [示例代码](#示例代码)
       - [时间复杂度分析](#时间复杂度分析-2)
-  - [Symbol table](#symbol-table)
+  - [Symbol Table](#symbol-table)
     - [基本概念](#基本概念)
     - [API](#api)
     - [equal()方法详解](#equal方法详解)
     - [简单应用](#简单应用)
     - [基本实现](#基本实现)
     - [符号表的操作](#符号表的操作)
+  - [Hash Table](#hash-table)
+    - [前言](#前言)
+    - [哈希函数](#哈希函数)
+      - [HashCode](#hashcode)
+      - [均匀哈希假想（Uniform hashing assumption）](#均匀哈希假想uniform-hashing-assumption)
+    - [哈希冲突之分链法（separate chaining)](#哈希冲突之分链法separate-chaining)
+    - [哈希冲突之线性探测（linear probing）](#哈希冲突之线性探测linear-probing)
+    - [knuth’s parking问题](#knuths-parking问题)
+    - [单向哈希函数](#单向哈希函数)
+    - [分链法vs线性探测法](#分链法vs线性探测法)
+    - [优化的哈希函数](#优化的哈希函数)
+    - [哈希表vs平衡搜索树](#哈希表vs平衡搜索树)
+    - [对比总结](#对比总结)
 - [Algorithms](#algorithms)
   - [Arbitrary Substitution Principle](#arbitrary-substitution-principle)
   - [Entropy](#entropy)
@@ -1875,7 +1888,7 @@ public Key deleteMax(){
 2. 输出集合里的元素：调用deleteMax()，数组元素从M个缩减为0个，删除第一个元素之后，是在（M-1）个元素里执行下沉，所以时间复杂度为`2*(⌊log2(M-1)⌋ + ⌊log2(M-2)⌋ + … + ⌊log21⌋) = (2Mlog2M) - 4(M-1)`。
 
 求和之后得到`3Nlog2M - 6M + 6 ≈ O(Nlog2M)`。
-## Symbol table
+## Symbol Table
 ### 基本概念
 符号表是一种键值对(key-value)的数据结构，其基本操作包括：插入一个键值对，根据键查找其对应的值。
 符号表在现实中最常见的应用有：DNS域名解析系统（如下图），routing table路由表，file system文件系统等。
@@ -2001,6 +2014,322 @@ public class ST<Key extends Comparable<Key>, Value>{
 ```
 通过顺序查找法和二叉树法实现的符号表中，其操作的时间性能如下图所示：
 ![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDEuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDR2eGNpc3pqMjBjbTBkM214aC5qcGc?x-oss-process=image/format,png)
+## Hash Table
+### 前言
+前面的文章我们分析了符号表的集中实现方式：有序链表、无序数组、二叉搜索树(BST)、平衡搜索树（红黑树法）等，通过下图回忆一下各种实现方法的性能对比。
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDQuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDYwNjI5d25qMjBvbTBiNWpzYi5qcGc?x-oss-process=image/format,png)
+
+除此之外，还存在性能更好的实现方法，就是利用Hash Table
+### 哈希函数
+哈希表就是使用一个key-indexed的表来存储数据，其中该index是对key使用哈希函数计算的结果。
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDV5ejBhbDhqMjAzcDA3NjN5Yi5qcGc?x-oss-process=image/format,png)
+
+哈希存在以下三个注意事项：
+
+- 哈希容易运算
+- 相等性检测：能够通过哈希运算检测两个输入值是否相等
+- 冲突解决：能够解决哈希冲突的情况。哈希冲突是指当两个不同的输入经过哈希运算的结果相同的index时
+
+所以，哈希函数的目标是：均匀地为每一个key产生一个index，具体体现在：
+
+- 高效的运算
+- 一个index等可能地服务于一个key（理想情况下，一个key只产生一个index）
+#### HashCode
+在Java中，每一个类都继承了hashCode()方法，该方法会返回一个32bit的整型数据。
+
+默认情况下，hashCode(x)返回的是x在内存中的地址，用户可以通过重写hashCode()方法改变这一规则。在Java库里，hashCode()的实现如下：
+
+**Interger**
+```java
+//Integer,整型本身就可以作为index，故返回本身
+public final class Integer{
+    private final int value;
+    ...
+    public int hashCode(){
+        return value; }
+}
+```
+**Boolean**
+```java
+//Boolean，布尔值只有两种情况，故只需返回两个index
+public final class Boolean{
+    private final boolean value;
+    ...
+    public int hashCode(){
+        if (value) return 1231;
+        else return 1237;
+    }
+}
+```
+**Double**
+```java
+//Double
+public final class Double{
+    private final double value;
+    ...
+    //先转成64bit的形式，然后进行位异或，最后返回强转整型的index值
+    public int hashCode(){
+        long bits = doubleToLongBits(value);
+        return (int) (bits ^ (bits >>> 32));
+    }
+}
+```
+**String**
+```java
+//String，先将字符串拆成字符数组，然后使用公式：h = s[0]·31^L–1+ … +s[L–3]·312 +s[L–2]·31^1 +s[L–1]·31^0.
+public final class String{
+    //为了方便，可以先将结果缓存（因为String是immutable的）
+    private int hash = 0;
+    private final char[] s;
+    ...
+    public int hashCode(){
+        int h = hash;
+        if (h != 0) return h;
+        for (int i = 0; i < length(); i++)
+            hash = s[i] + (31 * hash);
+        hash = h;
+        return hash;
+    }
+}
+```
+对于用户自定义的类中，可以使用以下标准来重写hashCode()方法：
+
+- 对每一个有意义的域使用x=31x+y的规则
+- 如果域是基本类型(int, float等)，则使用其包装类的hashCode()方法
+- 如果域是null，则返回0
+- 如果域是引用类型，则使用hashCode()方法
+- 如果域是数组，则对每一个数组项使用hashCode()方法（或者使用Arrays.deepHashCode()方法）
+
+```java
+//用户自定义类型
+public final class Transaction implements Comparable<Transaction>{
+    private final String who;
+    private final Date when;
+    private final double amount;
+
+    public Transaction(String who, Date when, double amount){ /* as before */ }
+    ...
+    public boolean equals(Object y){ /* as before */ }
+
+    public int hashCode(){
+        //非零常数
+        int hash = 17;
+        //引用类型
+        hash = 31*hash + who.hashCode();
+        hash = 31*hash + when.hashCode();
+        //基本类型
+        hash = 31*hash + ((Double) amount).hashCode();
+        return hash;
+    }
+}
+```
+前文讲到hashCode()返回一个32位的整型数据，其范围是：-2^31 ~ 2^31 -1。
+
+由于我们哈希的目的是得出index，如果数组的长度为M，则index只能取0 ~ M-1之间的值。这时，对hashCode()的结果对M取模即可。
+由于index的值均为正整数，而hashCode()的结果存在负数，故需要将其转化成正数。不能直接使用Math类的绝对值方法，因为有可能会使-2^31 变成2^31而越界。这时，可以让hashCode()结果**位与**0x7fffffff。
+```java
+//错误，可能会越界
+private int hash(Key key){
+    return Math.abs(key.hashCode()) % M;
+}
+
+//符合实际需求的哈希函数
+private int hash(Key key){
+    return (key.hashCode() & 0x7fffffff) % M;
+}
+```
+其中，`key.hashCode() & 0x7fffffff` 将哈希值转为正数，`% M` 防止超出范围。
+`&`表示**按位与**操作，我们通常使用0x0f来与一个整数进行&运算，来获取该整数的最低4个bit位，例如，`0x31 & 0x0f`的结果为`0x01`。
+#### 均匀哈希假想（Uniform hashing assumption）
+均匀哈希假想：每一个key值都等可能地哈希成一个0 ~ M-1的整型值。
+设想一个球与桶的模型：随机地往M个桶抛球，存在以下情况：
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDIuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDV5Y2ZhYmdqMjBjeDAzM214MS5qcGc?x-oss-process=image/format,pn)
+
+**Birthday problem**：经过 ~sqrt(πM /2)次投掷后，会出现两个球进入同一个桶的情况（首次出现冲突）
+**Coupon collector**：经过 ~MlnM 次投掷后，每一个桶至少有一个球（所有桶都有球）
+**Load balancing**：经过 M次投掷后，大多数loaded的桶会有Θ(logM / log logM)个球
+
+因此，如果满足均匀哈希假想的场景，将满足上述的三种情况。
+
+### 哈希冲突之分链法（separate chaining)
+上文已经涉及了哈希冲突，所谓哈希冲突是指当两个不同的输入key经过哈希运算后出现相同的index的情况。
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDV5dG1tb2lqMjBjOTA1endlZi5qcGc?x-oss-process=image/format,png)
+
+分链法是使用size为M的数组来存放index，且每个index将指向一条链表。基本操作如下：
+
+- 哈希：将key映射成0 ~ M-1的整数i
+- 插入：将该key-vaule对插入第i条链表，每条链表有数组索引
+- 查找：根据key的映射整数i查找到第i条链表，然后在链表中使用key来匹配查找value值
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDEuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDV5aGw0bW9qMjBncTBiYjc0bS5qcGc?x-oss-process=image/format,png)
+
+```java
+public class SeparateChainingHashST<Key, Value>{
+
+    private int M = 97; //数组大小，即链表的数量
+    private Node[] st = new Node[M]; //数组
+    //链表节点
+    private static class Node{
+        private Object key;
+        private Object val;
+        private Node next;
+        ...
+    }
+
+    //哈希操作
+    private int hash(Key key){
+        return (key.hashCode() & 0x7fffffff) % M;
+    }
+
+    //插入操作
+    public void put(Key key, Value val) {
+        int i = hash(key);
+        for (Node x = st[i]; x != null; x = x.next)
+            if (key.equals(x.key)){
+                x.val = val;
+                return;
+            }
+        st[i] = new Node(key, val, st[i]);
+    }
+
+    //查找操作
+    public Value get(Key key) {
+        int i = hash(key);
+        for (Node x = st[i]; x != null; x = x.next)
+            if (key.equals(x.key)) 
+                return (Value) x.val;
+        return null;
+    }
+}
+```
+**性能分析**
+在分链法中，会影响时间性能的就是参数M的选择了。实验证明，在均匀哈希假想下，链表的key的个数是N/M的概率接近于1，因此，链表大小的分布的服从二项分布的。
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDMuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDV5ZjJxZTZqMjBjajA0Z3Q4by5qcGc?x-oss-process=image/format,png)
+
+因此，M的大小就很关键了。如果M过大，就会出现许多短链，甚至空链；如果M过小，就会出现长链。理论上，M的最佳值为M ~ N/5，即N/M = 5。
+分链法的时间性能如下。其中平均情况是满足均匀哈希假想下成立的
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDQuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDV5bHphMXlqMjBvdDA1YjB0NS5qcGc?x-oss-process=image/format,png)
+### 哈希冲突之线性探测（linear probing）
+线性探测法采用的措施是：用size为M的数组来存储N个数据时，如果产生冲突，就寻找下一个空项来存储（M必须大于N）。基本操作如下：
+
+- 哈希：将key映射成0 ~ M-1的整数i
+- 插入：将key插入到位置i，如果冲突，就往下位置i+1, i+2……
+- 查找：从位置i取出key-value对，如果key存在但不匹配，就往下位置i+1, i+2……
+
+```java
+
+public class LinearProbingHashST<Key, Value>{
+
+    private int M = 30001; //M必须足够大，大于N
+    private Value[] vals = (Value[]) new Object[M];//数组不能泛型
+    private Key[] keys = (Key[]) new Object[M];
+
+    //哈希操作
+    private int hash(Key key) {
+        return (key.hashCode() & 0x7fffffff) % M;
+    }
+
+    //插入操作
+    public void put(Key key, Value val){
+        int i;
+        for (i = hash(key); keys[i] != null; i = (i+1) % M)
+            if (keys[i].equals(key))
+                break;
+        keys[i] = key;
+        vals[i] = val;
+    }
+
+    //查找操作
+    public Value get(Key key){
+        for (int i = hash(key); keys[i] != null; i = (i+1) % M)
+            if (key.equals(keys[i]))
+                return vals[i];
+        return null;
+    }
+}
+```
+### knuth’s parking问题
+**问题模型**：在一条单向的路上有M个停车位，每一台车都是随机寻找停车位i，如果i已经被占用，就往下寻找i+1，i+2……。问：如何计算一辆车在parking过程中的平均位移(mean displacement)。
+
+**半满half-full**：当已经停有M/2辆车时，平均位移 ~ 3/2
+**全满full**：当已经停有M辆车时，平均位移 ~ sqar(πM /8)
+
+将knuth’s parking问题类比到线性探测法中同样适用。因此，在线性探测法中，同样要注意M值对时间性能的影响。
+
+**性能分析**
+
+在均匀哈希假想下，如果N/M = α时，查找一个key值一次命中与不命中的概率如下图，数学证明略。
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDQuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDV6cnBvcjVqMjBibDAyeHEydS5qcGc?x-oss-process=image/format,png)
+
+当M值过大时，数组就会有许多空项，浪费空间；当M值过小时，就会有许多冲突，查找的时间就会剧增。理论证明，α值最佳为 ~1/2,根据N/M = α，可以计算出最佳M值。
+线性探测法的时间性能如下。其中平均情况是满足**均匀哈希假想**下成立的
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDIuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDV6ZnVvamhqMjBvczA3NHEzcC5qcGc?x-oss-process=image/format,png)
+
+### 单向哈希函数
+由于哈希会发生冲突，恶意对手可以通过研究你的哈希函数来确定发生冲突的case，然后制造大量冲突的块去堵塞通道（如果你采用分链法，就会出现某条链特别长），从而影响系统性能，甚至导致系统瘫痪。这种称为拒绝服务攻击。
+
+在Java1.1版本中，String型的hashCode()就存在以下已知的冲突：
+
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDIuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDYwMnU0c3JqMjBuOTBheGRoMC5qcGc?x-oss-process=image/format,png)
+
+因此，有人就提出了**单向哈希函数**(one-way hash function)，单向哈希函数的特征是容易通过key哈希得到index，但是通过index反向找到应该哈希的key是很困难的。
+
+在实际应用中，MD5, SHA-0, SHA-1, SHA-2都是安全性达到要求的哈希函数。哈希函数通常可用于数字签名、密码存储、消息认证等场景。
+### 分链法vs线性探测法
+**分链法**
+
+- 比较容易去实现delete方法，但要注意哈希表是不支持其他ordered operation的
+- 能够优雅地降低性能，即降低性能的同时实现起来也简单
+- 对聚簇的影响不敏感，更关注对哈希函数的设计
+
+**线性探测法**
+
+- 更节约空间
+- 更好的缓存特性
+
+### 优化的哈希函数
+**双探头哈希Two-probe hashing**
+
+双探头哈希是分链法的进化型。它会用两个哈希函数将key哈希到两个位置，然后选择链比较短的那条进行存放。有效地将最长链的长度减小到理想中的log logN。
+
+**双重哈希Double hashing**
+
+双重哈希是线性探测法的进化型。它使用线性探测，在发生冲突时，不是一个个往下找，而是间隔若干个往下找。这样可以有效地消除聚簇的影响，并且能够让哈希表接近full的状态。但是删除操作不容易实现。
+
+**Cuckoo hashing**
+
+Cuckoo hashing是线性探测的进化型。它会用一个哈希函数将key哈希到两个位置，随机选择一个存储。如果第一个位置已被占用，就选择另一个位置存储之。
+
+### 哈希表vs平衡搜索树
+
+**哈希表**
+
+- 容易实现，但不支持ordered operation
+- 对于简单的key，性能表现得更好
+- 对于无序的key，暂无有效的替代品（不理解）
+- 在Java中，java.util.HashMap, java.util.IdentityHashMap 都是通过哈希表实现的
+
+**平衡搜索树**
+
+- 有更强的性能保证（哈希表要在均匀哈希假想的前提下，而BSTs无需前提）
+- 支持order operation
+- 相比于实现equal()和hashCode()，实现compareTo()更容易
+- 在Java中，java.util.TreeMap, java.util.TreeSet 都是通过BSTs实现的
+
+### 对比总结
+![](https://imgconvert.csdnimg.cn/aHR0cHM6Ly93eDIuc2luYWltZy5jbi9tdzY5MC84NTJmNjY1Y2d5MWdhcDYwOHE4ZTZqMjBvdzBnYzB1YS5qcGc?x-oss-process=image/format,png)
+
+
+
+
 
 
 
