@@ -94,8 +94,32 @@
     - [B Tree](#b-tree)
       - [基本概念](#基本概念-3)
       - [基本操作](#基本操作-3)
+  - [Graphs](#graphs)
+    - [Undirected Graphs](#undirected-graphs)
+      - [Introduce](#introduce)
+      - [API](#api-1)
+      - [Data Structure of Undirected Graphs](#data-structure-of-undirected-graphs)
+      - [DFS](#dfs)
+      - [DFS-寻找路径](#dfs-寻找路径)
+      - [BFS](#bfs)
+      - [connected components](#connected-components)
+      - [cycle](#cycle)
+      - [二分图(二分颜色)](#二分图二分颜色)
+      - [符号图（处理String类型的无向图）](#符号图处理string类型的无向图)
+    - [Direcred Graphs](#direcred-graphs)
+      - [Introduce](#introduce-1)
+      - [API](#api-2)
+      - [Datastructure of Directed Graph](#datastructure-of-directed-graph)
+      - [DFS](#dfs-1)
+      - [BFS](#bfs-1)
+    - [Topological Sort](#topological-sort)
+      - [Introduce](#introduce-2)
+      - [有向无环图检查](#有向无环图检查)
+      - [基于深度优先搜索的顶点排序](#基于深度优先搜索的顶点排序)
+      - [拓扑排序实现](#拓扑排序实现)
+    - [Strong Components](#strong-components)
   - [Random Walk](#random-walk)
-    - [Introduce](#introduce)
+    - [Introduce](#introduce-3)
     - [Implement](#implement)
     - [Reference](#reference)
 ---
@@ -3731,6 +3755,854 @@ B树的特征如下：（结合下图）
 **应用**
 B树被广泛地应用在各操作系统的文件系统和数据库中。如windows的NTFS、Mac的HFS和SQL、ORACLE等各种主流数据库。
 
+
+## Graphs
+### Undirected Graphs
+>- [B站无向图的视线](https://www.bilibili.com/video/BV12E411V7La?p=146)
+#### Introduce
+**Graph**: Set of vertices connected pairwise by edges.
+图是若干个顶点(Vertices)和边(Edges)相互连接组成的。边仅由两个顶点连接，并且没有方向的图称为无向图。
+
+Why we study graph algotrithms?
+- Thousands of practical applications. 
+- Hundreds of graph algorithms known.
+- Interesting and broadly useful abstraction.
+- Challenging branch of computer science and discrete math.
+
+Graph application:
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200331214609.png)
+
+Graph terminol ogy
+- Path: Sequence of vertices connected by edges
+- Cycle: Path whose first and last vertices are the same
+
+Two vertices are connected if there is a path between them.
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200331214913.png)
+#### API
+在研究图之前，我们需要选用适当的数据结构来表示图，有时候，我们常被我们的直觉欺骗,如下图，这两个其实是一样的，这其实也是一个研究问题，就是如何判断图的形态。
+![](http://ww3.sinaimg.cn/mw690/6941baebjw1elxw69o86qj20mf094gmm.jpg)
+
+要用计算机处理图，我们可以抽象出以下的表示图的API
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200331221957.png)
+#### Data Structure of Undirected Graphs
+对于无向图的代码实现，首先我们需要能保存每个顶点，还要能保存每条边（哪两个顶点相连）。对于这样数据类型，我们有以下3种实现方式。
+
+要面对的下一个图处理问题就是用哪种数据结构来表示并实现这份API，这包含两个要求：
+
+- 必须为可能在应用中碰到的各种类型的图预留出足够的空间；
+- 实例方法的实现一定要快—它们是开发处理图的各种用例的基础。
+
+**set of edges**：我们可以使用一个 Edge 类，它 保存相连的两个顶点数据。我们要想得到一个顶点的所有邻边，需要遍历数组，效率不高。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200331224451.png)
+
+**adjacency matrix**：我们可以使用一个 V 乘 V 的布尔 矩阵。当顶点 v 和顶点 w 之间有相连接的边 时，定义 v 行 w 列的元素值为 true，否则为 false。
+>该方法不符合第一个条件，上百万个顶点的图是很常见的，这种方法对于空间（内存）的要求很高，V^2空间不满足。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200331224640.png)
+
+**adjacency lists**：我们可以用一个数组来存储所有的顶点，然后将每个顶点相邻的顶点以链表的形式存储在每个顶点后面。类似散列表。
+>表示方法简单但是不满足第二个条条件——要时间adj()需要检查所有的边
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200331224707.png)
+
+Adjacency-list graph representation:  Java implementation
+```java
+public class Graph {
+    private final int V; // 顶点数目
+    private int E;// 边的数目
+    private Bag<Integer>[] adj;// 邻接表
+ 
+    public Graph(int V) {
+        //初始化顶点的数量
+        this.V = V;
+        //初始化边的数量
+        this.E = 0;
+        //初始化邻接表
+        this.adj = (Bag[]) (new Bag[V]);
+ 
+        for (int v = 0; v < V; ++v) {
+            //每个索引处默认存储一个空队列
+            this.adj[v] = new Bag();
+        }
+    }
+ 
+    public Graph(In in) {
+        this.V = in.readInt();
+        this.adj = (Bag[]) (new Bag[this.V]);
+ 
+        int E;
+        for (E = 0; E < this.V; ++E) {
+            this.adj[E] = new Bag();
+        }
+ 
+        E = in.readInt();
+        for (int i = 0; i < E; ++i) {
+            int v = in.readInt();
+            int w = in.readInt();
+            this.addEdge(v, w);
+        }
+    }
+ 
+    public int V() {
+        return this.V;
+    }
+ 
+    public int E() {
+        return this.E;
+    }
+ 
+    public void addEdge(int v, int w) {
+        //在无向图中，边是没有方向的
+        //所以该边既可以说是从v到w的边，又可以说是从w到v的边
+        //因此，需要让w出现在v的邻接表中，并且v也要出现在w的邻接表中
+        ++this.E;
+        this.adj[v].add(w);
+        this.adj[w].add(v);
+    }
+ 
+    public Iterable<Integer> adj(int v) {
+        return this.adj[v];
+    }
+ 
+    public int degree(int v) {
+        return this.adj[v].size();
+    }
+ 
+}
+```
+#### DFS
+
+深度优先搜索的目的是为了寻找从一个点到所有连通点的路径。
+
+他的思路就和拿着一根绳子走迷宫一样：
+
+1. 从起点出发走向下一个没有被标记的路口，在你走过的路上铺上绳子；
+2. 标记你走过的所有路口和通道；
+3. 当你来到一个被标记的路口时，往回走，回退到上个路口；
+4. 当回退的路口已经没有可走的通道是继续回退，知道把所走的路口走完。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200404170547.png)
+
+**API设计**
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200404181452.png)
+```java
+public class DepthFirstSearch {
+ 
+    private boolean[] marked; //标记走过顶点
+    private int count;
+ 
+    public DepthFirstSearch(Graph g, int s) {
+        //创建和顶点数量一样大小的标记数组
+        marked = new boolean[g.V()];
+        //初始化跟顶点s相同的顶点的数量d
+        this.count = 0;
+        dfs(g,s);
+        
+    }
+ 
+    public void dfs(Graph G, int v) {
+        marked[v] = true; 
+        for (int w : G.adj(v)) {
+            //判断当前w顶点有没有被搜索过，如果没有，则递归调用dfs方法进行深度搜索
+            if (!marked(w)) {// 从v点的其他未被标记的点开始继续向后递归
+                dfs(G, w);
+            }
+        }
+        //相通顶点数++
+        count++;
+    }
+ 
+    private boolean marked(int w) {
+        //判断w顶点与s顶点是不是想通
+        return marked[w];
+    }
+ 
+    public int count() {
+        return count;
+    }
+}
+```
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200404170646.png)
+
+#### DFS-寻找路径
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200404171125.png)
+
+构造函数接受一个起点S作为参数，计算S到与S连通的每个顶点之间的路径。在为S创建了Paths对象后，用例可以调用pathTo()实例方法来遍历从S到任意和S连通的顶点的路径上的所有顶点。以后会实现只查找具有某些属性的路径。
+
+**API设计**
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200405225026.png)
+
+```java
+public class DepthFirstPaths {
+ 
+    private boolean[] marked;//标记走过的点
+    private int[] edgeTo;//从起点到一个顶点的已知路径的最后一个顶点
+    private int s; //起点
+ 
+    public DepthFirstPaths(Graph g, int s) {
+        marked = new boolean[g.V()];
+        edgeTo=new int[g.V()];//创建和顶点相同数量大小的数组，记录每个顶点的前一个顶点是啥。
+        this.s=s;
+    }
+ 
+    public void dfs(Graph G, int v) {
+        marked[v] = true;
+        for (int w : G.adj(v)) {
+            if (!hasPathTo(w)) {
+                edgeTo[w]=v; //记录w点前一个点是v，这样就能通过edgeTo倒退来找回整条路径
+                dfs(G, w);
+            }
+        }
+    }
+ 
+    private boolean hasPathTo(int w) {
+        return marked[w];
+    }
+ 
+    /**
+     * 从v点出发，不断倒退，找到从起点到v点的路径
+     */
+    public Iterable<Integer> pathTo(int v){
+ 
+        if (!hasPathTo(v)) return null;
+        Stack<Integer> path=new Stack<>();
+        int w=edgeTo[v];
+        for (int i=w;i!=s;i=edgeTo[i]) {
+            path.push(i);
+ 
+        }
+        path.push(s);
+        return path;
+    }
+}
+```
+#### BFS
+单点最短路径。给定一幅图和一个起点S，从S到给定顶点V是否存在一条路径？如果有，请找出其中最短的那条（所含边数最少）。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200405181046.png)
+
+- DFS遍历图的顺序和找出最短路径的目标无关。
+- BFS为了这个目标而出现。要找到从S到V得最短路径，从S开始，在所有由一条边就可以到达的顶点中查找V， 如果找不到就继续在与S距离两条边的所有顶点中查找，如此一直执行。
+- DFS好像是一个人在走迷宫，BFS则像一组人在一起朝各个方向走这个迷宫，每个人都有自己的绳子，当出现新的叉路时，可以假设一个探索者可以分裂为更多的人来搜索。当来个那个探索者相遇的时候，合二为一，并继续使用先到达者的绳子。
+- 这样做的**目的**可以是从起点出发到达每个顶点的路径是**最短**的。
+  - 在程序中，搜索一幅图时遇到有多条边需要遍历的情况，我们会选择其中一条并将其他通道留到以后再继续搜索。在DFS中，用了一个可以下压的栈，以支持递归搜索。使用LIFO的规则来描述压栈和走迷宫时先探索相邻的通道类似。从有待搜索的通道中选择最晚遇到过的那条。
+  - 在BFS中希望按照与起点的距离的顺序来遍历所有的顶点：使用FIFO先进先出队列来代替栈LIFO后进先出 即可。将从有待搜索的通道中选择最早遇到的那条。
+
+下图有深度和广度优先搜索的区别。
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200405183133.png)
+
+**API**
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200405183914.png)
+
+
+```java
+public class BreadthFirstSearch {
+ 
+    private boolean[] marked;//标记走过的顶点
+    private final int[] edgeTo;//记录路径
+    private int s;//起点
+ 
+    public BreadthFirstSearch(Graph G, int s) {
+        marked = new boolean[G.V()];
+        edgeTo = new int[G.V()];
+        this.s = s;
+        bfs(G, s);
+    }
+ 
+    private void bfs(Graph G, int s) {
+        Queue<Integer> queue = new Queue<>();
+        //把顶点s标记为已搜索
+        marked[s] = true;
+        //1、将起点（0）加入到队列中
+        queue.enqueue(s);  不 
+ 
+        while (!queue.isEmpty()) {
+            //2、依次从队尾取出顶点 （0）
+            int v = queue.dequeue();
+            //3、然后检查该点0时候还有其他相邻点（0-1、0-2、0-3）
+            for (int w : G.adj(v)) {
+                //4、如果有将每个顶点（1、2、3）加入到队列中
+                if (!marked[w]) {
+                    edgeTo[w] = v;
+                    marked[w]=true;
+                    //5、将每个顶点都加入到队头中，然后进行下一次循环
+                    queue.enqueue(w);
+                }
+            }
+        }
+    }
+ 
+    private boolean hasPathTo(int w) {
+        return marked[w];
+    }
+ 
+    @Nullable
+    private Iterable<Integer> pathTo(int v) {
+ 
+        if (!hasPathTo(v))
+            return null;
+ 
+        Stack<Integer> path = new Stack<>();
+        for (int w = edgeTo[v]; w != s; w = edgeTo[w]) {
+            path.push(w);
+        }
+        path.push(s);
+        return path;
+    }
+}
+```
+#### connected components
+Vertices v and w are connectedif there is a path between them.
+
+**API**
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200406112737.png)
+
+CC的实现使用了marked[ ]数组来寻找一个顶点作为每个连通分量中深度优先搜索的起点。递归的深搜第一次调用的参数是顶点0，会标记所有与0连通的顶点。然后构造函数中的for循环会查找每个没有被标记的顶点并递归调用dfs来标记和它相邻的所有顶点。另外，它还使用了一个以顶点作为索引的数组id[ ],将同一个连通分量中的顶点和连通分量的标识符关联起来。这个数组使得connected( )方法的实现变得十分简单。
+
+```java
+public class CC {
+ 
+    private boolean[] marked; // 是否被标示过
+    private int[] id; //  给每个顶点标记在哪个子图中
+    private int count; // 只有走完一个子图之后才会count++
+ 
+    public CC(Graph G) {
+        marked = new boolean[G.V()];
+        id = new int[G.V()];
+ 
+        for (int v = 0; v < G.V(); v++) {
+            if (!marked(v)) {
+                dfs(G, v);
+                count++;
+            }
+        }
+    }
+ 
+    private void dfs(Graph G, int v) {
+        marked[v] = true;
+        id[v] = count;
+ 
+        for (int w : G.adj(v)) {
+            if (!marked[w]) {
+                dfs(G, w);
+            }
+        }
+    }
+    public boolean connected(int v, int w) {
+        return id[v] == id[w];
+    }
+    public int id(int v) {
+        return id[v];
+    }
+    public int count() {
+        return count;
+    }
+    private boolean marked(int w) {
+        return marked[w];
+    }
+}
+```
+#### cycle
+```java
+public class Cycle {
+ 
+    private boolean[] marked;
+    private boolean hasCycle;
+ 
+    public Cycle(Graph G) {
+          marked=new boolean[G.V()];
+ 
+          for (int v=0;v<G.V();v++){
+              if (!marked(v)){
+                  dfs(G,v,v);
+              }
+          }
+    }
+    private void dfs(Graph G,int v,int u){
+ 
+        marked[v]=true;
+        for (int w:G.adj(v)){
+            if (!marked(w)){
+                dfs(G,w,v);
+            }else if (w!=u){
+                hasCycle=true;
+            }
+        }
+    }
+    public boolean hasCycle(){
+        return hasCycle;
+    }
+    private boolean marked(int w){
+        return marked[w];
+    }
+}
+```
+#### 二分图(二分颜色)
+```java
+public class TwoColor {
+    private boolean[] marked;
+    private boolean[] color;
+    private boolean isTwoColor=true;
+ 
+    public TwoColor(Graph G) {
+        marked=new boolean[G.V()];
+        color=new boolean[G.V()];
+ 
+        for (int v=0;v<G.V();v++){
+            if (!marked(v)){
+                dfs(G,v);
+            }
+        }
+    }
+ 
+    private void dfs(Graph G,int v){
+        marked[v]=true;
+ 
+        for (int w:G.adj(v)){
+            if (!marked(w)){
+                color[w]=!color[v];
+                dfs(G,w);
+            }else if (color[w]==color[v]){
+                isTwoColor=false;
+            }
+        }
+ 
+    }
+    public boolean isTwoColor(){
+        return isTwoColor;
+    }
+    private boolean marked(int w){
+        return marked[w];
+    }
+}
+```
+#### 符号图（处理String类型的无向图）
+```java
+/**
+ * 数据类型如下：用逗号隔开的相邻顶点
+ * Bacon, Kevin
+ * Woodsman,The(2004)
+ * Grier,David Alan
+ * Bewitched(2005)
+ * Kidman, Nicole
+ */
+public class SymbolGraph {
+    private ST<String, Integer> st; // 红黑树--存储 符号名--索引
+    private String[] keys; // 将st中的索引放入keys中，用于进行图操作
+    private Graph G; // 无向图数据存储，用户获取图的一些属性
+ 
+    public SymbolGraph(String stream, String sp) {
+ 
+        st = new ST<>();
+        In in = new In(stream);
+        while (in.hasNextLine()) {
+ 
+            // 1、将读取到的数据存储到红黑树的键值对中
+            String[] edge = in.readLine().split(sp);
+            for (String point : edge) {
+                if (!st.contains(point)) {
+                    st.put(point, st.size());
+                }
+            }
+        }
+        // 2、将符号名--索引 反向存储到keys数组中
+        keys = new String[st.size()];
+        for (String key : st.keys()) {
+            keys[st.get(key)] = key;
+        }
+        // 3、
+        G = new Graph(st.size());
+        in = new In(stream);
+        while (in.hasNextLine()) {
+            String[] edge = in.readLine().split(sp);
+            int v = st.get(edge[0]);
+            for (int i = 1; i < edge.length; i++) {
+                G.addEdge(v, st.get(edge[i]));
+            }
+        }
+    }
+    public boolean contain(String key) {
+        return st.contains(key);
+    }
+    public int index(String key) {
+        return st.get(key);
+    }
+    public String name(int v) {
+        return keys[v];
+    }
+    public Graph G() {
+        return G;
+    }
+}
+```
+### Direcred Graphs
+#### Introduce
+**Digraph**: Set of vertices connected pairwise by directed edges.
+一幅有方向性的图(或有向图)是由一组顶点和一组有方向的边组成的，每条有方向的 边都连接着有序的一对顶点。
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200407173756.png)
+ 
+有向图的应用
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200407173813.png)
+
+术语
+- 一个顶点的**出度**为由该顶点指出的边的总数;
+- 一个顶点的**入度**为指向该顶点的边的总数。
+
+#### API
+Almost identical to Graph API.
+
+区别在于无向图在addEdge时会将两个顶点互相连接，而有向图只能按照指定方向将这两个顶点相连。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200407174736.png)
+#### Datastructure of Directed Graph
+```java
+public class Digraph {
+ 
+    private int V; // 顶点的总数
+    private int E; // 边的总数
+    private Bag<Integer>[] adj; // 存放所有顶点的的链表，链表里边放着各自的所有相邻顶点
+ 
+    public Digraph(int V) {
+        //初始化顶点的数量
+        this.V = V;
+        //初始化边的数量
+        this.E = 0;
+        //初始化邻接表
+        this.adj = new Bag[V];
+        for (int i = 0; i < V; i++) {
+            adj[i] = new Bag<>();
+        }
+    }
+ 
+    public Digraph(In in) {
+ 
+        V = in.readInt();
+        adj = new Bag[V];
+        int E;
+        for (E = 0; E < this.V; ++E) {
+            this.adj[E] = new Bag<>();
+        }
+        E = in.readInt();
+        for (int i = 0; i < E; ++i) {
+            int v = in.readInt(); //将同一行的两个数字 连成一条边
+            int w = in.readInt();
+            addEdge(v, w);
+        }
+    }
+ 
+    public void addEdge(int v, int w) {
+        adj[v].add(w);
+        E++;
+    }
+ 
+    public int E() {
+        return E;
+    }
+    public int V() { return V; }
+ 
+    public Iterable<Integer> adj(int v) {
+        return adj[v];
+    }
+    /**
+     * 反向图
+     */
+    public Digraph reverse() {
+ 
+        Digraph D = new Digraph(V);
+        for (int v = 0; v < D.V; v++) {
+            for (int w : adj(v)) {
+                D.addEdge(w, v);
+            }
+        }
+        return D;
+    }
+}
+```
+#### DFS
+**Same method as for undirected graphs.**
+- Every undirected graph is a digraph (with edges in both directions).
+- DFS is a **digraph** algorithm.
+```java
+public class DirectedDFS{
+
+    private boolean[] marked;
+    public DirectedDFS(Digraph G, int s){
+        marked = new boolean[G.V()];
+        dfs(G, s);
+    }
+    private void dfs(Digraph G, int v){
+        marked[v] = true;
+        for (int w : G.adj(v))
+            if (!marked[w]) dfs(G, w);
+    }
+    public boolean visited(int v){
+        return marked[v]; 
+    }
+}
+```
+#### BFS
+**Same method as for undirected graphs.**
+- Every undirected graph is a digraph (with edges in both directions).
+- BFS is a **digraph** algorithm. 
+
+### Topological Sort
+#### Introduce
+ 对于有向图，一种应用广泛的模型是给定一组任务并安排它们的执行顺序，并且这些任务是有优先级限制的。就比如任务A的优先级高于任务B，那么我们必须在任务A完成之后才能执行任务B。
+
+就比如学校课程的分配，每个课程也是有优先级的，而且一些基础课程一定要放在高级课程的前面。但对于一张复杂的课程优先图，我们怎么来实现将所有课程的按照优先级排序呢？
+
+![](https://img-blog.csdnimg.cn/2020030718460167.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM0NTg5NzQ5,size_16,color_FFFFFF,t_70)
+
+**拓扑排序**: 给定一幅有向图，将所有的顶点排序，使得所有的 有向边均从排在前面的元素指向排在后面的元素。
+
+下图就是通过拓扑排序将所有课程按照优先级的顺序排列的，右下图是拓扑排序的应用。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200411233244.png)
+
+#### 有向无环图检查
+对有向图进行拓扑排序前，我们必须确认该有向图中是否含有环，如果存在环的话，那么对于优先级的问题是会造成无解的情况， 你可以想象一下，任务A--->任务B---->任务C---->任务A 不断的循环，那么我们要把哪个任务放在第一个呢？
+
+这时候我们就需要对有向图进行检测，当没有环的时候才能进行拓扑排序，不然是无解的。
+```java
+public class DirectedCycle {
+    
+    private final boolean[] marked; //是否走过该点
+    private final boolean[] onStack;  //对递归路径上的点存入栈中（true），当该路径没有环时改为false
+    private final int[] edge; // s-w 路径上 w 的上一个顶点
+    private Stack<Integer> cycle;  //存放有向环的所有顶点
+ 
+    //创建一个检测环对象，检测图中是否有环
+    public DirectedCycle(Digraph D) {
+        marked=new boolean[D.V()];
+        onStack=new boolean[D.V()];
+        edge=new int[D.V()];
+ 
+        //找到图中每一个顶点，让每一个顶点作为入口，调用一次dfs进行搜索
+        for (int i=0;i<D.V();i++){
+            //如果当前顶点还没有搜索过，则调用dfs进行搜索
+            if (!marked(i)){
+                dfs(D,i);
+            }
+        }
+    }
+ 
+    private void dfs(Digraph D,int v){
+        //把顶点v表示为已搜索
+        marked[v]=true;
+        //把当前顶点进栈
+        onStack[v]=true;
+        //进行深度搜索
+        for (int w:D.adj(v)){
+            //如果当前w没有被搜索过，则继续递归调用dfs方法完成深度优先搜索
+            if (!marked(w)){
+                edge[w]=v;
+                dfs(D,w);
+            //判断当前顶点v是否在栈中，如果已经在栈中，证明当前顶点之前处于正在搜索的状态，那么现在又要搜索一次，证明检测到环了
+            }else if (onStack[w]){
+                cycle=new Stack<>();
+                for (int k=edge[w];k!=w;k=edge[k]){
+                    cycle.push(k);
+                }
+                cycle.push(w);
+                cycle.push(v);
+            }
+        }
+        onStack[v]=false; //-------记住退出递归之后要释放该点，以防下条路径有环并且含有该点
+    }
+ 
+    public boolean hasCycle(){
+        return cycle!=null;
+    }
+ 
+    public Iterable<Integer> cycle(){
+        return cycle;
+    }
+ 
+    private boolean marked(int w){
+        return marked[w];
+    }
+}
+```
+#### 基于深度优先搜索的顶点排序
+如果要把图中的顶点生成线性序列是一件非常简单的事情，之前我们学习并使用了多次深度优先搜索，我们会发现其实深度优先搜索有一个特点，那就是在一个连同子图上，每个顶点只会被搜索一次，如果我们能在深度有限搜索的基础上，添加一行代码，只需要将搜索的顶点放入到线性序列的数据结构中，我们就能完成这件事情。
+
+在深度优先搜索的时候，我们其实会产生三种顶点的排序方式：（如果不理解，看一下代码就能理解了）
+
+- 前序:在递归调用之前将顶点加入队列。
+- 后序:在递归调用之后将顶点加入队列。
+- 逆后序:在递归调用之后将顶点压入栈。
+
+```java
+public class DepthFirstOrder {
+ 
+    private final boolean[] marked;
+    private final Queue<Integer> pre; //前序
+    private final Queue<Integer> post; //后序
+    private final Stack<Integer> reversePost; //逆后序
+ 
+    public DepthFirstOrder(Digraph D) {
+        //初始化marked数组
+        marked = new boolean[D.V()];
+        pre = new Queue<>();
+        post = new Queue<>();
+        //初始化reversePost栈
+        reversePost = new Stack<>();
+        //遍历图中每一个顶点，让每个顶点作为入口，完成一次深度优先搜索
+        for (int v = 0; v < D.V(); v++) {
+            if (!marked(v)) {
+                dfs(D,v);
+            }
+        }
+    }
+ 
+    private void dfs(Digraph D, int v) {
+        //标记顶点v已经被搜索
+        marked[v] = true;
+        pre.enqueue(v);               //在递归调用之前将顶点加入队列。
+        for (int w : D.adj(v)) {
+            if (!marked(w)) {
+                dfs(D, w);
+            }
+        }
+        post.enqueue(v);               //在递归调用之后将顶点加入队列。
+        reversePost.push(v);           //在递归调用之后将顶点压入栈。
+    }
+ 
+    private boolean marked(int w) {
+        return marked[w];
+    }
+    public Iterable<Integer> pre(){
+        return pre;
+    }
+    public Iterable<Integer> post(){
+        return post;
+    }
+    public Iterable<Integer> reversePost(){
+        return reversePost;
+    }
+}
+```
+#### 拓扑排序实现
+一幅有向无环图的拓扑顺序即为所有顶点的逆后序排列。
+
+**证明**：对于任意边 v → w，在调用 dfs(v) 时，下面三种情况必有其一成立。
+
+dfs(w) 已经被调用过且已经返回了(w 已经被标记)。
+
+dfs(w)还没有被调用(w还未被标记)，因此v→w会直接或间接调用并返回dfs(w)，且 dfs(w) 会在 dfs(v) 返回前返回。
+
+dfs(w) 已经被调用但还未返回。证明的关键在于，在有向无环图中这种情况是不可能出现的，这是由于递归调用链意味着存在从w到v的路径，但存在v→w则表示存在一个环。
+
+在两种可能的情况中，dfs(w) 都会在 dfs(v) 之前完成，因此在后序排列中 w 排在 v 之前而 在逆后序中 w 排在 v 之后。因此任意一条边 v → w 都如我们所愿地从排名较前顶点指向排名较后的顶点。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200412181319.png)
+
+```java
+public class Topological {
+ 
+    private Iterable<Integer> order;
+ 
+    public Topological(Digraph D) {
+        //创建一个检测有向环的对象
+        DirectedCycle cycle = new DirectedCycle(D);
+        //判断G图中有没有环，如果没有环，则进行顶点排序：创建一个顶点排序对象
+        if (!cycle.hasCycle()) {
+            DepthFirstOrder depthFirstOrder = new DepthFirstOrder(D);
+            this.order = depthFirstOrder.reversePost();
+        }
+    }
+    public Iterable<Integer> order(){
+        return order;
+    }
+    /**
+     * 是否是有向无环图
+     */
+    public boolean isDAG() {
+        return order!=null;
+    }
+}
+```
+### Strong Components
+无向图中的连通分量：是指子图的数量。
+
+有向图中：如果两个顶点 v 和 w 是互相可达的，则称它们为强连通的。也就是说，既存在一条从 v 到 w 的有向路径，也存在一条从 w 到 v 的有向路径。如果一幅有向图中的任意两个顶点都是强 连通的，则称这幅有向图也是强连通的。
+
+**强连通分量**：指的是一个有向图中，含有这样可以互相抵达的子集的数量。
+
+下图就有5个强连通分量，单个顶点也是一个**强连通分量**。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200412231412.png)
+
+**Kosaraju-Sharir algorithm**
+
+我们要想得到一个有向图中的强连通分量，思路是：
+
+1. 我们要想确认这个子集是一个强连通分量，那么我们得证明： v--->w是可达的 并且  w--->v  也是可达的
+2. 我们先讲有向图中的指向关系反转 v--->w 改成  w--->v 
+3. 然后我们将指向关系反转的有向图，进行深度优先搜索，并且得到它的拓扑排序后的序列a。（这样做的目的是先证明w--->v是可达的）
+4. 我们按照序列a的顺序对原来的有向图进行可达性检验，当 v--->w 可达的话，那么就证明 v---w属于一个强连通分量中。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/IMG_0346.jpg)
+
+```java
+public class KosarajuSCC {
+ 
+    private boolean[] marked;
+    private int[] id;
+    private int count;
+ 
+    public KosarajuSCC(Digraph D) {
+ 
+        marked=new boolean[D.V()];
+        id=new int[D.V()];
+ 
+        DepthFirstOrder order=new DepthFirstOrder(D.reverse());
+        for (int v:order.reversePost()){
+            if (!marked(v)){
+                dfs(D,v);
+                count++;
+            }
+        }
+    }
+ 
+    private void dfs(Digraph D, int v) {
+        marked[v]=true;
+        id[v]=count;
+ 
+        for (int w:D.adj(v)){
+            if (!marked(w)){
+                dfs(D,w);
+            }
+        }
+    }
+ 
+    private boolean marked(int w) {
+        return marked[w];
+    }
+    public boolean stronglyConnected(int v,int w){
+        return id[v]==id[w];
+    }
+    public int id(int v){
+        return id[v];
+    }
+    private int count() {
+        return count;
+    }
+}
+```
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200413191755.png)
+
+
+
+
+
+
+
 ## Random Walk
 ### Introduce
 ### Implement
@@ -3738,3 +4610,5 @@ B树被广泛地应用在各操作系统的文件系统和数据库中。如wind
 - [Math of RandomWalk](http://mathworld.wolfram.com/RandomWalk2-Dimensional.html)
 - [RANDOM.ORG - True Random Number Service](https://www.random.org)
 - [RandomWalk from MIT](https://www.mit.edu/~kardar/teaching/projects/chemotaxis(AndreaSchmidt)/home.htm)
+
+
