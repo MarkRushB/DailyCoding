@@ -118,6 +118,9 @@
       - [基于深度优先搜索的顶点排序](#基于深度优先搜索的顶点排序)
       - [拓扑排序实现](#拓扑排序实现)
     - [Strong Components](#strong-components)
+    - [Minimum Spanning Trees](#minimum-spanning-trees)
+      - [Introduction](#introduction)
+      - [Greedy Algorithm / Cut Property](#greedy-algorithm--cut-property)
   - [Random Walk](#random-walk)
     - [Introduce](#introduce-3)
     - [Implement](#implement)
@@ -4596,8 +4599,27 @@ public class KosarajuSCC {
 }
 ```
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200413191755.png)
+### Minimum Spanning Trees
+#### Introduction
+**加权图**是一种为每条边关联一个权值或是成本的图模型。
+一幅加权图的最小生成树(MST) **是树中所有边的权值之和最小** 的生成树。
 
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200507174756.png)
 
+在计算图的最小生成树的过程中，因为图的多种特殊情况，比如负的权值，不连通的情况，会让我们去做多余的处理，为了我们更好的理解最小生成树的算法， 我们做了下面的约定：
+
+1. 只考虑连通图。如果一幅图是非连通的， 我们只能使用这个算法来计算它的所有连通分量的最小生成树，合并在一起称其为最小生成 森林。
+2. 边的权重不一定表示距离
+3. 边的权重可能是 0 或者负数。
+4. 所有边的权重都各不相同。如果不同边的权重可 以相同，最小生成树就不一定唯一了。
+#### Greedy Algorithm / Cut Property
+**贪心算法**（又称贪婪算法）是指，在对问题求解时，总是做出在当前看来是最好的选择。也就是说，不从整体最优上加以考虑，他所做出的是在某种意义上的局部最优解。
+
+而我们图的最小生成树算法就是利用了贪心算法的原理，我们只要把图中连接每个点的最小权值的边找出来，然后并让他们连成一棵树，并且不能出现环或者多棵树我们就算完成了。
+
+**切分定理** 就是在贪心算法的基础上，从起点s出发，把起点s和其他点分成两部分，然后找出起点s和另外一部分连接的最短路径（也叫横切边）。现在就是两个点，然后找出另外的部分连接这两个点的最短路径（横切边）连成三个点，这样不断持续下去，就能生成我们的最小生成树。
+
+切分定理：图的一种切分是将图的所有顶点分为两个非空且不重叠的两个集合。横切边是一条连接 两个属于不同集合的顶点的边。
 
 
 
