@@ -12,6 +12,7 @@
 - [27 Remove Element](#27-remove-element)
 - [58 Length of Last Word](#58-length-of-last-word)
 - [83 Remove Duplicates from Sorted List](#83-remove-duplicates-from-sorted-list)
+- [88 Merge Sorted Array](#88-merge-sorted-array)
 
 ## Attention
 - [刷题需要注意的小细节](LeetCode-Attention.md)
@@ -432,6 +433,59 @@ class Solution {
             cur = cur.next;
         }
         return head;
+    }
+}
+```
+
+## 88 [Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/)
+
+Given two sorted integer arrays nums1 and nums2, merge nums2 into nums1 as one sorted array.
+
+**Note:**
+
+- The number of elements initialized in nums1 and nums2 are m and n respectively.
+- You may assume that nums1 has enough space (size that is greater or equal to m + n) to hold additional elements from nums2.
+
+**Example:**
+
+    Input:
+    nums1 = [1,2,3,0,0,0], m = 3
+    nums2 = [2,5,6],       n = 3
+
+    Output: [1,2,2,3,5,6]\
+
+思路：
+这个题其实很简单，我们只需要创建一个新数组，然后把要合并的两个数组挨个遍历，然后挨个放进新数组就可以了。但是这种思路**太简单**，我们可以不生成新数组的情况下合并，从nums1的末尾从后往前放就可以了。
+还有一种方法更加暴力，直接把两个数组拼接起来，然后Array.sort()排序，这里不再写方法。
+
+```java
+ class Solution {
+    public void merge(int[] nums1, int m, int[] nums2, int n) {
+        int i = m - 1;
+        int j = n - 1;
+        int index = m + n - 1;
+        
+        while(i >= 0 && j >= 0){
+            if(nums1[i] > nums2[j]){
+                nums1[index] = nums1[i];
+                index--;
+                i--;
+            }else{
+                nums1[index] = nums2[j];
+                index--;
+                j--;
+            }
+        }
+        while(i >= 0){
+            nums1[index] = nums1[i];
+            index--;
+            i--;
+        }
+        while(j >= 0){
+            nums1[index] = nums2[j];
+            index--;
+            j--;
+        }
     }
 }
 ```
