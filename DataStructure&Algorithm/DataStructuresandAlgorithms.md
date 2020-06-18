@@ -121,10 +121,8 @@
     - [Minimum Spanning Trees](#minimum-spanning-trees)
       - [Introduction](#introduction)
       - [Greedy Algorithm / Cut Property](#greedy-algorithm--cut-property)
-  - [Random Walk](#random-walk)
-    - [Introduce](#introduce-3)
-    - [Implement](#implement)
-    - [Reference](#reference)
+  - [Dynamic Programming](#dynamic-programming)
+    - [背包问题](#背包问题)
 ---
 
 | TOPIC | Data Structures & Algorithms |
@@ -212,6 +210,7 @@ public class SparseArray{
 }
 ```
 ## 手动实现ArrayList
+
 ```java
 public class ArrayList<E> {
     private Object[] elementData;
@@ -4625,12 +4624,96 @@ public class KosarajuSCC {
 
 
 
-## Random Walk
-### Introduce
-### Implement
-### Reference
-- [Math of RandomWalk](http://mathworld.wolfram.com/RandomWalk2-Dimensional.html)
-- [RANDOM.ORG - True Random Number Service](https://www.random.org)
-- [RandomWalk from MIT](https://www.mit.edu/~kardar/teaching/projects/chemotaxis(AndreaSchmidt)/home.htm)
+##  Dynamic Programming
+
+DP的核心思想是：将大问题划分为小问题进行解决，从而一步步获取最优解的处理算法
+
+动态规划算法与分治算法类似，其基本思想也是将待求解问题分解成若干个子问题，先求解子问题，然后从这些子问题的解得到原问题的解
+
+与分治法不同的是，**适合用于动态规划求解的问题，经过分解得到子问题往往不是相互独立的**。（即下一个子阶段的求解是建立在上一个子阶段的解的基础上，进行进一步的求解）
+
+动态规划可以通过填表的方式来逐步推进，得到最优解
+
+存在一种overlap sub-problem的关系 
+
+### 背包问题
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200603180138.png)
+
+**思路分析**
+
+背包问题主要是指一个给定容量的背包、若干具有一定价值和重量的物品，如何选择物品放入背包使物品的价值最大。其中又分01背包和完全背包（完全背包指的是：每种物品都有无限件可用）
+
+这里的问题属于01背包，即每个背包最多放一个。而无限背包可以转化为01背包
+
+算法的主要思想，利用动态规划来解决。每次遍历到的第i个物品，根据w[i]和v[i]来确定是否需要将该物品放入背包中。即对于给定的n个物品，设v[i]、w[i]分别为第i个物品的价值和重量，C为背包的重量。再令v[i][j]表示在前i个物品中能够装入容量为j的背包中的最大价值。我们有下面的结果：
+>1. v[i][0] = v[0][j] = 0
+>2. 当w[i] > j 时： v[i][j] = v[i-1][j]
+>3. 当j > w[i] 时： v[i][j] = max{v[i-1][j], v[i-1][j-w[i]]+v[i]}
+
+**填表问题解决**
+|物品|重量|价格|
+|-|-|-|
+|吉他（G）|1|1500|
+|音响（S）|4|3000|
+|电脑（L）|3|2000|
+
+|物品|0磅|1磅|2磅|3磅|4磅|
+|:-:|-|-|-|-|:-:|
+|吉他（G）|0|1500G|1500G|1500G|1500G|
+|音响（S）|0|1500G|1500G|1500G|3000S|
+|电脑（L）|0|1500G|1500G|2000L|2000L+1500G|
+
+现在看刚才那个公式：
+
+- `v[i][0] = v[0][j] = 0`表示填入表第一行和第一列是0
+- `当w[i] > j 时： v[i][j] = v[i-1][j]`：当准备加入新增的商品的重量大于当前背包的容量时，就直接使用上一个单元格的装入策略
+- `当j > w[i] 时： v[i][j] = max{v[i-1][j], v[i-1][j-w[i]]+v[i]}`：当准备加入的新增的商品的重量小于等于当前背包的容量，装入的方式：
+  -  `v[i-1][j]`就是上一个单元格的装入的最大值
+  -  `v[i]`表示当前商品的价值
+  -  `v[i-1][j-w[i]]`表示装入`i-1`个商品到剩余空间`j-w[i]`
+
+```java
+public class KnapsackProblem {
+    public static void main(String[] args){
+        int[] w = {1,4,3};//物品的重量
+        int[] val = {1500,3000,200};//物品的价值，这里val[i]就是前面讲的v[i]
+        int m = 4;//背包的容量
+        int n = val.length;//物品的个数
 
 
+        //创建二维数组
+        //v[i][j] 表示在前i个物品中能够装入容量为j的背包中的最大价值
+        int[][] v = new int[n+1][m+1];
+        //为了记录放入商品的情况，我们定一个二维数组
+        int[][] path = new int[n+1][m+1];     
+        //初始化第一行和第一列，这里在本程序中，可以不去处理，因为默认就是0
+        for(int i = 0; i < v.length; i++){
+            v[i][0] = 0;
+        }
+        for(int i = 0; i < v[0].length; i++){
+            v[0][i] = 0;
+        }
+        //根据前面得到的公式来动态规划处理
+        for(int i = 1; i < v.length; i++){//不处理第一行
+            for(int j = 1; j < v[0].length; j++){//不处理第一列
+                if(w[i - 1] > j){//因为我们程序i是从1开始的，因此原公式中的w[i]修改成w[i - 1]
+                    v[i][j] = v[i - 1][j]
+                }else{
+                    //说明：
+                    //因为我们的i从1开始的，因此公式需要调整成：
+                    //v[i][j] = Math.max(v[i - 1][j], val[i - 1] + v[i - 1][j - w[i - 1]])
+                    //为了记录商品存放到背包的情况，我们不能直接简单的使用上面的公式，需要用if-else来体现公式
+                    if(v[i - 1][j] < val[i - 1] + v[i - 1][j - w[i - 1]]){
+                        v[i][j] = val[i - 1] + v[i - 1][j - w[i - 1]];
+                        path[i][j] = 1;
+                    }else{
+                        v[i][j] = v[i - 1][j];
+                    }
+                }
+            }
+        }
+          
+    }
+}
+```
