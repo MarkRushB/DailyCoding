@@ -13,6 +13,9 @@
 - [58 Length of Last Word](#58-length-of-last-word)
 - [83 Remove Duplicates from Sorted List](#83-remove-duplicates-from-sorted-list)
 - [88 Merge Sorted Array](#88-merge-sorted-array)
+- [100 Same Tree](#100-same-tree)
+- [101 Symmetric Tree](#101-symmetric-tree)
+- [322 Coin Change](#322-coin-change)
 
 ## Attention
 - [刷题需要注意的小细节](LeetCode-Attention.md)
@@ -486,6 +489,131 @@ Given two sorted integer arrays nums1 and nums2, merge nums2 into nums1 as one s
             index--;
             j--;
         }
+    }
+}
+```
+## 100 [Same Tree](https://leetcode.com/problems/same-tree/)
+Given two binary trees, write a function to check if they are the same or not.
+
+Two binary trees are considered the same if they are structurally identical and the nodes have the same value.
+
+**Example 1:**
+
+    Input:    1         1
+             / \       / \
+            2   3     2   3
+
+           [1,2,3],   [1,2,3]
+
+Output: true
+**Example 2:**
+
+    Input:    1         1
+             /           \
+            2             2
+
+          [1,2],     [1,null,2]
+
+Output: false
+**Example 3:**
+
+    Input:   1         1
+            / \       / \
+           2   1     1   2
+
+          [1,2,1],   [1,1,2]
+
+Output: false
+
+```java
+class Solution {
+    public boolean isSameTree(TreeNode p, TreeNode q) {
+        if(p == null && q == null) 
+            return true;
+        if(p == null || q == null) 
+            return false;
+        if(p.val != q.val) 
+            return false;
+        return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
+    }
+} 
+```
+
+## 101 [Symmetric Tree](https://leetcode.com/problems/symmetric-tree/)
+Given a binary tree, check whether it is a mirror of itself (ie, symmetric around its center).
+
+For example, this binary tree `[1,2,2,3,4,4,3]` is symmetric:
+
+        1
+       / \
+      2   2
+     / \ / \
+    3  4 4  3
+
+But the following `[1,2,2,null,3,null,3]` is not:
+
+        1
+       / \
+      2   2
+       \   \
+       3    3
+思路：利用递归
+```java
+class Solution {
+    public boolean isSymmetric(TreeNode root) {
+        return isMirror(root, root);
+    }
+    
+    public boolean isMirror(TreeNode t1, TreeNode t2){
+        if(t1 == null && t2 == null){
+            return true;
+        }
+        if(t1 == null || t2 == null){
+            return false;    
+        }
+        if(t1.val != t2.val){
+            return false;
+        }
+        return (t1.val == t2.val) && isMirror(t1.left, t2.right) && isMirror(t1.right, t2.left);
+    }
+}
+```
+## 322 [Coin Change](https://leetcode.com/problems/coin-change/)
+You are given coins of different denominations and a total amount of money amount. Write a function to compute the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.
+
+**Example 1:**
+
+    Input: coins = [1, 2, 5], amount = 11
+    Output: 3 
+    Explanation: 11 = 5 + 5 + 1
+
+**Example 2:**
+
+    Input: coins = [2], amount = 3
+    Output: -1
+
+思路：这个题需要用到动态规划，且用动态规划是最好的解决办法，具体思路可以看我在算法的总结中的动态规划部分
+
+```java 
+class Solution {
+    public int coinChange(int[] coins, int amount) {
+        int[] f = new int[amount + 1];
+        int n = coins.length;
+        
+        f[0] = 0;
+        
+        for(int i = 1; i <= amount; i++){
+            f[i] = Integer.MAX_VALUE;
+            for(int j = 0; j < n; j++){
+                if(i >= coins[j] && f[i - coins[j]] != Integer.MAX_VALUE){
+                    f[i] = Math.min(f[i - coins[j]] + 1, f[i]);
+                }
+            }
+        }
+        if(f[amount] == Integer.MAX_VALUE){
+            f[amount] = -1;
+        }
+        return f[amount];
     }
 }
 ```
