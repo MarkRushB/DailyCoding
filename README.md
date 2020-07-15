@@ -66,6 +66,6 @@
 ![](https://img.shields.io/badge/Status-Updating-black)
 > Some interesting papers I collected and studied
 
-[List Of Paper](/DailyCoding/Paper.md)
+[List Of Paper](Paper.md)
 
 
