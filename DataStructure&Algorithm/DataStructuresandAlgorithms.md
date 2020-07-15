@@ -125,6 +125,7 @@
     - [DP题目特点](#dp题目特点)
     - [硬币问题](#硬币问题)
     - [背包问题](#背包问题)
+  - [DFS—sodoku](#dfssodoku)
 ---
 
 | TOPIC | Data Structures & Algorithms |
@@ -1591,7 +1592,7 @@ class ArrayQueue{
             //通过抛出异常
             throw new RuntimeException("队列空，不能获取数据");
         }
-        front++;//front后移
+        front++;//front后����
         return arr[front];
     }
     //显示队列的所有数据
@@ -4695,7 +4696,21 @@ int f(int X){
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200628183047.png)
 
+做了很多重复计算，效率低下
 
+**动态规划之转移方程**
+
+f(x) = min{f(x-2)+1, f(x-5)+1, f(x-7)+1}
+
+**动态规划之初始条件和边界情况**
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200629003546.png)
+
+**动态规划之计算顺序**
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200629003713.png)
+ 
+每一步尝试三种硬币，一共27步，与递归算法相比，没有任何重复运算，动态规划算法时间复杂度：27 * 3
 ### 背包问题
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200603180138.png)
@@ -4777,3 +4792,164 @@ public class KnapsackProblem {
     }
 }
 ```
+## DFS—sodoku
+用DFS解决数独问题，要求就是输入数独题目，程序输出数独的唯一解。我们保证所有已知数据的格式都是合法的，并且题目有唯一的解。
+格式要求，输入9行，每行9个数字，0代表未知，其它数字为已知。输出9行，每行9个数字表示数独的解。
+
+    输入:
+    005300000
+    800000020
+    070010500
+    400005300
+    010070006
+    003200080
+    060500009
+    004000030
+    000009700
+
+    输出:
+    145327698
+    839654127
+    672918543
+    496185372
+    218473956
+    753296481
+    367542819
+    984761235
+    521839764
+
+**思路分析**:
+
+深度优先搜索是自上而下进行搜索（**先纵后横，一条路走到黑**），搜索出第一个合法的解返回，然后退回来搜索它的兄弟，对它的兄弟然后继续递归搜索下去，在循环中尝试着每一条路径，假如当前所有的可能的尝试完了，但是还未找到合法的解，那么这个时候就会退回到上一层调用它的地方，尝试上一层的其他兄弟元素的是否合法，所以说深度优先搜索能够搜索出所有的可能，而这种解决方法是其他迭代的方法不能够解决的
+
+深度优先搜索通常是**循环中嵌套递归**，搜索完所有的路径后最终退出递归，其中可能涉及到回溯的问题
+
+以数独游戏为例，当循环到某一个二维数组的某一个位置的时候那么假如填的数字合法那么对下一个空的数组的位置进行填写数字，但是如果经过循环之后发现没有一个数字可以填入这个空的位置那么循环结束之后递归退到上一层，在上一层中寻找其他的结果，假如其他的解合法那么会继续进行下一次的递归走下一条路
+
+假如当前位置不能填其他的数字但是上一层中填的数字只有那个数字合法那么这个时候就需要进行回溯把之前填的这个不合法的数字清掉，重置为零，重新退到再上一层尝试再上一层的其他解然后继续走下去，假如不进行回溯的话那么有可能得不到任何的解
+
+每个位置上都可能存在着1-9这个范围的某些解，那么经过筛选之后可能只剩下一些解，当尝试到某个解合法的时候继续填下一个位置那么当其他的层递归完成之后退到这一层的时候通过循环尝试着其他的可能的合法解，直到搜索完全部的解就结束了
+
+这里使用到回溯可以清除掉某个位置中不合法的解，然后退到上一层尝试兄弟元素再调用下一层
+
+深度优先搜索经典的代码都是循环中自己调用自己的方法来进行实现的，然后在递归的时候加上递归的出口，因为这道题目只有唯一的解，那么假如求解到第一个解之后我们可以直接退出系统，而不是使用return，因为使用return的话会退到上一层搜索它的兄弟，而这道题是不需要这样的，其他的题目可能需要搜出所有解那么就要使用return
+
+时间复杂度高一点的解法：
+```java
+class Solution {
+    public void solveSudoku(char[][] board) {
+        solve(board);
+    }
+    
+    public boolean solve(char[][] board){
+        for(int i = 0; i < 9; i++){
+            for(int j = 0; j < 9; j++){
+                if(board[i][j] == '.'){
+                    for(char c = '1'; c <= '9'; c++){
+                        if(isValid(board, i, j, c)){
+                            board[i][j] = c;
+                            //这里是将新的状态的board放进solve里，需要想一想
+                            if(solve(board)){
+                                return true;
+                            }else{
+                                board[i][j] = '.';
+                            }
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    public boolean isValid(char[][] board, int row, int col, char c){
+        for(int i = 0; i < 9; i++){
+            if(board[i][col] == c){
+                return false;
+            }
+            if(board[row][i] == c){
+                return false;
+            }
+            if(board[(row/3)*3+i/3][(col/3)*3+i%3] == c){
+                return false;
+            }
+        }
+        return true;
+    }
+}
+```
+
+时间复杂度快一点的解法
+```java
+class Solution {
+    public void solveSudoku(char[][] board) {
+        //使用回溯法来进行求解
+        boolean b = backtrack(board,0,0);
+    }
+
+    public boolean backtrack(char[][] board,int i,int j){
+
+        //递归结束条件
+        if(i==9){
+            return true;
+        }
+
+        //判断换行
+        if(j==9){
+           return backtrack(board,i+1,0);
+        }
+
+        //如果是预设的数字，直接进入下一步
+        if(board[i][j]!='.'){
+            return backtrack(board,i,j+1);
+        }
+
+
+        //做选择
+        for(char c = '1';c <= '9';c++){
+            
+            if(!isVaild(board,i,j,c)){
+                continue;
+            }
+
+            //做选择
+            board[i][j] = c;
+
+            //进入下一层决策树
+            if(backtrack(board,i,j+1)){
+                //如果出现了一个正确的答案就直接返回，不再进行下一步的递归
+                return true;
+            }
+
+            //撤销选择
+
+            board[i][j] = '.';
+            
+        }
+
+        return false;
+    }
+
+    public boolean isVaild(char[][] board,int row,int col,char c){
+
+ 
+        for(int i=0;i<9;i++){
+            //判断行是否有重复的
+            if(board[i][col]==c){
+                return false;
+            }
+            //判断列是否有重复的
+            if(board[row][i]==c){
+                return false;
+            }
+            //判断九宫格是否有重复的代码
+            if(board[(row/3)*3+i/3][(col/3)*3+i%3]==c){
+                return false;
+            }
+        }
+        return true;
+    }
+}
+```
+
