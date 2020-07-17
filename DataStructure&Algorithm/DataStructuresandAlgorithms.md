@@ -126,7 +126,9 @@
     - [硬币问题](#硬币问题)
     - [背包问题](#背包问题)
   - [回溯算法](#回溯算法)
-    - [全排列问题](#全排列问题)
+    - [全排列问题(1)](#全排列问题1)
+    - [全排列问题(2)](#全排列问题2)
+    - [子集Subset](#子集subset)
     - [DFS—sodoku](#dfssodoku)
 ---
 
@@ -3805,7 +3807,7 @@ Two vertices are connected if there is a path between them.
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200331224451.png)
 
 **adjacency matrix**：我们可以使用一个 V 乘 V 的布尔 矩阵。当顶点 v 和顶点 w 之间有相连接的边 时，定义 v 行 w 列的元素值为 true，否则为 false。
->该方法不符合第一个条件，上百万个顶点的图是很常见的，这种方法对于空间（内存）的要求很高，V^2空间不满足。
+>该方法不符合第一个条件，上百万个顶点�����图是很常见的，这种方法对于空间（内存）的要求很高，V^2空间不满足。
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200331224640.png)
 
@@ -4796,6 +4798,13 @@ public class KnapsackProblem {
 ```
 ## 回溯算法
 
+“回溯”指的是“状态重置”，可以理解为“回到过去”、“恢复现场”，是在编码的过程中，是为了节约空间而使用的一种技巧。而回溯其实是“深度优先遍历”特有的一种现象。之所以是“深度优先遍历”，是因为我们要解决的问题通常是在一棵树上完成的，在这棵树上搜索需要的答案，一般使用深度优先遍历。
+
+- 回溯算法本质上是遍历的算法，全程使用一份状态变量去搜索状态空间里的所有状态，是节约空间的；
+- 深度优先遍历呈现「一条道走到底，不撞南墙」不回头的特点。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200716174037.png)
+
 解决一个回溯问题，实际上就是一个决策树的遍历过程。
 1. 路径：也就是已经做出的选择。
 2. 选择列表：也就是你当前可以做的选择。
@@ -4815,7 +4824,7 @@ def backtrack(路径, 选择列表):
         撤销选择
 ```
 **其核心就是 for 循环里面的递归，在递归调用之前「做选择」，在递归调用之后「撤销选择」**
-### 全排列问题
+### 全排列问题(1)
 给三个数 `[1,2,3]`，你肯定不会无规律地乱穷举，一般是这样：
 
 先固定第一位为 1，然后第二位可以是 2，那么第三位只能是 3；然后可以把第二位变成 3，第三位就只能是 2 了；然后就只能变化第一位，变成 2，然后再穷举后两位……
@@ -4851,7 +4860,17 @@ public void traverse(TreeNode root) {
 
 回想我们刚才说的，「路径」和「选择」是每个节点的属性，函数在树上游走要正确维护节点的属性，那么就要在这两个特殊时间点搞点动作：
 
-![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200714230517.png)
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200716173001.png)
+
+说明：
+
+1、每一个结点表示了“全排列”问题求解的不同阶段，这些阶段通过变量的“不同的值”体现；
+2、这些变量的不同的值，也称之为“状态”；
+3、使用深度优先遍历有“回头”的过程，在“回头”以后，状态变量需要设置成为和先前一样；
+4、因此在回到上一层结点的过程中，需要撤销上一次选择，这个操作也称之为“状态重置”；
+5、深度优先遍历，可以直接借助系统栈空间，为我们保存所需要的状态变量，在编码中只需要注意遍历到相应的结点的时候，状态变量的值是正确的，具体的做法是：往下走一层的时候，path 变量在尾部追加，而往回走的时候，需要撤销上一次的选择，也是在尾部操作，因此 path 变量是一个栈。
+6、深度优先遍历通过“回溯”操作，实现了全局使用一份状态变量的效果。
+
 
 所以再来看一遍回溯算法的核心框架：
 ```
@@ -4864,6 +4883,354 @@ for 选择 in 选择列表:
     路径.remove(选择)
     将该选择再加入选择列表
 ```
+**我们只要在递归之前做出选择，在递归之后撤销刚才的选择**，就能正确得到每个节点的选择列表和路径。
+
+下面我们解释如何编码：
+
+1、首先这棵树除了根结点和叶子结点以外，每一个结点做的事情其实是一样的，即在已经选了一些数的前提，我们需要在剩下还没有选择的数中按照顺序依次选择一个数，这显然是一个递归结构；
+
+2、递归的终止条件是，数已经选够了，因此我们需要一个变量来表示当前递归到第几层，我们把这个变量叫做 **depth**；
+
+3、这些结点实际上表示了搜索（查找）全排列问题的不同阶段，为了区分这些不同阶段，我们就需要一些变量来记录为了得到一个全排列，程序进行到哪一步了，在这里我们需要两个变量：
+
+（1）已经选了哪些数，到叶子结点时候，这些已经选择的数就构成了一个全排列；
+（2）一个布尔数组 used，初始化的时候都为 false 表示这些数还没有被选择，当我们选定一个数的时候，就将这个数组的相应位置设置为 true ，这样在考虑下一个位置的时候，就能够以 O(1)O(1) 的时间复杂度判断这个数是否被选择过，这是一种“以空间换时间”的思想。
+
+我们把这两个变量称之为“**状态变量**”，它们表示了我们在求解一个问题的时候所处的阶段。
+
+4、在非叶子结点处，产生不同的分支，这一操作的语义是：在还未选择的数中依次选择一个元素作为下一个位置的元素，这显然得通过一个循环实现。
+
+5、另外，因为是执行深度优先遍历，从较深层的结点返回到较浅层结点的时候，需要做“状态重置”，即“回到过去”、“恢复现场”，我们举一个例子。
+
+从 [1, 2, 3] 到 [1, 3, 2] ，深度优先遍历是这样做的，从 [1, 2, 3] 回到 [1, 2] 的时候，需要撤销刚刚已经选择的数 3，因为在这一层只有一个数 3 我们已经尝试过了，因此程序回到上一层，需要撤销对 2 的选择，好让后面的程序知道，选择 3 了以后还能够选择 2。
+
+这种在遍历的过程中，从深层结点回到浅层结点的过程中所做的操作就叫“回溯”。
+
+下面这段代码就是全排列的算法逻辑，但是要**注意**，这段代码中有一个**小错误**。
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class Solution {
+
+    public List<List<Integer>> permute(int[] nums) {
+        // 首先是特判
+        int len = nums.length;
+        // 使用一个动态数组保存所有可能的全排列
+        List<List<Integer>> res = new ArrayList<>();
+
+        if (len == 0) {
+            return res;
+        }
+
+        boolean[] used = new boolean[len];
+        List<Integer> path = new ArrayList<>();
+
+        dfs(nums, len, 0, path, used, res);
+        return res;
+    }
+
+    private void dfs(int[] nums, int len, int depth,
+                     List<Integer> path, boolean[] used,
+                     List<List<Integer>> res) {
+        if (depth == len) {
+            res.add(path);
+            return;
+        }
+
+        for (int i = 0; i < len; i++) {
+            if (!used[i]) {
+                path.add(nums[i]);
+                used[i] = true;
+
+                dfs(nums, len, depth + 1, path, used, res);
+                // 注意：这里是状态重置，是从深层结点回到浅层结点的过程，代码在形式上和递归之前是对称的
+                used[i] = false;
+                path.remove(path.size() - 1);
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        int[] nums = {1, 2, 3};
+        Solution solution = new Solution();
+        List<List<Integer>> lists = solution.permute(nums);
+        System.out.println(lists);
+    }
+}
+```
+这段代码在运行的时候输出如下：
+
+    [[], [], [], [], [], []]
+
+原因出现在递归终止条件这里：
+```java
+if (depth == len) {
+    res.add(path);
+    return;
+}
+```
+
+`path` 这个变量所指向的对象在递归的过程中只有一份，深度优先遍历完成以后，因为回到了根结点（因为我们之前说了，从深层结点回到浅层结点的时候，需要撤销之前的选择），因此 `path` 这个变量回到根结点以后都为空。
+
+在 Java 中，因为都是值传递，对象类型变量在传参的过程中，复制的都是变量的地址。这些地址被添加到 `res` 变量，但实际上指向的是同一块内存地址，因此我们会看到 6 个空的列表对象。解决的方法很简单，在 `res.add(path)`; 这里做一次拷贝即可。
+
+```java
+if (depth == len) {
+    res.add(new ArrayList<>(path));
+    return;
+}
+```
+**方法二**
+下面大同小异，只不过将path换成Stack/Deque
+```java
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+
+public class Solution {
+
+    public List<List<Integer>> permute(int[] nums) {
+        int len = nums.length;
+
+        List<List<Integer>> res = new ArrayList<>();
+        if (len == 0) {
+            return res;
+        }
+
+        boolean[] used = new boolean[len];
+
+        // 由于只在结尾操作，因此是一个栈，Java 的 Stack 类建议使用 Deque 作为栈的实现
+        Deque<Integer> path = new ArrayDeque<>(len);
+
+        // 由于是深搜，深搜需要使用栈，而写递归方法就可以把状态变量设计成递归方法参数
+        dfs(nums, len, 0, path, used, res);
+        return res;
+    }
+
+
+    /**
+     * @param nums  候选数组
+     * @param len   冗余变量，作为参数传递不用每次都从 nums 中读取 length 属性值
+     * @param depth 冗余变量，作为参数传递不用每次都从 path 中调用 size() 方法
+     * @param path  从根结点到叶子结点的路径
+     * @param used  记录当前结点已经使用了哪些元素，这些元素都在 path 变量中
+     * @param res   结果集
+     */
+    private void dfs(int[] nums, int len, int depth,
+                     Deque<Integer> path, boolean[] used,
+                     List<List<Integer>> res) {
+        if (depth == len) {
+            res.add(new ArrayList<>(path));
+            return;
+        }
+
+        for (int i = 0; i < len; i++) {
+            if (used[i]) {
+                continue;
+            }
+
+            used[i] = true;
+            path.addLast(nums[i]);
+
+            dfs(nums, len, depth + 1, path, used, res);
+            // 此处是回退的过程，发生状态重置（撤销选择），代码与 dfs 是对称出现的
+
+            path.removeLast();
+            used[i] = false;
+        }
+    }
+}
+```
+### 全排列问题(2)
+全排列还有一种情况，就是给定一个可包含重复数字的序列，返回所有不重复的全排列。
+
+    输入: [1,1,2]
+    输出:
+    [
+    [1,1,2],
+    [1,2,1],
+    [2,1,1]
+    ]
+
+总体上其实和第一种思路没有太大区别，要注意的是思路：**在一定会产生重复结果集的地方剪枝**。
+
+一个比较容易想到的办法是在结果集中去重。但是问题又来了，这些结果集的元素是一个又一个列表，对列表去重不像用哈希表对基本元素去重那样容易。
+
+如果要比较两个列表是否一样，一个很显然的办法是分别排序，然后逐个比对。既然要排序，我们可以在**搜索之前就对候选数组排序**，一旦发现这一支搜索下去可能搜索到重复的元素就停止搜索，这样结果集中不会包含重复元素。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200717161126.png)
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200717161217.png)
+
+产生重复结点的地方，正是图中标注了“剪刀”，且被绿色框框住的地方。
+
+大家也可以把第 2 个 1 加上 ' ，即 [1, 1', 2] 去想象这个搜索的过程。只要遇到起点一样，就有可能产生重复。这里还有一个很细节的地方：
+
+1. 在图中 ② 处，搜索的数也和上一次一样，但是上一次的 1 还在使用中；
+2. **在图中 ① 处，搜索的数也和上一次一样，但是上一次的 1 刚刚被撤销，正是因为刚被撤销，下面的搜索中还会使用到，因此会产生重复，剪掉的就应该是这样的分支。**
+
+所以我们要在代码上加上
+```java
+if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+    continue;
+}
+```
+**完整代码**
+
+```java
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.List;
+
+public class Solution {
+
+    public List<List<Integer>> permuteUnique(int[] nums) {
+        int len = nums.length;
+        List<List<Integer>> res = new ArrayList<>();
+        if (len == 0) {
+            return res;
+        }
+
+        // 排序（升序或者降序都可以），排序是剪枝的前提
+        Arrays.sort(nums);
+
+        boolean[] used = new boolean[len];
+        // 使用 Deque 是 Java 官方 Stack 类的建议
+        Deque<Integer> path = new ArrayDeque<>(len);
+        dfs(nums, len, 0, used, path, res);
+        return res;
+    }
+
+    private void dfs(int[] nums, int len, int depth, boolean[] used, Deque<Integer> path, List<List<Integer>> res) {
+        if (depth == len) {
+            res.add(new ArrayList<>(path));
+            return;
+        }
+
+        for (int i = 0; i < len; ++i) {
+            if (used[i]) {
+                continue;
+            }
+
+            // 剪枝条件：i > 0 是为了保证 nums[i - 1] 有意义
+            // 写 !used[i - 1] 是因为 nums[i - 1] 在深度优先遍历的过程中刚刚被撤销选择
+            if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+                continue;
+            }
+
+            path.addLast(nums[i]);
+            used[i] = true;
+
+            dfs(nums, len, depth + 1, used, path, res);
+            // 回溯部分的代码，和 dfs 之前的代码是对称的
+            used[i] = false;
+            path.removeLast();
+        }
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        int[] nums = {1, 1, 2};
+        List<List<Integer>> res = solution.permuteUnique(nums);
+        System.out.println(res);
+    }
+}
+```
+这段代码就能检测到标注为 ① 的两个结点，跳过它们。注意：这里 `used[i - 1]` 不加 `!`，测评也能通过，但是 `!used[i - 1]` 这样的剪枝更彻底。
+
+**写 used[i - 1] 代码正确，但是不推荐的原因：**
+思路是根据深度优先遍历的执行流程，看一看那些状态变量（布尔数组 used）的值。
+
+- 如果剪枝写的是：
+
+```java
+if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+    continue;
+}
+```
+那么，对于数组 `[1, 1’, 1’’, 2]`，回溯的过程如下：
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200717161845.png)
+
+得到的全排列是：`[[1, 1', 1'', 2], [1, 1', 2, 1''], [1, 2, 1', 1''], [2, 1, 1', 1'']]`。特点是：`1`、`1'`、`1''` 出现的顺序只能是 `1`、`1'`、`1''`。
+
+- 如果剪枝写的是：
+```java
+if (i > 0 && nums[i] == nums[i - 1] && used[i - 1]) {
+    continue;
+}
+```
+那么，对于数组 `[1, 1’, 1’’, 2]`，回溯的过程如下（因为过程稍显繁琐，所以没有画在一张图里）：
+
+1. 先选第 1 个数字，有 4 种取法。
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200717162116.png)
+
+2. 对第 1 步的第 1 个分支，可以继续搜索，但是发现，没有搜索到合适的叶子结点。
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200717162140.png)
+
+3. 对第 1 步的第 2 个分支，可以继续搜索，但是同样发现，没有搜索到合适的叶子结点。
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200717162157.png)
+
+4. 对第 1 步的第 3 个分支，继续搜索发现搜索到合适的叶子结点。
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200717162219.png)
+
+5. 对第 1 步的第 4 个分支，继续搜索发现搜索到合适的叶子结点。
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200717162236.png)
+
+因此，`used[i - 1]` 前面加不加感叹号的区别仅在于保留的是相同元素的顺序索引，还是倒序索引。**很明显，顺序索引（即使用 !used[i - 1] 作为剪枝判定条件得到）的递归树剪枝更彻底，思路也相对较自然。**
+
+### 子集Subset
+输入一个**不包含重复数字**的数组，要求算法输出这些数字的所有子集。
+```java
+public List<List<Integer>> subsets(int[] nums)
+```
+比如输入 `nums = [1,2,3]`，你的算法应输出 8 个子集，包含空集和本身，顺序可以不同：
+`[ [],[1],[2],[3],[1,3],[2,3],[1,2],[1,2,3] ]`
+
+第一个解法是利用**数学归纳**的思想：假设我现在知道了规模更小的子问题的结果，如何推导出当前问题的结果呢？
+具体来说就是，现在让你求 `[1,2,3]` 的子集，如果你知道了 `[1,2]` 的子集，是否可以推导出 `[1,2,3]` 的子集呢？先把  `[1,2]` 的子集写出来瞅瞅：
+
+`[ [],[1],[2],[1,2] ]`
+
+你会发现这样一个规律：
+
+subset(`[1,2,3]`) - subset(`[1,2]`)
+
+= `[3],[1,3],[2,3],[1,2,3]`
+
+而这个结果，就是把 sebset(`[1,2]`) 的结果中每个集合再添加上 3。
+
+换句话说，如果 `A = subset([1,2])` ，那么：
+
+`subset([1,2,3]) = A + [A[i].add(3) for i = 1..len(A)]`
+
+这就是一个典型的递归结构嘛，`[1,2,3]` 的子集可以由 `[1,2]` 追加得出，`[1,2]` 的子集可以由 `[1]` 追加得出，base case 显然就是当输入集合为空集时，输出子集也就是一个空集。
+
+```cpp
+vector<vector<int>> subsets(vector<int>& nums) {
+    // base case，返回一个空集
+    if (nums.empty()) return {{}};
+    // 把最后一个元素拿出来
+    int n = nums.back();
+    nums.pop_back();
+    // 先递归算出前面元素的所有子集
+    vector<vector<int>> res = subsets(nums);
+
+    int size = res.size();
+    for (int i = 0; i < size; i++) {
+        // 然后在之前的结果之上追加
+        res.push_back(res[i]);
+        res.back().push_back(n);
+    }
+    return res;
+}
+```
+
+
 ### DFS—sodoku
 用DFS解决数独问题，要求就是输入数独题目，程序输出数独的唯一解。我们保证所有已知数据的格式都是合法的，并且题目有唯一的解。
 格式要求，输入9行，每行9个数字，0代表未知，其它数字为已知。输出9行，每行9个数字表示数独的解。
