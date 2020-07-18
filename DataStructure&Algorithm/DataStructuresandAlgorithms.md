@@ -128,7 +128,8 @@
   - [回溯算法](#回溯算法)
     - [全排列问题(1)](#全排列问题1)
     - [全排列问题(2)](#全排列问题2)
-    - [子集Subset](#子集subset)
+    - [子集Subset(1)](#子集subset1)
+    - [子集Subsets(2)](#子集subsets2)
     - [DFS—sodoku](#dfssodoku)
 ---
 
@@ -5183,52 +5184,118 @@ if (i > 0 && nums[i] == nums[i - 1] && used[i - 1]) {
 
 因此，`used[i - 1]` 前面加不加感叹号的区别仅在于保留的是相同元素的顺序索引，还是倒序索引。**很明显，顺序索引（即使用 !used[i - 1] 作为剪枝判定条件得到）的递归树剪枝更彻底，思路也相对较自然。**
 
-### 子集Subset
+### 子集Subset(1)
 输入一个**不包含重复数字**的数组，要求算法输出这些数字的所有子集。
+
+    Input: nums = [1,2,3]
+    Output:
+    [
+    [3],
+    [1],
+    [2],
+    [1,2,3],
+    [1,3],
+    [2,3],
+    [1,2],
+    []
+    ]
+
+**方法一：按照每一个数选与不选**
+
+首先我们可以画出树形图：按照“一个数可以选，也可以不选”的思路
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200717215143.png)
+
 ```java
-public List<List<Integer>> subsets(int[] nums)
-```
-比如输入 `nums = [1,2,3]`，你的算法应输出 8 个子集，包含空集和本身，顺序可以不同：
-`[ [],[1],[2],[3],[1,3],[2,3],[1,2],[1,2,3] ]`
-
-第一个解法是利用**数学归纳**的思想：假设我现在知道了规模更小的子问题的结果，如何推导出当前问题的结果呢？
-具体来说就是，现在让你求 `[1,2,3]` 的子集，如果你知道了 `[1,2]` 的子集，是否可以推导出 `[1,2,3]` 的子集呢？先把  `[1,2]` 的子集写出来瞅瞅：
-
-`[ [],[1],[2],[1,2] ]`
-
-你会发现这样一个规律：
-
-subset(`[1,2,3]`) - subset(`[1,2]`)
-
-= `[3],[1,3],[2,3],[1,2,3]`
-
-而这个结果，就是把 sebset(`[1,2]`) 的结果中每个集合再添加上 3。
-
-换句话说，如果 `A = subset([1,2])` ，那么：
-
-`subset([1,2,3]) = A + [A[i].add(3) for i = 1..len(A)]`
-
-这就是一个典型的递归结构嘛，`[1,2,3]` 的子集可以由 `[1,2]` 追加得出，`[1,2]` 的子集可以由 `[1]` 追加得出，base case 显然就是当输入集合为空集时，输出子集也就是一个空集。
-
-```cpp
-vector<vector<int>> subsets(vector<int>& nums) {
-    // base case，返回一个空集
-    if (nums.empty()) return {{}};
-    // 把最后一个元素拿出来
-    int n = nums.back();
-    nums.pop_back();
-    // 先递归算出前面元素的所有子集
-    vector<vector<int>> res = subsets(nums);
-
-    int size = res.size();
-    for (int i = 0; i < size; i++) {
-        // 然后在之前的结果之上追加
-        res.push_back(res[i]);
-        res.back().push_back(n);
+class Solution {
+    public List<List<Integer>> subsets(int[] nums) {
+        int len = nums.length;
+        List<List<Integer>> res = new ArrayList<>();    
+        if(nums == null) return res;
+        Deque<Integer> path = new ArrayDeque<>()；
+        help(nums, len, 0, path, res);
+        return res;
     }
-    return res;
+    
+    public void help(int[] nums, int len, int depth, Deque<Integer> path, List<List<Integer>> res){
+        if(depth == len){
+            res.add(new ArrayList<>(path));
+            return;
+        }
+        //当前数可以选，也可以不选
+        
+        //情况1：不选，直接进入下一层
+        help(nums, len, depth + 1, path, res);
+        
+        //情况2：选择，加进paht，下一层，回溯
+        path.addLast(nums[depth]);
+        help(nums, len, depth + 1, path, res);
+        path.removeLast();
+    }
 }
 ```
+**注意：** 找子集和全排列不一样的是，这里不需要创建一个**boolean**数组来记录每一个数字是否已经被选择过了，这里也不需要for循环遍历每一个数字然后排列组合，因为是找子集，所以从空集开始到数组本身，这个过程是可以直接使用`depth`来替代的
+
+**方法二：按照选出几个数**
+
+这里画出的树是一个多叉树，不像方法一是二叉树
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200717233324.png)
+
+只要按照顺序考虑接下来要选的数，就不会出现重复。每一个节点就是我们要寻找的子集
+
+```java
+class Solution {
+    public List<List<Integer>> subsets(int[] nums) {
+        List<List<Integer>> res = new ArrayList<>();
+        backtrack(0, nums, res, new ArrayList<Integer>());
+        return res;
+
+    }
+
+    private void backtrack(int i, int[] nums, List<List<Integer>> res, ArrayList<Integer> tmp) {
+        res.add(new ArrayList<>(tmp));
+        for (int j = i; j < nums.length; j++) {
+            tmp.add(nums[j]);
+            backtrack(j + 1, nums, res, tmp);
+            tmp.remove(tmp.size() - 1);
+        }
+    }
+}
+```
+### 子集Subsets(2)
+只是多了重复的元素，所以我们仍然需要做剪枝操作
+```java
+if(i > begin && nums[i] == nums[i - 1]) continue;
+```
+完整代码：
+```java
+class Solution {
+    public List<List<Integer>> subsetsWithDup(int[] nums) {
+        Arrays.sort(nums);
+        int len = nums.length;
+        List<List<Integer>> res = new ArrayList<>();
+        
+        if(nums == null){
+            return res;
+        }
+        Deque<Integer> path = new ArrayDeque<>();
+        help(nums, len, 0, path, res);
+        return res;
+    }
+    
+    public void help(int[] nums, int len, int begin, Deque<Integer> path, List<List<Integer>> res){
+        res.add(new ArrayList<>(path));
+        for(int i = begin; i < len; i++){
+            if(i > begin && nums[i] == nums[i - 1]) continue;
+            path.addLast(nums[i]);
+            help(nums, len, i + 1, path, res);
+            path.removeLast();
+        }
+    }
+}
+```
+
 
 
 ### DFS—sodoku
