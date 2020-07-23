@@ -132,7 +132,8 @@
     - [子集Subsets(2)](#子集subsets2)
     - [N Queens(1)](#n-queens1)
     - [N Queens(2)](#n-queens2)
-    - [DFS—sodoku](#dfssodoku)
+    - [Valid Sudoku](#valid-sudoku)
+    - [Sudoku](#sudoku)
 ---
 
 | TOPIC | Data Structures & Algorithms |
@@ -5544,6 +5545,55 @@ class Solution {
     }
 }
 ```
+### Valid Sudoku
+这个题就是看给定的数独符不符合要求，不要求我们填写。
+
+1. 由于board中的整数限定在1到9的范围内，因此可以分别建立哈希表来存储任一个数在相应维度上是否出现过。维度有3个：所在的行，所在的列，所在的box，注意box的下标也是从左往右、从上往下的。
+
+2. 遍历到每个数的时候，例如boar[i][j]，我们判断其是否满足三个条件：
+
+- 在第 i 个行中是否出现过
+- 在第 j 个列中是否出现过
+- 在第 j/3 + (i/3)*3个box中是否出现过.为什么是j/3 + (i/3)*3呢？
+
+3. 关于从数组下标到box序号的变换
+ 重述一遍问题：给定i和j，如何判定board[i][j]在第几个box呢？
+ 显然属于第几个box由i和j的组合唯一确定，例如board[2][2]一定是第0个box，board[4][7]一定是第5个box，可以画出来看一下，但是规律在哪里呢？
+我们可以考虑一种简单的情况： 一个3x9的矩阵，被分成3个3x3的box，如图：
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200723175916.png)
+
+显然每个数属于哪个box就只取决于纵坐标，纵坐标为0/1/2的都属于box[0],纵坐标为3/4/5的都属于box[1],纵坐标为6/7/8的都属于box[2].也就是j/3.
+
+而对于9x9的矩阵，我们光根据j/3得到0/1/2还是不够的，可能加上一个3的倍数，例如加0x3,表示本行的box，加1x3，表示在下一行的box，加2x3，表示在下两行的box， 这里的0/1/2怎么来的？和j/3差不多同理，也就是i/3。
+```java
+class Solution {
+    public boolean isValidSudoku(char[][] board) {
+        boolean[][] row = new boolean[9][9];
+        boolean[][] col = new boolean[9][9];
+        boolean[][] sub = new boolean[9][9];
+        
+        for(int r = 0; r < 9; r++){
+            for(int c = 0; c < 9; c++){
+                // 遍历到第i行第j列的那个数,我们要判断这个数在其所在的行有没有出现过，
+                // 同时判断这个数在其所在的列有没有出现过
+                // 同时判断这个数在其所在的box中有没有出现过
+                if(board[r][c] != '.'){
+                    int val = board[r][c] - '1';
+                    int subIndex = r / 3 * 3 + c / 3;
+                    if(row[r][val] || col[c][val] || sub[subIndex][val]){
+                        return false;
+                    }
+                    // 之前都没出现过，现在出现了，就给它置为1，下次再遇见就能够直接返回false了。
+                    row[r][val] = true;
+                    col[c][val] = true;
+                    sub[subIndex][val] = true;
+                }
+            }
+        }
+        return true;
+    }
+}
+```
 
 
 
@@ -5560,7 +5610,7 @@ class Solution {
 
 
 
-### DFS—sodoku
+### Sudoku
 用DFS解决数独问题，要求就是输入数独题目，程序输出数独的唯一解。我们保证所有已知数据的格式都是合法的，并且题目有唯一的解。
 格式要求，输入9行，每行9个数字，0代表未知，其它数字为已知。输出9行，每行9个数字表示数独的解。
 
@@ -5647,77 +5697,107 @@ class Solution {
     }
 }
 ```
-
 时间复杂度快一点的解法
+思路：
+我们求解数独的思路很简单粗暴，就是对每一个格子所有可能的数字进行穷举。对于每个位置，应该如何穷举，有几个选择呢？**很简单啊，从 1 到 9 就是选择，全部试一遍不就行了：**
 ```java
-class Solution {
-    public void solveSudoku(char[][] board) {
-        //使用回溯法来进行求解
-        boolean b = backtrack(board,0,0);
+// 对 board[i][j] 进行穷举尝试
+void backtrack(char[][] board, int i, int j) {
+    int m = 9, n = 9;
+    for (char ch = '1'; ch <= '9'; ch++) {
+        // 做选择
+        board[i][j] = ch;
+        // 继续穷举下一个
+        backtrack(board, i, j + 1);
+        // 撤销选择
+        board[i][j] = '.';
     }
+}
+```
+再继续细化，并不是 1 到 9 都可以取到的，有的数字不是不满足数独的合法条件吗？而且现在只是给 j 加一，那如果 j 加到最后一列了，怎么办？
 
-    public boolean backtrack(char[][] board,int i,int j){
-
-        //递归结束条件
-        if(i==9){
-            return true;
-        }
-
-        //判断换行
-        if(j==9){
-           return backtrack(board,i+1,0);
-        }
-
-        //如果是预设的数字，直接进入下一步
-        if(board[i][j]!='.'){
-            return backtrack(board,i,j+1);
-        }
-
-
-        //做选择
-        for(char c = '1';c <= '9';c++){
-            
-            if(!isVaild(board,i,j,c)){
-                continue;
-            }
-
-            //做选择
-            board[i][j] = c;
-
-            //进入下一层决策树
-            if(backtrack(board,i,j+1)){
-                //如果出现了一个正确的答案就直接返回，不再进行下一步的递归
-                return true;
-            }
-
-            //撤销选择
-
-            board[i][j] = '.';
-            
-        }
-
-        return false;
+**很简单，当 j 到达超过每一行的最后一个索引时，转为增加 i 开始穷举下一行，并且在穷举之前添加一个判断，跳过不满足条件的数字：**
+```java
+void backtrack(char[][] board, int i, int j) {
+    int m = 9, n = 9;
+    if (j == n) {
+        // 穷举到最后一列的话就换到下一行重新开始。
+        backtrack(board, i + 1, 0);
+        return;
     }
+    
+    // 如果该位置是预设的数字，不用我们操心
+    if (board[i][j] != '.') {
+        backtrack(board, i, j + 1);
+        return;
+    } 
 
-    public boolean isVaild(char[][] board,int row,int col,char c){
+    for (char ch = '1'; ch <= '9'; ch++) {
+        // 如果遇到不合法的数字，就跳过
+        if (!isValid(board, i, j, ch))
+            continue;
+        
+        board[i][j] = ch;
+        backtrack(board, i, j + 1);
+        board[i][j] = '.';
+    }
+}
 
- 
-        for(int i=0;i<9;i++){
-            //判断行是否有重复的
-            if(board[i][col]==c){
-                return false;
-            }
-            //判断列是否有重复的
-            if(board[row][i]==c){
-                return false;
-            }
-            //判断九宫格是否有重复的代码
-            if(board[(row/3)*3+i/3][(col/3)*3+i%3]==c){
-                return false;
-            }
-        }
+// 判断 board[i][j] 是否可以填入 n
+boolean isValid(char[][] board, int r, int c, char n) {
+    for (int i = 0; i < 9; i++) {
+        // 判断行是否存在重复
+        if (board[r][i] == n) return false;
+        // 判断列是否存在重复
+        if (board[i][c] == n) return false;
+        // 判断 3 x 3 方框是否存在重复
+        if (board[(r/3)*3 + i/3][(c/3)*3 + i%3] == n)
+            return false;
+    }
+    return true;
+}
+```
+现在基本上差不多了，还剩最后一个问题：这个算法没有 base case，永远不会停止递归。这个好办，什么时候结束递归？**显然 `r == m` 的时候就说明穷举完了最后一行，完成了所有的穷举，就是 base case。**
+
+另外，前文也提到过，为了减少复杂度，我们可以让 backtrack 函数返回值为 boolean，如果找到一个可行解就返回 true，这样就可以阻止后续的递归。只找一个可行解，也是题目的本意。
+
+最终代码修改如下：
+
+```java
+boolean backtrack(char[][] board, int i, int j) {
+    int m = 9, n = 9;
+    if (j == n) {
+        // 穷举到最后一列的话就换到下一行重新开始。
+        return backtrack(board, i + 1, 0);
+    }
+    if (i == m) {
+        // 找到一个可行解，触发 base case
         return true;
     }
+
+    if (board[i][j] != '.') {
+        // 如果有预设数字，不用我们穷举
+        return backtrack(board, i, j + 1);
+    } 
+
+    for (char ch = '1'; ch <= '9'; ch++) {
+        // 如果遇到不合法的数字，就跳过
+        if (!isValid(board, i, j, ch))
+            continue;
+        
+        board[i][j] = ch;
+        // 如果找到一个可行解，立即结束
+        if (backtrack(board, i, j + 1)) {
+            return true;
+        }
+        board[i][j] = '.';
+    }
+    // 穷举完 1~9，依然没有找到可行解，此路不通
+    return false;
+}
+
+boolean isValid(char[][] board, int r, int c, char n) {
+    // 见上文
 }
 ```
 
