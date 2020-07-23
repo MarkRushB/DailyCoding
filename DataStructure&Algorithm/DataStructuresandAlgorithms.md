@@ -130,6 +130,8 @@
     - [全排列问题(2)](#全排列问题2)
     - [子集Subset(1)](#子集subset1)
     - [子集Subsets(2)](#子集subsets2)
+    - [N Queens(1)](#n-queens1)
+    - [N Queens(2)](#n-queens2)
     - [DFS—sodoku](#dfssodoku)
 ---
 
@@ -2714,7 +2716,7 @@ public class SelectSort {
   - 取出下一个元素，在已经排序的元素序列中从后向前扫描；
   - 如果该元素（已排序）大于新元素，将该元素移到下一位置；
   - 重复步骤3，直到找到已排序的元素小于或者等于新元素的位置；
-  - 将新元素插入到该位置后；
+  - 将新元素插入到该位置��；
   - 重复步骤2~5。
 - ![](https://www.runoob.com/wp-content/uploads/2019/03/insertionSort.gif)
 ```java
@@ -3807,7 +3809,7 @@ Two vertices are connected if there is a path between them.
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200331224451.png)
 
-**adjacency matrix**：我们可以使用一个 V 乘 V 的布尔 矩阵。当顶点 v 和顶点 w 之间有相连接的边 时，定义 v 行 w 列的元素值为 true，否则为 false。
+**adjacency matrix**：我们可以使用一个 V 乘 V 的布尔 矩阵。当顶点 v 和顶点 w 之间有相���接的边 时，定义 v 行 w 列的元素值为 true，否则为 false。
 >该方法不符合第一个条件，上百万个顶点�����图是很常见的，这种方法对于空间（内存）的要求很高，V^2空间不满足。
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200331224640.png)
@@ -5253,11 +5255,11 @@ class Solution {
 
     }
 
-    private void backtrack(int i, int[] nums, List<List<Integer>> res, ArrayList<Integer> tmp) {
+    private void backtrack(int begin, int[] nums, List<List<Integer>> res, ArrayList<Integer> tmp) {
         res.add(new ArrayList<>(tmp));
-        for (int j = i; j < nums.length; j++) {
-            tmp.add(nums[j]);
-            backtrack(j + 1, nums, res, tmp);
+        for (int i = begin; i < nums.length; i++) {
+            tmp.add(nums[i]);
+            backtrack(i + 1, nums, res, tmp);
             tmp.remove(tmp.size() - 1);
         }
     }
@@ -5295,6 +5297,266 @@ class Solution {
     }
 }
 ```
+### N Queens(1)
+The n-queens puzzle is the problem of placing n queens on an n×n chessboard such that no two queens attack each other.
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200722220048.png)
+
+Given an integer n, return all distinct solutions to the n-queens puzzle.
+
+Each solution contains a distinct board configuration of the n-queens' placement, where 'Q' and '.' both indicate a queen and an empty space respectively.
+
+**Example:**
+
+    Input: 4
+    Output: [
+    [".Q..",  // Solution 1
+    "...Q",
+    "Q...",
+    "..Q."],
+
+    ["..Q.",  // Solution 2
+    "Q...",
+    "...Q",
+    ".Q.."]
+    ]
+    Explanation: There exist two distinct solutions to the 4-queens puzzle as shown above.
+
+![](https://pic.leetcode-cn.com/9d43d038978465bc1f35e088de4cb8b8d260129db3351036317a2246e121247f-0051.gif)
+
+以4皇后为例子，搜索过程如上。搜索问题的解决策略是画递归树。还以 4 皇后问题为例，画出的递归树如下。
+
+以下假定给棋盘的每一行从左到右标记为 1、2、3、4：
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200722220252.png)
+
+那么，递归搜索的过程可以表示成如下递归树（只画了 2 层）：
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200722220309.png)
+
+这就是 “全排列” 问题 + “剪枝” 。 “剪枝” 的依据就是题目中描述的 “N 皇后” 问题的规则，有了使用 used 数组（哈希表、位图）的经验，无非就是多设置一些 “状态” ，下面依次进行分析：
+
+1. 因为是一行一行摆放，因此这些 “皇后” 一定不在同一行，无需额外设置状态；
+2. 为了保证不再同一列，即不能出现 `[2, 2, 1, 3]` 这种情况，第 46 的 used 数组（哈希表、位图）就是这样的 “状态” 变量；
+3. 为了保证至少两个皇后不同时出现在主对角线或者副对角线，我们的策略是，只要 “检测” 到新摆放的 “皇后” 与已经摆放好的 “皇后” 冲突，就尝试摆放下一个位置，在 “无处安放” 的时候 “剪枝” 。
+
+下面我们研究一下主对角线或者副对角线上的元素有什么特性。我们此时能掌握的信息只有行和列的索引，不妨将它标注在棋盘上。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200722220353.png)
+
+- 为此，我们可以像 used 数组那样，再为 “主对角线” 和 “副对角线” 设置相应的数组变量，只要排定一个 “皇后” 的位置，就相应低占住相应的位置；
+- 因为位置有限，可以使用数组，不过我个人先使用的哈希表，原因是副对角那里使用数组的话还要计算一个偏差，另外，数组的元素个数也要归纳得到，因此，使用哈希表表示 “状态” ，我认为在编码上是比较简洁的；
+- 写对了 “哈希表” 以后，说明我们的思路是没有问题的，然后再写 “数组” 作为状态，最后写 “位图” 作为 “状态” ；
+
+得到一个符合要求的 “全排列” 以后，生成棋盘的代码就很简单了。
+
+使用数组分别记录 “列状态” 、 “主对角线状态” 、 “副对角线状态”
+```java
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
+
+public class Solution2 {
+
+    public List<List<String>> solveNQueens(int n) {
+        List<List<String>> res = new ArrayList<>();
+        if (n == 0) {
+            return res;
+        }
+
+        int[] nums = new int[n];
+        for (int i = 0; i < n; i++) {
+            nums[i] = i;
+        }
+
+        boolean[] col = new boolean[n];
+        boolean[] master = new boolean[2 * n - 1];
+        boolean[] slave = new boolean[2 * n - 1];
+        Stack<Integer> stack = new Stack<>();
+
+        backtrack(nums, 0, n, col, master, slave, stack, res);
+        return res;
+    }
+
+    private void backtrack(int[] nums, int row, int n,
+                           boolean[] col,
+                           boolean[] master,
+                           boolean[] slave,
+                           Stack<Integer> stack,
+                           List<List<String>> res) {
+
+        if (row == n) {
+            List<String> board = convert2board(stack, n);
+            res.add(board);
+            return;
+        }
+
+        // 针对每一列，尝试是否可以放置
+        for (int i = 0; i < n; i++) {
+            if (!col[i] && !master[row + i] && !slave[row - i + n - 1]) {
+                stack.add(nums[i]);
+                col[i] = true;
+                master[row + i] = true;
+                slave[row - i + n - 1] = true;
+
+                backtrack(nums, row + 1, n, col, master, slave, stack, res);
+
+                slave[row - i + n - 1] = false;
+                master[row + i] = false;
+                col[i] = false;
+                stack.pop();
+            }
+        }
+    }
+
+    private List<String> convert2board(Stack<Integer> stack, int n) {
+        List<String> board = new ArrayList<>();
+        for (Integer num : stack) {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < n; i++) {
+                stringBuilder.append(".");
+            }
+            stringBuilder.replace(num, num + 1, "Q");
+            board.add(stringBuilder.toString());
+        }
+        return board;
+    }
+
+
+    public static void main(String[] args) {
+        int n = 4;
+        Solution2 solution2 = new Solution2();
+        List<List<String>> res = solution2.solveNQueens(n);
+        System.out.println(res);
+    }
+}
+```
+
+说明：下面第 2 个版本是省略了数组 nums[i] 的生成，并且将 “行状态” 、 “主对角线状态” 、 “副对角线状态” 设置为成员变量，以避免递归方法参数冗长。
+```java
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+public class Solution {
+
+    private boolean[] col;
+    private boolean[] master;
+    private boolean[] slave;
+    private int n;
+    private List<List<String>> res;
+
+    public List<List<String>> solveNQueens(int n) {
+        this.n = n;
+        res = new ArrayList<>();
+        if (n == 0) {
+            return res;
+        }
+
+
+        col = new boolean[n];
+        master = new boolean[2 * n - 1];
+        slave = new boolean[2 * n - 1];
+        Stack<Integer> stack = new Stack<>();
+
+        backtrack(0, stack);
+        return res;
+    }
+
+    private void backtrack(int row, Stack<Integer> stack) {
+        if (row == n) {
+            List<String> board = convert2board(stack, n);
+            res.add(board);
+            return;
+        }
+
+        // 针对每一列，尝试是否可以放置
+        for (int i = 0; i < n; i++) {
+            if (!col[i] && !master[row + i] && !slave[row - i + n - 1]) {
+                stack.add(i);
+                col[i] = true;
+                master[row + i] = true;
+                slave[row - i + n - 1] = true;
+
+                backtrack(row + 1, stack);
+
+                slave[row - i + n - 1] = false;
+                master[row + i] = false;
+                col[i] = false;
+                stack.pop();
+            }
+        }
+    }
+
+    private List<String> convert2board(Stack<Integer> stack, int n) {
+        List<String> board = new ArrayList<>();
+        for (Integer num : stack) {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < n; i++) {
+                stringBuilder.append(".");
+            }
+            stringBuilder.replace(num, num + 1, "Q");
+            board.add(stringBuilder.toString());
+        }
+        return board;
+    }
+}+-
+```
+### N Queens(2)
+这个题跟上一题的区别就在于输出有几种可能的情况，甚至比上一题更简单。
+只需要写一个`count`函数就可以了。
+```java
+class Solution {
+    private boolean[] col;
+    private boolean[] dia1;
+    private boolean[] dia2;
+    private int n;
+    private int count;
+    public int totalNQueens(int n) {
+        this.n = n;
+        if(n == 0) return count;
+        
+        col = new boolean[n];
+        dia1 = new boolean[2 * n - 1];
+        dia2 = new boolean[2 * n - 1];
+        help(n, 0);
+        return count;
+    }
+    
+    private void help(int n, int row){
+        if(row == n){
+            count++;
+            return;
+        }
+        for(int i = 0; i < n; i++){
+            if(!col[i] && !dia1[row + i] && !dia2[row - i + n - 1]){
+                col[i] = true;
+                dia1[row + i] = true;
+                dia2[row - i + n - 1] = true;
+                help(n, row + 1);
+                dia2[row - i + n - 1] = false;
+                dia1[row + i] = false;
+                col[i] = false;
+            }
+        }
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
