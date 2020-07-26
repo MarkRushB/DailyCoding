@@ -150,12 +150,12 @@ public interface IUserDao {
     List<User> findAll();
 }
 ```
-## 编写持久层接口的映射文件
+## 创建Mybatis的主配置文件
+名字：`SqlMapConfig.xml`
 
-**创建位置**：必须和持久层接口在相同的包中。
-**名称**：必须以持久层接口名称命名文件名，扩展名是`.xml`
+文件结构：
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200726112115.png)
 
-## 编写SqlMapConfig.xml配置文件
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE configuration
@@ -172,8 +172,8 @@ public interface IUserDao {
             <!-- 配置连接数据库的信息：用的是数据源(连接池) -->
             <dataSource type="POOLED">
                 <!-- 配置链接数据库的4个基本信息 -->
-                <property name="driver" value="com.mysql.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://localhost:3306/ee50"/>
+                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/sample01"/>
                 <property name="username" value="root"/>
                 <property name="password" value="123456"/>
             </dataSource>
@@ -182,8 +182,88 @@ public interface IUserDao {
 
 <!-- 告知 mybatis 映射配置的位置 -->
     <mappers>
-        <mapper resource="com/itheima/dao/IUserDao.xml"/>
+        <mapper resource="org/practice/dao/IUserDao.xml"/>
     </mappers>
 </configuration>
+
+```
+
+## 编写持久层接口的映射文件
+
+名字：`IUserDao.xml`
+
+文件结构：
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200726112115.png)
+
+**创建位置**：必须和持久层接口在相同的包中。
+**名称**：必须以持久层接口名称命名文件名，扩展名是`.xml`
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.practice.dao.IUserDao">
+    <!-- 配置查询所有操作 -->
+    <!-- 注意这里一定要有resultType -->
+    <!-- 这样才在最后才会把结果集封装到User对象里面，并把User对象添加到List -->
+    <select id="findAll" resultType="org.practice.domain.User">
+        select * from user 
+    </select>
+
+</mapper>
+```
+
+## 环境搭建的注意事项
+
+1. 创建 `IUserDao.xml` 和 `IuserDao.java` 时名称是为了和我们之前的知识保持一致。在Mybatis中它把持久层的操作接口名称和映射文件也叫做：`Mapper`。所以： `IUserDao` 和 `IUserMapper` 是一样的。
+2. 在idea中创建目录的时候，它和包是不一样的：
+**包(Package)在创建时**：`org.practice.dao` 自动出来的是三级目录，如果没有显示三级目录，可以：
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200726113207.png)
+将 `Compact Middle Packages` 前面的勾取消
+**目录(Direcory)在创建时**：`org.practice.dao` 是一级目录
+3. Mybatis的映射配置文件必须和dao接口的包结构相同
+4. 映射配置文件的 `mapper` 标签 `namespace` 属性的取值必须是dao接口的全限定类名
+5. 映射配置文件的操作配置(select)，id属性的取值必须是dao接口的方法名
+
+当我们遵从了第三、四、五点之后，我们在开发中就无需再写dao的实现类。
+
+## 编写测试类
+
+文件结构：
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200726152630.png)
+
+```java
+public class MybatisTest {
+    public static void main(String[] args)throws Exception {
+        //1.读取配置文件
+        InputStream in = Resources.getResourceAsStream("SqlMapConfig.xml");
+
+        //2.创建 SqlSessionFactory 的构建者对象
+        //方便下面利用这个builder.nuild去构建工厂
+        SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
+
+        //3.使用构建者创建工厂对象 SqlSessionFactory
+        //注意这个SqlSessionFactory是一个Interface
+        SqlSessionFactory factory = builder.build(in);
+
+        //4.使用 SqlSessionFactory 生产 SqlSession 对象
+        SqlSession session = factory.openSession();
+
+        //5.使用 SqlSession 创建 dao 接口的代理对象
+        IUserDao userDao = session.getMapper(IUserDao.class);
+
+        //6.使用代理对象执行查询所有方法
+        List<User> users = userDao.findAll();
+
+        for(User user : users) {
+            System.out.println(user);
+        }
+
+        //7.释放资源
+        session.close();
+        in.close();
+    }
+}
 
 ```
