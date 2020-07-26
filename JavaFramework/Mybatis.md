@@ -265,5 +265,32 @@ public class MybatisTest {
         in.close();
     }
 }
+```
+**注意事项**：不要忘记在映射配置中告知mybatis要封装到哪个实体类中，配置的方式：指定实体类的全限定类名。
 
+## 使用注解配置
+
+在一开始的介绍中：Mybatis 通过 xml 或**注解**的方式将要执行的各种 statement 配置起来。
+这里我们还可以使用**注解**来替代**xml**进行配置工作。
+
+这里我们就不需要`org.practice.dao.IUserDao.xml`，取而代之就是在 `dao` 接口上写上`@Select`注解
+
+```java
+public interface IUserDao {
+
+    /**
+     * 查询所有用户
+     * @return
+     */
+    @Select("select * from user")
+    List<User> findAll();
+}
+```
+同时在 `SqlMapConfig.xml` 中指定映射配置文件的位置中做修改，如果是用注解来配置的话，此处应该使用class属性指定被注解的dao全限定类名
+
+```xml
+    <!-- 告知 mybatis 映射配置的位置 -->
+    <mappers>
+        <mapper class="org.practice.dao.IUserDao"/>
+    </mappers>
 ```
