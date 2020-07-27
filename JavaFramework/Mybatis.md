@@ -210,7 +210,6 @@ public interface IUserDao {
     <select id="findAll" resultType="org.practice.domain.User">
         select * from user 
     </select>
-
 </mapper>
 ```
 
@@ -237,20 +236,26 @@ public interface IUserDao {
 public class MybatisTest {
     public static void main(String[] args)throws Exception {
         //1.读取配置文件
+        //第一个：使用类加载器，它只能读取类路径的配置文件
+        //第二个：使用ServletContext对象的getRealPath()
         InputStream in = Resources.getResourceAsStream("SqlMapConfig.xml");
 
         //2.创建 SqlSessionFactory 的构建者对象
         //方便下面利用这个builder.nuild去构建工厂
+        //创建工厂mybatis使用了构建者模式，优点：把对象的创建细节隐藏，使用者直接调用方法即可拿到对象
         SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
 
         //3.使用构建者创建工厂对象 SqlSessionFactory
         //注意这个SqlSessionFactory是一个Interface
+        //builder就是构建者，in相当于给包工队的图纸
         SqlSessionFactory factory = builder.build(in);
 
         //4.使用 SqlSessionFactory 生产 SqlSession 对象
+        //生产SqlSession使用了工厂模式，优势：解耦（降低类之间的依赖关系）
         SqlSession session = factory.openSession();
 
         //5.使用 SqlSession 创建 dao 接口的代理对象
+        //创建Dao接口实现类使用了代理模式，优势：不修改源码的基础上对已有方法增强
         IUserDao userDao = session.getMapper(IUserDao.class);
 
         //6.使用代理对象执行查询所有方法
@@ -267,6 +272,22 @@ public class MybatisTest {
 }
 ```
 **注意事项**：不要忘记在映射配置中告知mybatis要封装到哪个实体类中，配置的方式：指定实体类的全限定类名。
+
+上述代码要做的简单，很容易：
+```java
+public class MybatisTest {
+    public static void main(String[] args) throws Exception {
+        InputStream in = Resources.getResourceAsStream("SqlMapConfig.xml").getMapper(IUserDao.class);
+        List<User> users = userDao.findAll();
+        for (User user : users) {
+            System.out.println(user);
+        }
+        session.close();
+        in.close();
+    }
+}
+```
+**但是**，为什么还要写这么多类名？为了**灵活**，每多加一个类，就可以选择更灵活的配置。
 
 ## 使用注解配置
 
@@ -294,3 +315,35 @@ public interface IUserDao {
         <mapper class="org.practice.dao.IUserDao"/>
     </mappers>
 ```
+
+## 手动写dao实现类
+
+[9:00 - end](https://www.bilibili.com/video/BV1mE411X7yp?p=9)
+目的旨在说明：
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.practice.dao.IUserDao">
+    <!-- 配置查询所有操作 -->
+    <!-- 注意这里一定要有resultType -->
+    <!-- 这样才在最后才会把结果集封装到User对象里面，并把User对象添加到List -->
+    <select id="findAll" resultType="org.practice.domain.User">
+        select * from user 
+    </select>
+</mapper>
+```
+中 `namespace` 和 `id` 的作用，光靠 `id` 是不能定位到这条sql语句的，所以还需要一个namespce，mybatis用的代理接口也是需要通过这两个来定位的
+
+
+# 自定义Mybatis
+
+## [执行查询所有分析](https://www.bilibili.com/video/BV1mE411X7yp?p=11)
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/查询所有的分析.png)
+
+## [创建代理对象的分析](https://www.bilibili.com/video/BV1mE411X7yp?p=12)
+
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/自定义Mybatis分析.png)
