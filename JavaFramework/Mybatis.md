@@ -227,6 +227,13 @@ public interface IUserDao {
 
 当我们遵从了第三、四、五点之后，我们在开发中就无需再写dao的实现类。
 
+## Mybatis核心对象
+**SqlSessionFactory**
+`SqlSessionFactory` 是MyBatis中十分重要的对象,它是单个数据库映射关系经过编译后的内存镜像,其作用是创建 `SqlSession`. SqlSessionFactory对象是线程安全的,它一旦被创建,在整个应用执行期间都会存在.如果我们多次地创建同一个数据库的SqlSessionFactory势必会耗尽数据库资源! 通常每一个数据库都会只对应一个SqlSessionFactory,所以在构建SqlSessionFactory时建议使用**单例模式**哟 !
+
+**SqlSession**
+`SqlSession` 是MyBatis框架中另一个重要的对象,它是应用程序与持久层之间执行交互操作的一个单线程对象,其主要作用是执行持久化操作. 注意: 每一个线程都应该有一个自己的SqlSession实例,并且该实例是不能被共享的,同时 `SqlSession` 实例也是线程不安全的,因此其使用范围最好在一次请求或一个方法中,绝不能将其放在一个类的静态字段,实例或任何类型的管理范围中使用.使用后理应及时地关闭它 !
+
 ## 编写测试类
 
 文件结构：
@@ -289,6 +296,7 @@ public class MybatisTest {
 ```
 **但是**，为什么还要写这么多类名？为了**灵活**，每多加一个类，就可以选择更灵活的配置。
 
+
 ## 使用注解配置
 
 在一开始的介绍中：Mybatis 通过 xml 或**注解**的方式将要执行的各种 statement 配置起来。
@@ -339,11 +347,29 @@ public interface IUserDao {
 
 # 自定义Mybatis
 
-## [执行查询所有分析](https://www.bilibili.com/video/BV1mE411X7yp?p=11)
+Mybatis在使用代理dao的方式实现增删改查时做什么事呢？
+1. 创建代理对象
+2. 在代理对象中调用selectList
 
+将使用前面所学的基础知识来构建一个属于自己的持久层框架，将会涉及到的一些知识点：**工厂模式
+（Factory 工厂模式）、构造者模式（Builder 模式）、代理模式，反射，自定义注解，注解的反射，xml 解析，
+数据库元数据，元数据的反射**等。
+## 分析流程
+
+**执行查询所有分析**
+[点击观看视频](https://www.bilibili.com/video/BV1mE411X7yp?p=11)
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/查询所有的分析.png)
 
-## [创建代理对象的分析](https://www.bilibili.com/video/BV1mE411X7yp?p=12)
-
-
+**创建代理对象的分析**
+[点击观看视频](https://www.bilibili.com/video/BV1mE411X7yp?p=12)
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/自定义Mybatis分析.png)
+
+## Mybatis透过入门案例看到的类
+
+```java
+class Resources
+class SqlSessionFactoryBuilder
+class SqlSessionFactory
+interface SqlSessionFactory
+interface SqlSession
+```
