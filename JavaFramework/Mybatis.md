@@ -159,6 +159,7 @@ public interface IUserDao {
 名字：`SqlMapConfig.xml`
 
 文件结构：
+
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200726112115.png)
 
 ```xml
@@ -198,6 +199,7 @@ public interface IUserDao {
 名字：`IUserDao.xml`
 
 文件结构：
+
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200726112115.png)
 
 **创建位置**：必须和持久层接口在相同的包中。
@@ -223,7 +225,9 @@ public interface IUserDao {
 1. 创建 `IUserDao.xml` 和 `IuserDao.java` 时名称是为了和我们之前的知识保持一致。在Mybatis中它把持久层的操作接口名称和映射文件也叫做：`Mapper`。所以： `IUserDao` 和 `IUserMapper` 是一样的。
 2. 在idea中创建目录的时候，它和包是不一样的：
 **包(Package)在创建时**：`org.practice.dao` 自动出来的是三级目录，如果没有显示三级目录，可以：
+
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200726113207.png)
+
 将 `Compact Middle Packages` 前面的勾取消
 **目录(Direcory)在创建时**：`org.practice.dao` 是一级目录
 3. Mybatis的映射配置文件必须和dao接口的包结构相同
@@ -242,6 +246,7 @@ public interface IUserDao {
 ## 编写测试类
 
 文件结构：
+
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200726152630.png)
 
 ```java
