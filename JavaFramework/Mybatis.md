@@ -1222,3 +1222,284 @@ public interface IUserDao {
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/无标题.png)
 
+# Mybatis的CRUD (Create, Retrieve, Update, Delete)
+
+**使用要求：**
+1. 持久层接口和持久层接口的映射配置必须在相同的包下
+2. 持久层映射配置中 mapper 标签的 namespace 属性取值必须是持久层接口的全限定类名
+3. SQL 语句的配置标签`<select>`,`<insert>`,`<delete>`,`<update>`的 id 属性必须和持久层接口的
+方法名相同。
+
+## Retrieve
+
+**在持久层接口中添加 `findById` 方法**
+
+```java
+/**
+* 根据 id 查询
+* @param userId
+* @return
+*/
+User findById(Integer userId);
+
+```
+
+**在用户的映射配置文件中配置**
+
+```xml
+<!-- 根据 id 查询 -->
+<select id="findById" resultType="org.practice.domain.User" parameterType="int">
+    select * from user where id = #{uid}
+</select>
+```
+**resultType 属性：** 用于指定结果集的类型。
+**parameterType 属性：** 用于指定传入参数的类型。
+**sql 语句中使用#{}字符：** 它代表占位符，相当于原来 jdbc 部分所学的，都是用于执行语句时替换实际的数据。具体的数据是由#{}里面的内容决定的。
+**#{}中内容的写法：** 由于数据类型是基本类型，所以此处可以随意写。
+
+**在测试类添加测试**
+```java
+/**
+*
+* <p>Title: MybastisCRUDTest</p>
+* <p>Description: 测试 mybatis 的 crud 操作</p>
+*/
+public class MybastisCRUDTest {
+    private InputStream in ;
+    private SqlSessionFactory factory;
+    private SqlSession session;
+    private IUserDao userDao;
+
+    @Test
+    public void testFindOne() {
+        //6.执行操作
+        User user = userDao.findById(41);
+        System.out.println(user);
+    }
+
+    @Before//在测试方法执行之前执行
+    public void init()throws Exception {
+        //1.读取配置文件
+        in = Resources.getResourceAsStream("SqlMapConfig.xml");
+        //2.创建构建者对象
+        SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
+        //3.创建 SqlSession 工厂对象
+        factory = builder.build(in);
+        //4.创建 SqlSession 对象
+        session = factory.openSession();
+        //5.创建 Dao 的代理对象
+        userDao = session.getMapper(IUserDao.class);
+    }
+
+    @After//在测试方法执行完成之后执行
+    public void destroy() throws Exception{
+        session.commit();
+        //7.释放资源
+        session.close();
+        in.close();
+    }
+}
+```
+
+## Retrieve（模糊查询）
+
+**在持久层接口中添加模糊查询方法**
+```java
+/**
+* 根据名称模糊查询
+* @param username
+* @return
+*/
+List<User> findByName(String username);
+```
+**在用户的映射配置文件中配置**
+```xml
+<!-- 根据名称模糊查询 -->
+<select id="findByName" resultType="org.practice.domain.User" parameterType="String">
+    select * from user where username like #{username}
+</select>
+```
+**加入模糊查询的测试方法**
+```java
+@Test
+ public void testFindByName(){
+    //5.执行查询一个方法
+    List<User> users = userDao.findByName("%王%");
+    for(User user : users){
+        System.out.println(user);
+    }
+ }
+```
+在控制台输出的执行 SQL 语句如下：
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200728230818.png)
+
+我们在配置文件中没有加入%来作为模糊查询的条件，所以在传入字符串实参时，就需要给定模糊查询的标
+识%。配置文件中的#{username}也只是一个占位符，所以 SQL 语句显示为“？”。
+
+**模糊查询的另一种配置**
+
+第一步：修改 SQL 语句的配置，配置如下：
+```xml
+<!-- 根据名称模糊查询 -->
+<select id="findByName" parameterType="string" resultType="org.practice.domain.User">
+    select * from user where username like '%${value}%'
+</select>
+```
+我们在上面将原来的#{}占位符，改成了`${value}`。注意如果用模糊查询的这种写法，那么`${value}`的写
+法就是固定的，不能写成其它名字。
+
+第二步：测试，如下：
+```java
+/**
+* 测试模糊查询操作
+ */
+@Test
+public void testFindByName(){
+    //5.执行查询一个方法
+    List<User> users = userDao.findByName("王");
+    for(User user : users){
+        System.out.println(user);
+    }
+}
+```
+在控制台输出的执行 SQL 语句如下：
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200728231402.png)
+
+可以发现，我们在程序代码中就不需要加入模糊查询的匹配符%了，这两种方式的实现效果是一样的，但执行
+的语句是不一样的。
+
+
+
+## Create
+
+**在持久层接口中添加新增方法**
+
+```java
+/**
+* 保存用户
+* @param user
+* @return 影响数据库记录的行数
+*/
+void saveUser(User user)
+```
+**在用户的映射配置文件中配置**
+```xml
+<!-- 保存用户-->
+<insert id="saveUser" parameterType="org.practice.domain.User">
+    insert into user(username,birthday,sex,address)values(#{username},#{birthday},#{sex},#{address})
+</insert>
+```
+
+**parameterType 属性：** 代表参数的类型，因为我们要传入的是一个类的对象，所以类型就写类的全名称。
+**sql 语句中使用#{}字符：** 它代表占位符，相当于原来 jdbc 部分所学的?，都是用于执行语句时替换实际的数据。
+具体的数据是由#{}里面的内容决定的。
+**#{}中内容的写法：** 由于我们保存方法的参数是 一个 User 对象，此处要写 User 对象中的属性名称。它用的是 ognl 表达式。
+**ognl 表达式：** 它是 apache 提供的一种表达式语言，全称是：`Object Graphic Navigation Language` 对象图导航语言，它是按照一定的语法格式来获取数据的。语法格式就是使用 #{对象.对象}的方式 `#{user.username}`它会先去找 user 对象，然后在 user 对象中找到 username 属性，并调用getUsername()方法把值取出来。但是我们在 parameterType 属性上指定了实体类名称，所以可以省略 user，而直接写 username。
+
+**添加测试类中的测试方法**
+
+```java
+@Test
+public void testSave(){
+    User user = new User();
+    user.setUsername("modify User property");
+    user.setAddress("北京市顺义区");
+    user.setSex("男");
+    user.setBirthday(new Date());
+    System.out.println("保存操作之前："+user);
+    //5.执行保存方法
+    userDao.saveUser(user);
+    System.out.println("保存操作之后："+user);
+}
+```
+打开 Mysql 数据库发现并没有添加任何记录，原因是什么？
+这一点和 jdbc 是一样的，我们在实现增删改时一定要去控制事务的提交，那么在 mybatis 中如何控制事务提交呢？
+可以使用: `session.commit()` ;来实现事务提交。加入事务提交后的代码如下：
+```java
+@After//在测试方法执行完成之后执行
+public void destroy() throws Exception{
+    session.commit();
+    //7.释放资源
+    session.close();
+    in.close();
+}
+```
+**新增用户的ID返回值**
+
+新增用户后，同时还要返回当前新增用户的 id 值，因为 id 是由数据库的自动增长来实现的，所以就相
+当于我们要在新增后将自动增长 auto_increment 的值返回。
+
+```xml
+<insert id="saveUser" parameterType="USER">
+    <!-- 配置保存时获取插入的 id -->
+    <selectKey keyColumn="id" keyProperty="id" resultType="int">
+        select last_insert_id();
+    </selectKey>
+    insert into user(username,birthday,sex,address)
+    values(#{username},#{birthday},#{sex},#{address})
+</insert>
+```
+## Update
+
+**在持久层接口中添加新增方法**
+```java
+/**
+* 保存用户
+* @param user
+* @return 影响数据库记录的行数
+*/
+void updateUser(User user);
+```
+
+**在用户的映射配置文件中配置**
+```xml
+<!-- 更新用户 -->
+<update id="updateUser" parameterType="org.practice.domain.User">
+    update user set username=#{username},birthday=#{birthday},sex=#{sex},
+    address=#{address} where id=#{id}
+</update>
+```
+
+**加入更新的测试方法**
+```java
+@Test
+public void testUpdateUser()throws Exception{
+    //1.根据 id 查询
+    User user = userDao.findById(52); 
+    //2.更新操作
+    user.setAddress("北京市顺义区");
+    int res = userDao.updateUser(user);
+    System.out.println(res);
+}
+```
+## Delete
+
+**在持久层接口中添加删除方法**
+```java
+/**
+* 根据 id 删除用户
+* @param userId
+* @return
+*/
+
+void deleteUser(Integer userId);
+```
+**在用户的映射配置文件中配置**
+```xml
+<!-- 删除用户 -->
+<delete id="deleteUser" parameterType="java.lang.Integer">
+    delete from user where id = #{uid}
+</delete>
+```
+
+**加入删除的测试方法**
+```java
+@Test
+public void testDeleteUser() throws Exception {
+    //6.执行操作
+    int res = userDao.deleteUser(52);
+    System.out.println(res);
+}
+```
