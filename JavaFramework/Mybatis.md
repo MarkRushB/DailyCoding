@@ -44,9 +44,17 @@
 - [Mybatis的CRUD (Create, Retrieve, Update, Delete)](#mybatis的crud-create-retrieve-update-delete)
   - [Retrieve](#retrieve)
   - [Retrieve（模糊查询）](#retrieve模糊查询)
+  - [Retrieve（聚合函数）](#retrieve聚合函数)
   - [Create](#create)
   - [Update](#update)
   - [Delete](#delete)
+- [Mybatis的参数深入](#mybatis的参数深入)
+  - [Mybatis参数](#mybatis参数)
+    - [parameterType配置参数](#parametertype配置参数)
+    - [传递pojo对象](#传递pojo对象)
+    - [传递pojo包装对象](#传递pojo包装对象)
+  - [Mybatis的输出结果封装](#mybatis的输出结果封装)
+    - [resultType（输出类型）](#resulttype输出类型)
 # Mybatis框架概述
 
 Mybatis 是一个优秀的基于 **Java** 的持久层框架，它**内部封装了 JDBC** ，使开发者**只需要关注 sql 语句本身**，而不需要花费精力去处理加载驱动，创建链接，创建 statement 等繁杂的过程。
@@ -1267,9 +1275,6 @@ public interface IUserDao {
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/非常重要的图-分析代理dao的执行过程.png)
 
----
-
-![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/无标题.png)
 
 # Mybatis的CRUD (Create, Retrieve, Update, Delete)
 
@@ -1386,7 +1391,7 @@ List<User> findByName(String username);
 我们在配置文件中没有加入%来作为模糊查询的条件，所以在传入字符串实参时，就需要给定模糊查询的标
 识%。配置文件中的#{username}也只是一个占位符，所以 SQL 语句显示为“？”。
 
-**模糊查询的另一种配置**
+**模糊查询的另一种配置：**
 
 第一步：修改 SQL 语句的配置，配置如下：
 ```xml
@@ -1418,6 +1423,71 @@ public void testFindByName(){
 
 可以发现，我们在程序代码中就不需要加入模糊查询的匹配符%了，这两种方式的实现效果是一样的，但执行
 的语句是不一样的。
+
+**#{}与${}的区别：**
+
+**\#{}表示一个占位符号**
+通过#{}可以实现 preparedStatement 向占位符中设置值，自动进行 java 类型和 jdbc 类型转换，#{}可以有效防止 sql 注入。 #{}可以接收简单类型值或 pojo 属性值。 如果 parameterType 传输单个简单类型值，#{}括号中可以是 value 或其它名称。
+**\${}表示拼接 sql 串**
+通\${}可以将 parameterType 传入的内容拼接在 sql 中且不进行 jdbc 类型转换， \${}可以接收简单类型值或 pojo 属性值，如果 parameterType 传输单个简单类型值，${}括号中只能是 value。
+
+**模糊查询的${value}源码分析：**
+
+我们一起来看 TextSqlNode 类的源码：
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200729162347.png)
+
+这就说明了源码中指定了读取的 key 的名字就是”value”，所以我们在绑定参数时就只能叫 value 的名字
+了。
+
+---
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/无标题.png)
+
+## Retrieve（聚合函数）
+
+**在持久层接口中添加模糊查询方法**
+
+```java
+/**
+* 查询总记录条数
+* @return
+*/
+int findTotal();
+```
+**在用户的映射配置文件中配置**
+
+```xml
+<!-- 查询总记录条数 -->
+<select id="findTotal" resultType="int">
+    select count(*) from user;
+</select>
+```
+**加入聚合查询的测试方法**
+
+```java
+@Test
+public void testFindTotal() throws Exception {
+    //6.执行操作
+    int res = userDao.findTotal();
+    System.out.println(res);
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1483,11 +1553,10 @@ public void destroy() throws Exception{
 ```xml
 <insert id="saveUser" parameterType="USER">
     <!-- 配置保存时获取插入的 id -->
-    <selectKey keyColumn="id" keyProperty="id" resultType="int">
+    <selectKey keyColumn="id" keyProperty="id" resultType="int" order = "AFTER">
         select last_insert_id();
     </selectKey>
-    insert into user(username,birthday,sex,address)
-    values(#{username},#{birthday},#{sex},#{address})
+    insert into user(username,birthday,sex,address)values(#{username},#{birthday},#{sex},#{address})
 </insert>
 ```
 ## Update
@@ -1551,4 +1620,167 @@ public void testDeleteUser() throws Exception {
     int res = userDao.deleteUser(52);
     System.out.println(res);
 }
+```
+
+# Mybatis的参数深入
+## Mybatis参数
+### parameterType配置参数
+基本类型和String我们可以直接写类型名称，也可以使用包名.类名的方式，例如：`java.lang.String`。
+
+实体类类型，目前我们只能使用全限定类名。
+
+究其原因，是 mybaits 在加载时已经把常用的数据类型注册了别名，从而我们在使用时可以不写包名，
+而我们的是实体类并没有注册别名，所以必须写全限定类名。在今天课程的最后一个章节中将讲解如何注册实体类
+的别名。
+在 mybatis 的官方文档的说明(第 19 页)：
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200729170746.png)
+
+这些都是支持的默认别名。我们也可以从源码角度来看它们分别都是如何定义出来的。
+可以参考 TypeAliasRegistery.class 的源码：
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200729170813.png)
+
+### 传递pojo对象
+
+Mybatis使用ognl表达式解析对象字段的值，#{}或者${}括号中的值为pojo属性名称。
+
+OGNL(**Object Graphic Navigation Language**)表达式：
+作用是通过对象的取值方法来获取数据。在写法上把get给省略了。例如：
+我们获取用户的名称，在类中的写法：`user.getUsername()`。OGNL表达式写法：`user.username`
+
+Mybatis为什么能直接写username，而不用user呢？因为在parameterType中已经提供了属性所属的类，所以此时不需要写对象名。
+
+### 传递pojo包装对象
+
+开发中通过 pojo 传递查询条件 ，查询条件是综合的查询条件，不仅包括用户查询条件还包括其它的查询条件（比如将用户购买商品信息也作为查询条件），这时可以使用包装对象传递输入参数。
+
+Pojo 类中包含 pojo。
+
+需求：根据用户名查询用户信息，查询条件放到 QueryVo 的 user 属性中。
+
+**编写 QueryVo**
+```java
+/**
+*
+* <p>Title: QueryVo</p>
+* <p>Description: 查询条件对象</p>
+*/
+public class QueryVo implements Serializable {
+    private User user;
+    public User getUser() {
+        return user;
+    }
+    public void setUser(User user) {
+        this.user = user;
+    }
+}
+```
+**编写持久层接口**
+```java
+/**
+*
+* <p>Title: IUserDao</p>
+* <p>Description: 用户的业务层接口</p>
+*/
+public interface IUserDao {
+    /**
+    * 根据 QueryVo 中的条件查询用户
+    * @param vo
+    * @return
+    */
+    List<User> findByVo(QueryVo vo);
+}
+```
+**持久层接口的映射文件**
+```xml
+<!-- 根据用户名称模糊查询，参数变成一个 QueryVo 对象了 -->
+<select id="findByVo" resultType="org.practice.domain.User" parameterType="org.practice.domain.QueryVo">
+    select * from user where username like #{user.username};
+</select>
+```
+
+**测试包装类作为参数**
+```java
+@Test
+public void testFindByQueryVo() {
+    QueryVo vo = new QueryVo();
+    User user = new User();
+    user.setUserName("%王%");
+    vo.setUser(user);
+    List<User> users = userDao.findByVo(vo);
+    for(User u : users) {
+        System.out.println(u);
+    }
+}
+```
+
+## Mybatis的输出结果封装
+### resultType（输出类型）
+- 基本类型
+- 实体类对象类型
+- 实体类列表
+  
+**特殊情况**：前文我们说到 
+
+> 想要建立关系，我们需要做到：**实体类中的属性和数据库表的字段名称保持一致**
+
+如果实体类中的属性和数据库表的字段名称不一样的话，会出现什么情况？
+```java
+private Integer userId;
+private String userName;
+private Date userBirthday;
+private String userSex;
+private String userAddress;
+```
+这里我们把实体类属性修改一下，然后执行 `testFindAll()`
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200729223102.png)
+
+其他的值都是null可以理解，但是为什么username有值呢？
+
+**因为：mysql 在 windows 系统中不区分大小写！**
+
+How to solve it?
+
+一、使用别名查询
+```xml
+<!-- 配置查询所有操作 -->
+<select id="findAll" resultType="org.practice.domain.User">
+    select id as userId,username as userName,birthday as userBirthday,sex as userSex,address as userAddress from user
+</select>
+```
+二、 resultMap
+
+resultMap 标签可以建立查询的列名和实体类的属性名称不一致时建立对应关系。从而实现封装。
+
+在 select 标签中使用 resultMap 属性指定引用即可。同时 resultMap 可以实现将查询结果映射为复杂类型的 pojo，比如在查询结果映射对象中包括 pojo 和 list 实现一对一查询和一对多查询。
+
+1. 定义 resultMap
+```xml
+<!-- 建立 User 实体和数据库表的对应关系
+type 属性：指定实体类的全限定类名
+id 属性：给定一个唯一标识，是给查询 select 标签引用用的。
+-->
+<resultMap type="org.practice.domain.User" id="userMap">
+    <!-- 主键字段的对应 -->
+    <id column="id" property="userId"/>
+    <!-- 非主键字段的对应 -->
+    <result column="username" property="userName"/>
+    <result column="sex" property="userSex"/>
+    <result column="address" property="userAddress"/>
+    <result column="birthday" property="userBirthday"/>
+</resultMap>
+```
+id 标签：用于指定主键字段
+result 标签：用于指定非主键字段
+column 属性：用于指定数据库列名
+property 属性：用于指定实体类属性名称
+
+2. 映射配置
+```xml
+<!-- 配置查询所有操作 -->
+<select id="findAll" resultMap="userMap">
+    select * from user
+</select>
 ```
