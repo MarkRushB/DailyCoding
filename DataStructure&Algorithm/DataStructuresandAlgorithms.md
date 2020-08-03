@@ -125,6 +125,7 @@
     - [DP题目特点](#dp题目特点)
     - [硬币问题](#硬币问题)
     - [背包问题](#背包问题)
+    - [Longest Palindromic Substring](#longest-palindromic-substring)
   - [回溯算法](#回溯算法)
     - [全排列问题(1)](#全排列问题1)
     - [全排列问题(2)](#全排列问题2)
@@ -4643,9 +4644,28 @@ DP的核心思想是：将大问题划分为小问题进行解决，从而一步
 
 与分治法不同的是，**适合用于动态规划求解的问题，经过分解得到子问题往往不是相互独立的**。（即下一个子阶段的求解是建立在上一个子阶段的解的基础上，进行进一步的求解）
 
-动态规划可以通过填表的方式来逐步推进，得到最优解
+动态规划可以通过填表的方式来逐步推进，得到最优解，存在一种overlap sub-problem的关系。
 
-存在一种overlap sub-problem的关系 
+一个思维框架，辅助思考状态转移方程：
+
+    明确 base case -> 明确「状态」-> 明确「选择」 -> 定义 dp 数组/函数的含义。
+
+按照上面的思路走，最后的结果就可以套这个框架：
+
+```
+# 初始化 base case
+dp[0][0][...] = base
+# 进行状态转移
+for 状态1 in 状态1的所有取值：
+    for 状态2 in 状态2的所有取值：
+        for ...
+            dp[状态1][状态2][...] = 求最值(选择1，选择2...)
+```
+
+
+
+
+
 
 ### DP题目特点
 1. 计数
@@ -4714,11 +4734,43 @@ f(x) = min{f(x-2)+1, f(x-5)+1, f(x-7)+1}
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200629003546.png)
 
+初始条件：用转移方程计算不出来的，我们要额外定义
+
 **动态规划之计算顺序**
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200629003713.png)
  
 每一步尝试三种硬币，一共27步，与递归算法相比，没有任何重复运算，动态规划算法时间复杂度：27 * 3
+
+动态规划解法：
+```java
+class Solution {
+    public int coinChange(int[] coins, int amount) {
+        int[] dp = new int[amount + 1];
+        
+        //initialization
+        dp[0] = 0;
+        // f[1],f[2],f[3],f[4],f[5],......f[27]
+        for(int i = 1; i <= amount; i++){
+            //初始假设成无穷大，然后有情况比它好就更改
+            dp[i] = Integer.MAX_VALUE;
+            //last coin coins[j]
+            for(int j = 0; j < coins.length; j++){
+                //i >= coins[j] 是因为如果最后还剩3块钱要拼，但是只有5块钱了，这不可能的
+                //dp[i - coins[j]] != Integer.MAX_VALUE 是因为计算机中不可以MAX_VALUE + 1, 有时候会报越界
+                if(i >= coins[j] && dp[i - coins[j]] != Integer.MAX_VALUE){
+                    dp[i] = Math.min(dp[i], dp[i - coins[j]] + 1);
+                }
+            }
+        }
+        if(dp[amount] == Integer.MAX_VALUE){
+            return -1;
+        }
+        
+        return dp[amount];
+    }
+}
+```
 ### 背包问题
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200603180138.png)
@@ -4800,6 +4852,87 @@ public class KnapsackProblem {
     }
 }
 ```
+### Longest Palindromic Substring
+
+Given a string s, find the longest palindromic substring in s. You may assume that the maximum length of s is 1000.
+
+**Example 1:**
+
+    Input: "babad"
+    Output: "bab"
+    Note: "aba" is also a valid answer.
+
+**Example 2:**
+
+    Input: "cbbd"
+    Output: "bb"
+
+
+这是一道用DP解决很高效率的方法，但是在开始前，我想先把基础的`Brute Force`方法写一下
+
+思路就是：
+
+- 根据回文子串的定义，枚举所有长度大于等于 22 的子串，依次判断它们是否是回文；
+- 在具体实现时，可以只针对大于“当前得到的最长回文子串长度”的子串进行“回文验证”；
+- 在记录最长回文子串的时候，可以只记录“当前子串的起始位置”和“子串长度”，不必做截取。这一步我们放在后面的方法中实现。
+
+说明：暴力解法时间复杂度高，但是思路清晰、编写简单。由于编写正确性的可能性很大，**可以使用暴力匹配算法检验我们编写的其它算法是否正确**。优化的解法在很多时候，是基于“暴力解法”，以空间换时间得到的，因此思考清楚暴力解法，分析其缺点，很多时候能为我们打开思路。
+
+```java
+public class Solution {
+
+    public String longestPalindrome(String s) {
+        int len = s.length();
+        if (len < 2) {
+            return s;
+        }
+
+        int maxLen = 1;
+        int begin = 0;
+        // s.charAt(i) 每次都会检查数组下标越界，因此先转换成字符数组
+        char[] charArray = s.toCharArray();
+
+        // 枚举所有长度大于 1 的子串 charArray[i..j]
+        for (int i = 0; i < len - 1; i++) {
+            for (int j = i + 1; j < len; j++) {
+                if (j - i + 1 > maxLen && validPalindromic(charArray, i, j)) {
+                    maxLen = j - i + 1;
+                    begin = i;
+                }
+            }
+        }
+        return s.substring(begin, begin + maxLen);
+    }
+
+    /**
+     * 验证子串 s[left..right] 是否为回文串
+     */
+    private boolean validPalindromic(char[] charArray, int left, int right) {
+        while (left < right) {
+            if (charArray[left] != charArray[right]) {
+                return false;
+            }
+            left++;
+            right--;
+        }
+        return true;
+    }
+}
+```
+下面是动态规划的思路：
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## 回溯算法
 
 “回溯”指的是“状态重置”，可以理解为“回到过去”、“恢复现场”，是在编码的过程中，是为了节约空间而使用的一种技巧。而回溯其实是“深度优先遍历”特有的一种现象。之所以是“深度优先遍历”，是因为我们要解决的问题通常是在一棵树上完成的，在这棵树上搜索需要的答案，一般使用深度优先遍历。
