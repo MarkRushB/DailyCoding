@@ -125,6 +125,9 @@
     - [DP题目特点](#dp题目特点)
     - [硬币问题](#硬币问题)
     - [背包问题](#背包问题)
+    - [Minimum Path Sum](#minimum-path-sum)
+    - [Uniqle Paths](#uniqle-paths)
+    - [Uniqle PathsII](#uniqle-pathsii)
     - [Longest Palindromic Substring](#longest-palindromic-substring)
   - [回溯算法](#回溯算法)
     - [全排列问题(1)](#全排列问题1)
@@ -4852,6 +4855,173 @@ public class KnapsackProblem {
     }
 }
 ```
+### Minimum Path Sum
+Given a m x n grid filled with non-negative numbers, find a path from top left to bottom right which minimizes the sum of all numbers along its path.
+
+Note: You can only move either down or right at any point in time.
+
+**Example:**
+
+    Input:
+    [
+    [1,3,1],
+    [1,5,1],
+    [4,2,1]
+    ]
+    Output: 7
+    Explanation: Because the path 1→3→1→1→1 minimizes the sum.
+
+思路：
+这个题其实就是走格子的变种，核心思路就是到每一个格子都要考虑上一步是怎么来的，无非是左边和上边（除去边界情况）d
+初始化一个dp数组，大小和棋盘格一样大，保存到这里的最短路径。
+```java
+class Solution {
+    public int minPathSum(int[][] grid) {
+        if(grid == null || grid.length == 0) return 0;
+        int m = grid.length;
+        int n = grid[0].length;
+        
+        int[][] dp = new int[m][n];
+        dp[0][0] = grid[0][0];
+        
+        for(int i = 1; i < m; i++){
+            dp[i][0] = dp[i - 1][0] + grid[i][0];
+        }
+        for(int i = 1; i < n; i++){
+            dp[0][i] = dp[0][i - 1] + grid[0][i];
+        }
+        
+        for(int i = 1; i < m; i++){
+            for(int j = 1; j < n; j++){
+                dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j];
+            }
+        }
+        return dp[m - 1][n - 1];
+    }
+}
+```
+### Uniqle Paths
+
+A robot is located at the top-left corner of a m x n grid (marked 'Start' in the diagram below).
+
+The robot can only move either down or right at any point in time. The robot is trying to reach the bottom-right corner of the grid (marked 'Finish' in the diagram below).
+
+How many possible unique paths are there?
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200813173206.png)
+
+**Example 1:**
+
+    Input: m = 3, n = 2
+    Output: 3
+    Explanation:
+    From the top-left corner, there are a total of 3 ways to reach the bottom-right corner:
+    1. Right -> Right -> Down
+    2. Right -> Down -> Right
+    3. Down -> Right -> Right
+
+**Example 2:**
+
+    Input: m = 7, n = 3
+    Output: 28
+
+```java
+class Solution {
+    public int uniquePaths(int m, int n) {
+        int[][] dp = new int[m][n];
+        for(int i = 0; i < m; i++){
+            for(int j = 0; j < n; j++){
+                if(i == 0 || j == 0){
+                    dp[i][j] = 1;
+                }else{
+                    dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+                }
+            }
+        }
+        return dp[m - 1][n - 1];
+    }
+}
+```
+
+
+### Uniqle PathsII
+A robot is located at the top-left corner of a m x n grid (marked 'Start' in the diagram below).
+
+The robot can only move either down or right at any point in time. The robot is trying to reach the bottom-right corner of the grid (marked 'Finish' in the diagram below).
+
+Now consider if some obstacles are added to the grids. How many unique paths would there be?
+
+**Example 1:**
+
+    Input:
+    [
+    [0,0,0],
+    [0,1,0],
+    [0,0,0]
+    ]
+    Output: 2
+    Explanation:
+    There is one obstacle in the middle of the 3x3 grid above.
+    There are two ways to reach the bottom-right corner:
+    1. Right -> Right -> Down -> Down
+    2. Down -> Down -> Right -> Right
+
+
+思路：
+
+我们走到点 `(i, j)`，要么是从上边的点走过来的，要么是从左边的点走过来的
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200813174601.png)
+
+到达 `(i, j)` 有几种方式 = 到达 `(i - 1, j)` 有几种方式 + 到达 `(i, j - 1)` 有几种方式：`ways(i, j) = ways(i - 1, j) + ways(i, j - 1)`
+可以用递归求解，也可以用自下而上的DP：用数组去记录子问题的解（对应递归就是子调用）
+`dp[i][j]`：到达 `(i, j)` 的路径数(方式数)。`dp[i][j] = dp[i - 1][j] + dp[i][j - 1]`
+
+障碍”怎么处理
+
+也许你会想：遇到障碍我要绕着走，但这种“动态”的思考不符合DP“状态”的思路
+我们思考单个点的“状态”：障碍点，是无法抵达的点，是到达方式数为 0 的点，是无法从它这里走到别的点的点，即无法提供给别的点方式数的点
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200813174630.png)
+
+base case
+
+`dp[0][0]=1dp[0][0]=1` ，出发点就是终点，什么都不用做，方式数 1
+第一行其余的：当前点走不了，要么是它本身是“障碍”，要么是它左边的点走不了，否则，路径数是 1，走一条直线过来
+第一列其余的：当前点走不了，要么是它本身是“障碍”，要么是它上边的点走不了，否则，路径数是 1，走一条竖线过来
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200813174700.png)
+
+
+```java
+class Solution {
+    public int uniquePathsWithObstacles(int[][] obstacleGrid) {
+        if(obstacleGrid[0][0] == 1) return 0;
+        
+        int m = obstacleGrid.length;
+        int n = obstacleGrid[0].length;
+        
+        int[][] dp = new int[m][n];
+        
+        for(int i = 0; i < m && obstacleGrid[i][0] == 0; i++){
+            dp[i][0] = 1;
+        }
+        for(int j = 0; j < n && obstacleGrid[0][j] == 0; j++){
+            dp[0][j] = 1;
+        }
+        
+        for(int i = 1; i < m; i++){
+            for(int j = 1; j < n; j++){
+                if(obstacleGrid[i][j] == 0){
+                    dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+                }
+            }
+        }
+        return dp[m - 1][n - 1];
+    }
+}
+```
+
 ### Longest Palindromic Substring
 
 Given a string s, find the longest palindromic substring in s. You may assume that the maximum length of s is 1000.
