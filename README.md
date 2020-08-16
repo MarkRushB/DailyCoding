@@ -4,6 +4,7 @@
 > - Mark's personal study notes, which include:  
 
 ## Java
+
 ### 基础
 ![](https://img.shields.io/badge/Status-Updating-black)
 > 这一部分是对Java知识的查漏补缺
@@ -39,8 +40,8 @@
 ### Leetcode
 ![](https://img.shields.io/badge/Status-Updating-black)
 >Mark的刷题总结，保持更新
-- [Practice](LeetCode-MarkPractice.md)
-- [Attention](LeetCode-Attention.md)
+- [Practice](/DailyCoding/LeetCode/LeetCode-MarkPractice.md)
+- [Attention](/DailyCoding/LeetCode/LeetCode-Attention.md)
 ### NEU Course
 ![](https://img.shields.io/badge/Status-Closed-black)
 >Mark NEU AED课程的quiz题，已完结
@@ -62,6 +63,7 @@
 - [Angular](Front-end/Web-Angular.md)
 - [Node.js](Front-end/Web-Node.js.md)
 
-
+## Java学习路线
+![](/DailyCoding/Image/Java学习路线.png)
 
  
