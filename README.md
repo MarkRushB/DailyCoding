@@ -64,6 +64,6 @@
 - [Node.js](Front-end/Web-Node.js.md)
 
 ## Java学习路线
-![](/DailyCoding/Image/Java学习路线.png)
+![](Image/Java学习路线.png)
 
  
