@@ -54,12 +54,12 @@
 - [个人总结](./DataStructure&Algorithm/DataStructuresandAlgorithms.md)
 ## Computer Network
 ![](https://img.shields.io/badge/Status-Finished-black)
-- [概述](/DailyCoding/Computer%20Network/第%201%20章%20%20%20概述/第%201%20章%20%20%20概述.md)
-- [物理层](/DailyCoding/Computer%20Network/第%202%20章%20%20物理层/第%202%20章%20%20物理层.md)
-- [数据链路层](/DailyCoding/Computer%20Network/第%203%20章%20%20数据链路层/第%203%20章%20%20数据链路层.md)
-- [网络层](/DailyCoding/Computer%20Network/第%204%20章%20%20网络层/第%204%20章%20%20网络层.md)
-- [运输层](/DailyCoding/Computer%20Network/第%205%20章%20%20运输层/第%205%20章%20%20运输层.md)
-- [应用层](/DailyCoding/Computer%20Network/第%206%20章%20%20应用层/第%206%20章%20%20应用层.md)
+- [概述](/DailyCoding/Computer%20Network/概述/概述.md)
+- [物理层](/DailyCoding/Computer%20Network/物理层/物理层.md)
+- [数据链路层](/DailyCoding/Computer%20Network/数据链路层/数据链路层.md)
+- [网络层](/DailyCoding/Computer%20Network/网络层/网络层.md)
+- [运输层](/DailyCoding/Computer%20Network/运输层/运输层.md)
+- [应用层](/DailyCoding/Computer%20Network/应用层/应用层.md)
 ## Front-end / Back-end
 ![](https://img.shields.io/badge/Status-Updating-black)
 >课上讲的和自学的一些前端的知识，保持更新
