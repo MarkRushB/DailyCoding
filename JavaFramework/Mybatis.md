@@ -55,6 +55,14 @@
     - [传递pojo包装对象](#传递pojo包装对象)
   - [Mybatis的输出结果封装](#mybatis的输出结果封装)
     - [resultType（输出类型）](#resulttype输出类型)
+- [Mybatis实现DAO层开发（了解）](#mybatis实现dao层开发了解)
+- [SqlMaoConfig.xml配置文件](#sqlmaoconfigxml配置文件)
+  - [配置内容](#配置内容)
+  - [properties（属性）](#properties属性)
+  - [typeAliases（类型别名）](#typealiases类型别名)
+  - [mappers（映射器）](#mappers映射器)
+- [Mybatis连接池与事务深入](#mybatis连接池与事务深入)
+  - [Mybatis 的连接池技术](#mybatis-的连接池技术)
 # Mybatis框架概述
 
 Mybatis 是一个优秀的基于 **Java** 的持久层框架，它**内部封装了 JDBC** ，使开发者**只需要关注 sql 语句本身**，而不需要花费精力去处理加载驱动，创建链接，创建 statement 等繁杂的过程。
@@ -1784,3 +1792,159 @@ property 属性：用于指定实体类属性名称
     select * from user
 </select>
 ```
+3. 测试结果
+```java
+@Test
+    public void testFindAll() {
+        List<User> users = userDao.findAll();
+        for(User user : users) {
+            System.out.println(user);
+        }
+    }
+```
+
+# Mybatis实现DAO层开发（了解）
+使用 Mybatis 开发 Dao，通常有两个方法，即原始 Dao 开发方式和 Mapper 接口代理开发方式。而现在主流的开发方式是接口代理开发方式，这种方式总体上更加简便。我们的课程讲解也主要以接口代理开发方式为主。在第二章节已经介绍了基于代理方式的 dao 开发，现在介绍一下基于传统编写 Dao 实现类的开发方式。
+
+[Mybatis中编写Dao实现类的使用方式-查询列表](https://www.bilibili.com/video/BV1mE411X7yp?p=30)
+[Mybatis中编写Dao实现类的使用-保存操作](https://www.bilibili.com/video/BV1mE411X7yp?p=31)
+[Mybatis中编写Dao实现类的使用-修改删除等其他操作](https://www.bilibili.com/video/BV1mE411X7yp?p=32)
+[Mybatis中使用Dao实现类的执行过程分析-查询方法1](https://www.bilibili.com/video/BV1mE411X7yp?p=33)
+[Mybatis中使用Dao实现类的执行过程分析-查询方法2](https://www.bilibili.com/video/BV1mE411X7yp?p=34)
+[Mybatis中使用Dao实现类的执行过程分析-增删改方法](https://www.bilibili.com/video/BV1mE411X7yp?p=35)
+[Mybatis中使用Dao实现类的执行过程分析](https://www.bilibili.com/video/BV1mE411X7yp?p=36)
+
+**分析代理dao的执行过程**
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/非常重要的图-分析代理dao的执行过程.png)
+
+**分析编写dao实现类Mybatis的执行过程**
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/非常重要的一张图-分析编写dao实现类Mybatis的执行过程(1).png)
+
+# SqlMaoConfig.xml配置文件
+## 配置内容
+SqlMapConfig.xml 中配置的内容和顺序
+```xml
+-properties（属性）
+    --property
+-settings（全局配置参数）
+    --setting
+-typeAliases（类型别名）
+    --typeAliase
+    --package
+-typeHandlers（类型处理器）
+-objectFactory（对象工厂）
+-plugins（插件）
+-environments（环境集合属性对象）
+    --environment（环境子属性对象）
+        ---transactionManager（事务管理）
+        ---dataSource（数据源）
+-mappers（映射器）
+    --mapper
+    --package
+```
+## properties（属性）
+
+在使用 properties 标签配置时，我们可以采用两种方式指定属性配置。
+
+**第一种**
+
+直接写在SqkMaoConfig.xml里面
+```xml
+<properties>
+    <property name="driver" value="com.mysql.jdbc.Driver"/>
+    <property name="url" value="jdbc:mysql:///sample01"/>
+    <property name="username" value="root"/>
+    <property name="password" value="123456"/>
+</properties>
+```
+
+**第二种**
+
+在classpath 下定义 `db.properties` 文件
+
+```
+driver=com.mysql.jdbc.Driver
+url=jdbc:mysql:///sample01
+username=root
+password=1234
+```
+
+properties 标签配置
+
+```xml
+<!-- 配置连接数据库的信息
+resource 属性：用于指定 properties 配置文件的位置，要求配置文件必须在类路径下
+resource="jdbcConfig.properties"
+url 属性：
+    URL： Uniform Resource Locator 统一资源定位符
+    http://localhost:8080/mystroe/CategoryServlet 
+    协议     主机     端口            URI
+    URI：Uniform Resource Identifier 统一资源标识符
+    /mystroe/CategoryServlet
+    它是可以在 web 应用中唯一定位一个资源的路径
+-->
+<properties url= file:///D:/IdeaProjects/day02_eesy_01mybatisCRUD/src/main/resources/jdbcConfig.properties">
+</properties>
+```
+此时我们的 dataSource 标签就变成了引用上面的配置
+```xml
+<dataSource type="POOLED">
+    <property name="driver" value="${jdbc.driver}"/>
+    <property name="url" value="${jdbc.url}"/>
+    <property name="username" value="${jdbc.username}"/>
+    <property name="password" value="${jdbc.password}"/>
+</dataSource>
+```
+
+## typeAliases（类型别名）
+
+在前面我们讲的 Mybatis 支持的默认别名，我们也可以采用自定义别名方式来开发。
+
+**自定义别名**
+```xml
+在 SqlMapConfig.xml 中配置：
+<typeAliases>
+    <!-- 单个别名定义 -->
+    <typeAlias alias="user" type="org.practice.domain.User"/>
+    <!-- 批量别名定义，扫描整个包下的类，别名为类名（首字母大写或小写都可以） -->
+    <package name="org.practice.domain"/>
+    <package name="其它包"/>
+</typeAliases>
+```
+
+## mappers（映射器）
+
+`<mapper resource=" " />`
+
+    使用相对于类路径的资源
+    如：<mapper resource="com/itheima/dao/IUserDao.xml" />
+
+`<mapper class=" " />`
+
+    使用 mapper 接口类路径
+    如：<mapper class="com.itheima.dao.UserDao"/>
+    注意：此种方法要求 mapper 接口名称和 mapper 映射文件名称相同，且放在同一个目录中。 
+
+`<package name=""/>`
+
+    注册指定包下的所有 mapper 接口
+    如：<package name="cn.itcast.mybatis.mapper"/>
+    注意：此种方法要求 mapper 接口名称和 mapper 映射文件名称相同，且放在同一个目录中。 
+
+
+# Mybatis连接池与事务深入
+
+## Mybatis 的连接池技术
+我们在前面的 WEB 课程中也学习过类似的连接池技术，而在 Mybatis 中也有连接池技术，但是它采用的是自己的连接池技术。在 Mybatis 的 SqlMapConfig.xml 配置文件中，通过`<dataSource type=”pooled”>`来实现 Mybatis 中连接池的配置。
+
+**Mybatis 连接池的分类**
+在 Mybatis 中我们将它的数据源 dataSource 分为以下几类：
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200816230346.png)
+
+可以看出 Mybatis 将它自己的数据源分为三类：
+|||
+|-|-|
+|UNPOOLED|不使用连接池的数据源|
+|POOLED|使用连接池的数据源|
+|JNDI|使用 JNDI 实现的数据源|
