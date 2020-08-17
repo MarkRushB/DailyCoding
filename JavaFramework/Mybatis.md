@@ -1935,7 +1935,15 @@ url 属性：
 # Mybatis连接池与事务深入
 
 ## Mybatis 的连接池技术
-我们在前面的 WEB 课程中也学习过类似的连接池技术，而在 Mybatis 中也有连接池技术，但是它采用的是自己的连接池技术。在 Mybatis 的 SqlMapConfig.xml 配置文件中，通过`<dataSource type=”pooled”>`来实现 Mybatis 中连接池的配置。
+开始之前，首先什么是连接池？
+连接池可以减少我们获取链接所消耗的时间
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/lianjiechi.png)
+
+我们在前面的 WEB 课程中也学习过类似的连接池技术，而在 Mybatis 中也有连接池技术，但是它采用的是自己的连接池技术。
+
+**在 Mybatis 的 `SqlMapConfig.xml` 配置文件中，通过`<dataSource type=”pooled”>`来实现 Mybatis 中连接池的配置。**
+
 
 **Mybatis 连接池的分类**
 在 Mybatis 中我们将它的数据源 dataSource 分为以下几类：
@@ -1943,8 +1951,19 @@ url 属性：
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200816230346.png)
 
 可以看出 Mybatis 将它自己的数据源分为三类：
-|||
-|-|-|
-|UNPOOLED|不使用连接池的数据源|
-|POOLED|使用连接池的数据源|
-|JNDI|使用 JNDI 实现的数据源|
+|类型|描述|详细|
+|-|-|-|
+|UNPOOLED|不使用连接池的数据源|采用传统的javax.sql.DataSource规范中的连接池，mabytis中有针对规范的实现|
+|POOLED|使用连接池的数据源|采用传统的获取连接的方式，虽然也是先Javax.sql.DataSource接口，但是并没有使用池的思想|
+|JNDI|使用 JNDI 实现的数据源|采用服务器提供的JNDI技术实现来获取DataSource对象，不同的服务器能拿到的DataSource也是不一样的 注意：如果不是web或者maven的war工程，是不能使用的。 课程中使用的是tomcat服务器，采用连接池就是dpbc连接池|
+
+具体结构如下：
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200816231115.png)
+
+相应地，MyBatis 内部分别定义了实现了 java.sql.DataSource 接口的 UnpooledDataSource，PooledDataSource 类来表示 UNPOOLED、POOLED 类型的数据源。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200816231225.png)
+
+在这三种数据源中，我们一般采用的是 POOLED 数据源（很多时候我们所说的数据源就是为了更好的管理数据
+库连接，也就是我们所说的连接池技术）。
