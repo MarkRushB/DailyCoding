@@ -52,7 +52,7 @@
 
 >Java Design Patterns are divided into three categories – creational, structural, and behavioral design patterns. 
 
-- [Design Pattern](/DailyCoding/DesignPatterns/DesignPattern.md)
+- [Design Pattern](DesignPatterns/DesignPattern.md)
 
 
 
