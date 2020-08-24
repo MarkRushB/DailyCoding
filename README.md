@@ -46,6 +46,16 @@
 ![](https://img.shields.io/badge/Status-Finished-black)
 >Mark NEU AED课程的quiz题，已完结
 - [Quiz Coding](INFO5100-quizReview.md)
+
+## Java Design Pattern
+![](https://img.shields.io/badge/Status-Updating-black)
+
+>Java Design Patterns are divided into three categories – creational, structural, and behavioral design patterns. 
+
+- [Design Pattern](/DailyCoding/Design%20Patterns/DesignPattern.md)
+
+
+
 ## Data Structure and Algorithms
 ![](https://img.shields.io/badge/Status-Updating-black)
 >基于Java的数据结构和算法总结
