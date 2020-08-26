@@ -521,3 +521,153 @@ enum Singleton {
 1. 这借助 JDK1.5 中添加的枚举来实现单例模式。不仅能避免多线程同步问题，而且还能防止反序列化重新创建新的对象。
 2. 这种方式是 Effective Java 作者 Josh Bloch  提倡的方式
 3. 结论：推荐使用
+
+#### 单例模式在JDK应用的源码分析
+
+JDK 中，java.lang.Runtime 就是经典的单例模式(饿汉式)
+
+代码分析+Debug 源码+代码说明
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200825181209.png)
+
+#### 单例模式注意事项和细节说明
+
+- 单例模式保证了 系统内存中该类只存在一个对象，节省了系统资源，对于一些需要频繁创建销毁的对象，使用单例模式可以提高系统性能
+
+- 当想实例化一个单例类的时候，必须要记住使用相应的获取对象的方法，而不是使用 new
+
+- 单例模式使用的场景：**需要频繁的进行创建和销毁的对象**、创建对象时耗时过多或耗费资源过多(即：**重量级对象**)，但又经常用到的对象、**工具类对象**、频繁访问数据库或文件的对象(比如**数据源、session 工厂**等)
+
+### Factory Pattern
+
+#### 先从具体的需求入手
+
+一个披萨的项目: 要便于披萨种类的扩展,要便于维护
+1. 披萨的种类有很多(比如 GreekPizz、CheesePizz 等)
+2. 披萨的制作有 prepare，bake, cut, box
+3. 完成披萨的订购功能
+   
+#### 传统方式
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200825192716.png)
+
+```java
+//将Pizza类做成抽象 
+public abstract class Pizza {
+	protected String name; //名字
+
+	//准备原材料,不同的披萨不一样,因此,我们做成抽象方法
+	public abstract void prepare();
+
+	
+	public void bake() {
+		System.out.println(name + " baking;");
+	}
+
+	public void cut() {
+		System.out.println(name + " cutting;");
+	}
+
+	//打包
+	public void box() {
+		System.out.println(name + " boxing;");
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+}
+```
+
+```java
+public class CheesePizza extends Pizza {
+
+	@Override
+	public void prepare() {
+		// TODO Auto-generated method stub
+		System.out.println("给制作奶酪披萨 准备原材料");
+	}
+}
+```
+
+```java
+public class GreekPizza extends Pizza {
+
+	@Override
+	public void prepare() {
+		// TODO Auto-generated method stub
+		System.out.println("给制作希腊披萨 准备原材料");
+	}
+}
+```
+
+```java
+public class OrderPizza {
+    //构造器
+	public OrderPizza() {
+        Pizza pizza = null;
+        String orderType; //  订购披萨的类型
+        do {
+
+            orderType = getType();
+
+            if (orderType.equals("greek")) {
+                pizza = new GreekPizza();
+                pizza.setName(" 希腊披萨 ");
+            } else if (orderType.equals("cheese")) {
+                pizza = new CheesePizza();
+                pizza.setName(" 奶酪披萨 ");
+            } else {
+                break;  
+            }
+            //输出 pizza 制作过程
+            pizza.prepare();
+            pizza.bake();
+            pizza.cut();
+            pizza.box();
+
+        }while (true);
+	}
+}
+```
+```java
+//写一个方法,可以获取客户希望订购的披萨种类
+private String getType(){
+    try{
+        BufferedReader strin = new BufferedReader(new InputStreamReader(System.in));\
+        System.out.print("input pizza type");
+        String str = strin.readLine();
+        return str;
+    }catch(IOException e){
+        e.printStackTrace();
+        return "";
+    }
+}
+```
+```java
+//相当于一个客户端,发送订单
+public class PizzaStore{
+    public static void main(String[] args){
+        new OrderPizza();
+    }
+}
+```
+
+传统的方式的优缺点
+
+1. 优点是比较好理解，简单易操作。
+2. 缺点是  ，即**对扩展开放，对修改关闭**。即当我们给类增加新功能的时候，尽量不修改代码，或者尽可能少修改代码.
+3. 比如我们这时要新增加一个 Pizza 的种类(Pepper 披萨)，我们需要做如下修改. 如果我们增加一个 Pizza 类，只要是订购 Pizza 的代码都需要修改
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200825221730.png)
+
+改进的思路分析:
+
+**分析**：修改代码可以接受，但是如果我们在其它的地方也有创建 Pizza 的代码，就意味着，也需要修改，而创建 Pizza
+的代码，往往有多处。
+
+**思路**：把创建 Pizza 对象封装到一个类中，这样我们有新的 Pizza 种类时，只需要修改该类就可，其它有创建到 Pizza
+对象的代码就不需要修改了.-> 简单工厂模式
+
+
+https://www.bilibili.com/video/av57936239?p=40 未完待续
