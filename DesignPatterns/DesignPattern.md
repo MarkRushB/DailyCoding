@@ -669,5 +669,255 @@ public class PizzaStore{
 **思路**：把创建 Pizza 对象封装到一个类中，这样我们有新的 Pizza 种类时，只需要修改该类就可，其它有创建到 Pizza
 对象的代码就不需要修改了.-> 简单工厂模式
 
+#### 简单工厂模式
 
-https://www.bilibili.com/video/av57936239?p=40 未完待续
+1. 简单工厂模式是属于创建型模式，是工厂模式的一种。**简单工厂模式是由一个工厂对象决定创建出哪一种产品类的实例**。简单工厂模式是工厂模式家族中最简单实用的模式
+2. 简单工厂模式：定义了一个创建对象的类，由这个类来**封装实例化对象的行为**(代码)
+3. 在软件开发中，当我们会用到大量的创建某种、某类或者某批对象时，就会使用到工厂模式.
+
+简单工厂模式的设计方案: 定义一个可以实例化 Pizaa 对象的类，封装创建对象的代码。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200826220149.png)
+
+```java
+package com.atguigu.factory.simplefactory.pizzastore.order;
+import com.atguigu.factory.simplefactory.pizzastore.pizza.CheesePizza; 
+import com.atguigu.factory.simplefactory.pizzastore.pizza.GreekPizza; 
+import com.atguigu.factory.simplefactory.pizzastore.pizza.PepperPizza; 
+import com.atguigu.factory.simplefactory.pizzastore.pizza.Pizza;
+
+//简单工厂类
+public class SimpleFactory {
+
+    //更加 orderType 返回对应的 Pizza 对象
+    public Pizza createPizza(String orderType) {
+
+        Pizza pizza = null;
+
+        System.out.println("使用简单工厂模式"); 
+        if (orderType.equals("greek")) {
+            pizza = new GreekPizza(); 
+            pizza.setName(" 希腊披萨 ");
+        } else if (orderType.equals("cheese")) {
+            pizza = new CheesePizza(); 
+            pizza.setName(" 奶酪披萨 ");
+        } else if (orderType.equals("pepper")) {
+            pizza = new PepperPizza(); 
+            pizza.setName("胡椒披萨");
+        }
+
+        return pizza;
+    }
+
+    //简单工厂模式 也叫 静态工厂模式
+
+    public static Pizza createPizza2(String orderType) {
+
+        Pizza pizza = null;
+
+        System.out.println("使用简单工厂模式 2"); 
+        if (orderType.equals("greek")) {
+            pizza = new GreekPizza(); 
+            pizza.setName(" 希腊披萨 ");
+        } else if (orderType.equals("cheese")) {
+            pizza = new CheesePizza(); 
+            pizza.setName(" 奶酪披萨 ");
+        } else if (orderType.equals("pepper")) {
+            pizza = new PepperPizza(); 
+            pizza.setName("胡椒披萨");
+        }
+
+        return pizza;
+    }
+
+}
+```
+```java
+//OrderPizza.java
+
+package com.atguigu.factory.simplefactory.pizzastore.order;
+
+import java.io.BufferedReader;
+import java.io.IOException; import java.io.InputStreamReader;
+
+
+import com.atguigu.factory.simplefactory.pizzastore.pizza.Pizza;
+
+public class OrderPizza {
+
+    // //构造器
+    // public OrderPizza() {
+    //     Pizza pizza = null;
+    //     String orderType; //  订购披萨的类型
+    //     do {
+    //         orderType = getType();
+    //         if (orderType.equals("greek")) {
+    //             pizza = new GreekPizza();
+    //             pizza.setName(" 希腊披萨 ");
+    //         } else if (orderType.equals("cheese")) {
+    //             pizza = new CheesePizza();
+    //             pizza.setName(" 奶酪披萨 ");
+    //         } else if (orderType.equals("pepper")) {
+    //             pizza = new PepperPizza();
+    //             pizza.setName("胡椒披萨");
+    //         } else {
+    //             break;
+    //         }
+    //         //输出 pizza 制作过程
+    //         pizza.prepare();
+    //         pizza.bake();
+    //         pizza.cut();
+    //         pizza.box();
+
+    //     } while (true);
+    // }
+
+    //定义一个简单工厂对象
+    SimpleFactory simpleFactory; 
+    Pizza pizza = null;
+
+    //构造器
+    public OrderPizza(SimpleFactory simpleFactory) { 
+        setFactory(simpleFactory);
+    }
+
+    public void setFactory(SimpleFactory simpleFactory) {
+        String orderType = ""; //用户输入的
+        this.simpleFactory = simpleFactory; //设置简单工厂对象do {
+        orderType = getType();
+        pizza = this.simpleFactory.createPizza(orderType);
+        //输出 pizza
+        if(pizza != null) { //订购成功
+            pizza.prepare(); 
+            pizza.bake();
+            pizza.cut();
+            pizza.box();
+        } else {
+            System.out.println(" 订购披萨失败 "); break;
+        }
+    }while(true);
+}
+
+// 写一个方法，可以获取客户希望订购的披萨种类
+private String getType() { 
+    try {
+        BufferedReader strin = new BufferedReader(new InputStreamReader(System.in)); 
+        System.out.println("input pizza 种类:");
+        String str = strin.readLine();
+        return str;
+    } catch (IOException e) { 
+        e.printStackTrace(); 
+        return "";
+    }
+}
+```
+#### 工厂方法模式
+
+**一个新需求:** 披萨项目新的需求：客户在点披萨时，可以点不同口味的披萨，比如 北京的奶酪 pizza、北京的胡椒 pizza 或者是伦敦的奶酪 pizza、伦敦的胡椒 pizza。
+
+**思路1:**
+使用简单工厂模式，创建不同的简单工厂类，比如 BJPizzaSimpleFactory、LDPizzaSimpleFactory 等等.从当前这个案例来说，也是可以的，但是考虑到项目的规模，以及软件的可维护性、可扩展性并不是特别好
+
+**思路2:**
+使用工厂方法模式:
+
+**工厂方法模式介绍**
+
+1. 工厂方法模式设计方案：将披萨项目的实例化功能抽象成抽象方法，在不同的口味点餐子类中具体实现。
+2. 工厂方法模式：定义了一个创建对象的抽象方法，由子类决定要实例化的类。工厂方法模式将对象的实例化推迟到子类。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200827001455.png)
+
+```java
+//OrderPizza.java 类
+
+package com.atguigu.factory.factorymethod.pizzastore.order;
+
+import java.io.BufferedReader; 
+import java.io.IOException; 
+import java.io.InputStreamReader;
+
+import com.atguigu.factory.factorymethod.pizzastore.pizza.Pizza;
+
+public abstract class OrderPizza {
+
+    //定义一个抽象方法，createPizza ,  让各个工厂子类自己实现
+    abstract Pizza createPizza(String  );
+
+    // 构造器
+    public OrderPizza() { 
+        Pizza pizza = null;
+        String orderType; //  订购披萨的类型
+        do {
+            orderType = getType();
+            pizza = createPizza(orderType); //抽象方法，由工厂子类完成
+            //输出 pizza 制作过程
+            pizza.prepare(); 
+            pizza.bake();
+            pizza.cut();
+            pizza.box();
+
+        } while (true);
+    }
+
+    // 写一个方法，可以获取客户希望订购的披萨种类
+    private String getType() { 
+            try {
+            BufferedReader strin = new BufferedReader(new InputStreamReader(System.in)); 
+            System.out.println("input pizza 种类:");
+            String str = strin.readLine();
+            return str;
+        } catch (IOException e) { 
+            e.printStackTrace(); 
+            return "";
+        }
+    }
+}
+```
+```java
+package com.atguigu.factory.factorymethod.pizzastore.order;
+
+import com.atguigu.factory.factorymethod.pizzastore.pizza.BJCheesePizza; 
+import com.atguigu.factory.factorymethod.pizzastore.pizza.BJPepperPizza; 
+import com.atguigu.factory.factorymethod.pizzastore.pizza.Pizza;
+
+
+public class BJOrderPizza extends OrderPizza {
+    @Override
+    Pizza createPizza(String orderType) {
+
+        Pizza pizza = null; 
+        if(orderType.equals("cheese")) {
+            pizza = new BJCheesePizza();
+        } else if (orderType.equals("pepper")) { 
+            pizza = new BJPepperPizza();
+        }
+        // TODO Auto-generated method stub return pizza;
+    }
+}
+```
+```java
+package com.atguigu.factory.factorymethod.pizzastore.order;
+
+import com.atguigu.factory.factorymethod.pizzastore.pizza.BJCheesePizza; 
+import com.atguigu.factory.factorymethod.pizzastore.pizza.BJPepperPizza; 
+import com.atguigu.factory.factorymethod.pizzastore.pizza.LDCheesePizza; 
+import com.atguigu.factory.factorymethod.pizzastore.pizza.LDPepperPizza; 
+import com.atguigu.factory.factorymethod.pizzastore.pizza.Pizza;
+
+
+public class LDOrderPizza extends OrderPizza {
+    @Override
+    Pizza createPizza(String orderType) {
+
+        Pizza pizza = null; 
+        if(orderType.equals("cheese")) {
+            pizza = new LDCheesePizza();
+        } else if (orderType.equals("pepper")) { 
+            pizza = new LDPepperPizza();
+        }
+        // TODO Auto-generated method stub return pizza;
+    }
+}
+```
+https://www.bilibili.com/video/BV1G4411c7N4?p=45 
