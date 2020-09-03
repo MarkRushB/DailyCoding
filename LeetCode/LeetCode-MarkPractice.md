@@ -1,27 +1,534 @@
-# Mark's LeetCode Record <!-- omit in toc -->
+
 - [Attention](#attention)
-- [9 Palindrome Number](#9-palindrome-number)
-- [1 Two Sum](#1-two-sum)
-- [Maximum Subarray](#maximum-subarray)
-- [14 Longest Common Prefix](#14-longest-common-prefix)
-- [204 Count Primes](#204-count-primes)
-- [20 Valid Parentheses](#20-valid-parentheses)
-- [169 Majority Element](#169-majority-element)
-- [28 Implement strStr()](#28-implement-strstr)
-- [21 Merge Two Sorted Lists](#21-merge-two-sorted-lists)
-- [27 Remove Element](#27-remove-element)
-- [58 Length of Last Word](#58-length-of-last-word)
-- [83 Remove Duplicates from Sorted List](#83-remove-duplicates-from-sorted-list)
-- [88 Merge Sorted Array](#88-merge-sorted-array)
-- [100 Same Tree](#100-same-tree)
-- [101 Symmetric Tree](#101-symmetric-tree)
-- [322 Coin Change](#322-coin-change)
-
-## Attention
+  - [注意事项](#注意事项)
+  - [需要注意的一些API](#需要注意的一些api)
+- [Record](#record)
+  - [Dynamic Programming](#dynamic-programming)
+    - [53 Maximum Subarray](#53-maximum-subarray)
+    - [152 Maximum Product Subarray](#152-maximum-product-subarray)
+  - [DFS](#dfs)
+    - [994 Rotting Oranges](#994-rotting-oranges)
+- [Sliding Window](#sliding-window)
+  - [3 Longest Substring Without Repeating Characters](#3-longest-substring-without-repeating-characters)
+  - [Minimum Window Substring](#minimum-window-substring)
+  - [220 Contains Duplicate III](#220-contains-duplicate-iii)
+- [Other](#other)
+  - [9 Palindrome Number](#9-palindrome-number)
+  - [1 Two Sum](#1-two-sum)
+  - [Maximum Subarray](#maximum-subarray)
+  - [14 Longest Common Prefix](#14-longest-common-prefix)
+  - [204 Count Primes](#204-count-primes)
+  - [20 Valid Parentheses](#20-valid-parentheses)
+  - [169 Majority Element](#169-majority-element)
+  - [28 Implement strStr()](#28-implement-strstr)
+  - [21 Merge Two Sorted Lists](#21-merge-two-sorted-lists)
+  - [27 Remove Element](#27-remove-element)
+  - [58 Length of Last Word](#58-length-of-last-word)
+  - [83 Remove Duplicates from Sorted List](#83-remove-duplicates-from-sorted-list)
+  - [88 Merge Sorted Array](#88-merge-sorted-array)
+  - [100 Same Tree](#100-same-tree)
+  - [101 Symmetric Tree](#101-symmetric-tree)
+  - [436 Find Right Interval](#436-find-right-interval)
+  - [442 Find All Duplicates in an Array](#442-find-all-duplicates-in-an-array)
+  - [48 Rotate Image](#48-rotate-image)
+  - [7 Reverse Integer](#7-reverse-integer)
+  - [Valid Anagram](#valid-anagram)
+# Attention
+## 注意事项
 - [刷题需要注意的小细节](LeetCode-Attention.md)
+- 滑动窗口典型问题：第 3 题、第 76 题、第 438 题
+- 双指针典型问题：第 11 题、第 15 题、第 42 题
+## 需要注意的一些API
+
+- **`java.lang.Character.isLetterOrDigit(int codePoint)`** 确定指定字符(Unicode代码点)是一个字母或数字。
+字符被确定是字母或数字，如果不是isLetter(codePoint) 也不是 isDigit(codePoint) 的字符，则返回true。
+- **`getOrDefault(Object key, V defaultValue)`** Returns the value to which the specified key is mapped, or defaultValue if this map contains no mapping for the key.
+- **`Character.toLowerCase`**
 
 
-## 9 [Palindrome Number](https://leetcode.com/problems/palindrome-number/)
+
+
+# Record
+
+| Date  | Problem  |
+|:---:|:---:|
+|  2020.08.29 | [53 Maximum Subarray](#53-maximum-subarray) / [152 Maximum Product Subarray](#152-maximum-product-subarray) / [442 Find All Duplicates in an Array](#442-find-all-duplicates-in-an-array) |
+|2020.08.30|[994 Rotting Oranges](#994-rotting-oranges)|
+|2020.09.02|[3 Longest Substring Without Repeating Characters](#3-longest-substring-without-repeating-characters) / [Minimum Window Substring](#minimum-window-substring) / [220 Contains Duplicate III](#220-contains-duplicate-iii)|
+
+
+
+
+
+## Dynamic Programming
+
+    一部分详见 Data Structures & Algorithms 中的专题部分
+
+### 53 Maximum Subarray
+
+Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.
+
+**Example:**
+
+    Input: [-2,1,-3,4,-1,2,1,-5,4],
+    Output: 6
+    Explanation: [4,-1,2,1] has the largest sum = 6.
+
+这个题用动态规划的思路来做：
+首先确定状态转移方程 `dp[i] = Math.max(dp[i - 1] + nums[i], nums[i])`
+
+
+```java
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int N = nums.length;
+        
+        if(N == 0) return 0;
+        int[] dp = new int[N];
+        dp[0] = nums[0];
+        int max = dp[0];
+        for(int i = 1; i < N; i++){
+            dp[i] = Math.max(dp[i - 1] + nums[i], nums[i]);
+            max = Math.max(max, dp[i]);
+        }
+        return max;
+    }
+}
+```
+### 152 Maximum Product Subarray
+
+Given an integer array nums, find the contiguous subarray within an array (containing at least one number) which has the largest product.
+
+**Example 1:**
+
+    Input: [2,3,-2,4]
+    Output: 6
+    Explanation: [2,3] has the largest product 6.
+
+**Example 2:**
+
+    Input: [-2,0,-1]
+    Output: 0
+    Explanation: The result cannot be 2, because [-2,-1] is not a subarray.
+
+
+这个题就有很多值得讲的地方了，首先看这个题和上一题 Maximum Subarray 的差异：
+
+- 求乘积的最大值，示例中负数的出现，告诉我们这题和 53 题不一样了，一个正数乘以负数就变成负数，即：**最大值乘以负数就变成了最小值**；
+- 因此：**最大值和最小值是相互转换的，这一点提示我们可以把这种转换关系设计到「状态转移方程」里去**；
+- 如何解决这个问题呢？这里常见的技巧是在「状态设计」的时候，在原始的状态设计后面多加一个维度，减少分类讨论，降低解决问题的难度。
+
+这里是百度百科的「**无后效性**」词条的解释：
+
+    无后效性是指如果在某个阶段上过程的状态已知，则从此阶段以后过程的发展变化仅与此阶段的状态有关，而与过程在此阶段以前的阶段所经历过的状态无关。利用动态规划方法求解多阶段决策过程问题，过程的状态必须具备无后效性。
+
+再翻译一下就是：「动态规划」通常不关心过程，只关心「阶段结果」，这个「阶段结果」就是我们设计的「状态」。什么算法关心过程呢？「回溯算法」，「回溯算法」需要记录过程，复杂度通常较高。
+
+而将状态定义得更具体，通常来说对于一个问题的解决是满足「无后效性」的。这一点的叙述很理论化，不熟悉朋友可以通过多做相关的问题来理解「无后效性」这个概念。
+
+**第 1 步：状态设计（特别重要）**
+
+- `dp[i][j]`：以 `nums[i]` 结尾的连续子数组的最值，计算最大值还是最小值由 `j` 来表示，`j` 就两个值；
+  - 当 `j = 0` 的时候，表示计算的是最小值；
+  - 当 `j = 1` 的时候，表示计算的是最大值。
+
+这样一来，状态转移方程就容易写出。
+
+**第 2 步：推导状态转移方程（特别重要）**
+
+- 由于状态的设计 `nums[i]` 必须被选取（请大家体会这一点，这一点恰恰好也是使得子数组、子序列问题更加简单的原因：当情况复杂、分类讨论比较多的时候，需要固定一些量，以简化计算）；
+
+- `nums[i]` 的正负和之前的状态值（正负）就产生了联系，由此关系写出状态转移方程：
+
+  - 当 `nums[i] > 0` 时，由于是乘积关系：
+    - 最大值乘以正数依然是最大值；
+    - 最小值乘以同一个正数依然是最小值；
+  - 当 `nums[i] < 0` 时，依然是由于乘积关系：
+    - 最大值乘以负数变成了最小值；
+    - 最小值乘以同一个负数变成最大值；
+  - 当 `nums[i] = 0` 的时候，由于 `nums[i]` 必须被选取，最大值和最小值都变成 00 ，合并到上面任意一种情况均成立。
+- 但是，还要注意一点，之前状态值的正负也要考虑：例如，在考虑最大值的时候，当 `nums[i] > 0` 是，如果 `dp[i - 1][1] < 0`（之前的状态最大值） ，此时 `nums[i]` 可以另起炉灶（这里依然是第 53 题的思想），此时 `dp[i][1] = nums[i]` ，合起来写就是：
+
+`dp[i][1] = max(nums[i], nums[i] * dp[i - 1][1]) if nums[i] >= 0`
+
+其它三种情况可以类似写出，状态转移方程如下：
+
+```
+dp[i][0] = min(nums[i], nums[i] * dp[i - 1][0]) if nums[i] >= 0
+dp[i][1] = max(nums[i], nums[i] * dp[i - 1][1]) if nums[i] >= 0
+
+dp[i][0] = min(nums[i], nums[i] * dp[i - 1][1]) if nums[i] < 0
+dp[i][1] = max(nums[i], nums[i] * dp[i - 1][0]) if nums[i] < 0
+```
+**第 3 步：考虑初始化**
+
+由于 `nums[i]` 必须被选取，那么 `dp[i][0] = nums[0]，dp[i][1] = nums[0]`。
+
+```java
+class Solution {
+    public int maxProduct(int[] nums) {
+        int N = nums.length;
+        int[][] dp = new int[N][2];
+        // dp[N][0] 表示最小值
+        // dp[N][1] 表示最大值
+        dp[0][0] = nums[0];
+        dp[0][1] = nums[0];
+        int res = nums[0];
+        for(int i = 1; i < N; i++){
+            if(nums[i] >= 0){
+                dp[i][0] = Math.min(nums[i], dp[i - 1][0] * nums[i]);
+                dp[i][1] = Math.max(nums[i], dp[i - 1][1] * nums[i]);
+            }else{
+                dp[i][0] = Math.min(nums[i], dp[i - 1][1] * nums[i]);
+                dp[i][1] = Math.max(nums[i], dp[i - 1][0] * nums[i]);
+            }
+            res = Math.max(res, dp[i][1]);
+        }
+        return res;
+    }
+}
+```
+## DFS
+
+**什么情况应当用 BFS 搜索**
+
+我们都知道 DFS（深度优先搜索）和 BFS（广度优先搜索）。它们各有不同的适应场景。
+
+![](https://pic.leetcode-cn.com/725e473003c35e3be67ac6177cc6744fa04b0466795b5e69c7d673f626206b86-file_1583293748397)
+
+BFS 可以看成是层序遍历。从某个结点出发，BFS 首先遍历到距离为 1 的结点，然后是距离为 2、3、4…… 的结点。因此，BFS 可以用来**求最短路径问题**。BFS 先搜索到的结点，一定是距离最近的结点。
+
+再看看这道题的题目要求：返回直到单元格中没有新鲜橘子为止所必须经过的最小分钟数。翻译一下，实际上就是求**腐烂橘子到所有新鲜橘子的最短路径**。那么这道题使用 BFS，应该是毫无疑问的了。
+
+**如何写（最短路径的） BFS 代码**
+
+我们都知道 BFS 需要使用队列，代码框架是这样子的（伪代码）：
+
+```python
+while queue 非空:
+	node = queue.pop()
+    for node 的所有相邻结点 m:
+        if m 未访问过:
+            queue.push(m)
+```
+但是用 BFS 来求最短路径的话，这个队列中第 1 层和第 2 层的结点会紧挨在一起，无法区分。因此，我们需要稍微修改一下代码，在每一层遍历开始前，记录队列中的结点数量 nn ，然后一口气处理完这一层的 nn 个结点。代码框架是这样的：
+
+```python
+depth = 0 # 记录遍历到第几层
+while queue 非空:
+    depth++
+    n = queue 中的元素个数
+    循环 n 次:
+        node = queue.pop()
+        for node 的所有相邻结点 m:
+            if m 未访问过:
+                queue.push(m)
+```
+
+
+### 994 Rotting Oranges
+In a given grid, each cell can have one of three values:
+
+- the value 0 representing an empty cell;
+- the value 1 representing a fresh orange;
+- the value 2 representing a rotten orange.
+
+Every minute, any fresh orange that is adjacent (4-directionally) to a rotten orange becomes rotten.
+
+Return the minimum number of minutes that must elapse until no cell has a fresh orange.  If this is impossible, return -1 instead.
+
+**Example 1:**
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200830000451.png)
+
+    Input: [[2,1,1],[1,1,0],[0,1,1]]
+    Output: 4
+
+**Example 2:**
+
+    Input: [[2,1,1],[0,1,1],[1,0,1]]
+    Output: -1
+    Explanation:  The orange in the bottom left corner (row 2, column 0) is never rotten, because rotting only happens 4-directionally.
+
+**Example 3:**
+
+    Input: [[0,2]]
+    Output: 0
+    Explanation:  Since there are already no fresh oranges at minute 0, the answer is just 0.
+
+有了计算最短路径的层序 BFS 代码框架，写这道题就很简单了。这道题的主要思路是：
+
+一开始，我们找出所有腐烂的橘子，将它们放入队列，作为第 0 层的结点。
+然后进行 BFS 遍历，每个结点的相邻结点可能是上、下、左、右四个方向的结点，注意判断结点位于网格边界的特殊情况。
+由于可能存在无法被污染的橘子，我们需要记录新鲜橘子的数量。在 BFS 中，每遍历到一个橘子（污染了一个橘子），就将新鲜橘子的数量减一。如果 BFS 结束后这个数量仍未减为零，说明存在无法被污染的橘子。
+
+```java
+class Solution {
+    public int orangesRotting(int[][] grid) {
+        int N = grid.length;
+        int M = grid[0].length;
+        
+        Queue<int[]> queue = new LinkedList<>();
+        
+        int count = 0;
+        
+        for(int i = 0; i < N; i++){
+            for(int j = 0; j < M; j++){
+                if(grid[i][j] == 1){
+                    count++;
+                }else if(grid[i][j] == 2){
+                    queue.add(new int[]{i, j});
+                }
+            }
+        }
+        
+        int level = 0;
+        while(count > 0 && !queue.isEmpty()){
+            level++;
+            int size = queue.size();
+            for(int a = 0; a < size; a++){
+                int[] rott = queue.poll();
+                int i = rott[0];
+                int j = rott[1];
+                
+                if(i - 1 >= 0 && grid[i - 1][j] == 1){
+                    grid[i - 1][j] = 2;
+                    count--;
+                    queue.add(new int[]{i - 1, j});
+                }
+                
+                if(i + 1 < N && grid[i + 1][j] ==1){
+                    grid[i + 1][j] = 2;
+                    count--;
+                    queue.add(new int[]{i + 1, j});
+                }
+                              
+                if(j - 1 >= 0 && grid[i][j - 1] ==1){
+                    grid[i][j - 1] = 2;
+                    count--;
+                    queue.add(new int[]{i, j - 1});
+                }
+                if(j + 1 < M && grid[i][j + 1] == 1){
+                    grid[i][j + 1] = 2;
+                    count--;
+                    queue.add(new int[]{i, j + 1});
+                }
+            }
+
+        }
+        if(count > 0){
+            return -1;
+        }else{
+            return level;
+        }
+    }
+}
+```
+
+
+
+
+
+# Sliding Window
+## 3 Longest Substring Without Repeating Characters
+Given a string, find the length of the longest substring without repeating characters.
+
+**Example 1:**
+
+    Input: "abcabcbb"
+    Output: 3 
+    Explanation: The answer is "abc", with the length of 3. 
+
+**Example 2:**
+
+    Input: "bbbbb"
+    Output: 1
+    Explanation: The answer is "b", with the length of 1.
+
+**Example 3:**
+
+    Input: "pwwkew"
+    Output: 3
+    Explanation: The answer is "wke", with the length of 3. 
+                Note that the answer must be a substring, "pwke" is a subsequence and not a substring.
+
+```java
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        //Sliding Window
+        int N = s.length();
+        int res = 0;
+        Map<Character, Integer> map = new HashMap<>();
+        for(int left = 0, right = 0; right < N; right++){
+            if(map.containsKey(s.charAt(right))){
+                left = Math.max(left, map.get(s.charAt(right)) + 1);
+            }
+            map.put(s.charAt(right), right);
+            res = Math.max(res, right - left + 1);        
+        }
+        return res;
+    }
+}
+```
+
+## Minimum Window Substring
+Given a string S and a string T, find the minimum window in S which will contain all the characters in T in complexity O(n).
+
+**Example:**
+
+    Input: S = "ADOBECODEBANC", T = "ABC"
+    Output: "BANC"
+
+```java
+class Solution {
+    public String minWindow(String s, String t) {
+        if (s == null || s == "" || t == null || t == "" || s.length() < t.length()) {
+            return "";
+        }
+        //维护两个数组，记录已有字符串指定字符的出现次数，和目标字符串指定字符的出现次数
+        //ASCII表总长128
+        int[] need = new int[128];
+        int[] have = new int[128];
+
+        //将目标字符串指定字符的出现次数记录
+        for (int i = 0; i < t.length(); i++) {
+            need[t.charAt(i)]++;
+        }
+
+        //分别为左指针，右指针，最小长度(初始值为一定不可达到的长度)
+        //已有字符串中目标字符串指定字符的出现总频次以及最小覆盖子串在原字符串中的起始位置
+        int left = 0, right = 0, min = s.length() + 1, count = 0, start = 0;
+        while (right < s.length()) {
+            char r = s.charAt(right);
+            //说明该字符不被目标字符串需要，此时有两种情况
+            // 1.循环刚开始，那么直接移动右指针即可，不需要做多余判断
+            // 2.循环已经开始一段时间，此处又有两种情况
+            //  2.1 上一次条件不满足，已有字符串指定字符出现次数不满足目标字符串指定字符出现次数，那么此时
+            //      如果该字符还不被目标字符串需要，就不需要进行多余判断，右指针移动即可
+            //  2.2 左指针已经移动完毕，那么此时就相当于循环刚开始，同理直接移动右指针
+            if (need[r] == 0) {
+                right++;
+                continue;
+            }
+            //当且仅当已有字符串目标字符出现的次数小于目标字符串字符的出现次数时，count才会+1
+            //是为了后续能直接判断已有字符串是否已经包含了目标字符串的所有字符，不需要挨个比对字符出现的次数
+            if (have[r] < need[r]) {
+                count++;
+            }
+            //已有字符串中目标字符出现的次数+1
+            have[r]++;
+            //移动右指针
+            right++;
+            //当且仅当已有字符串已经包含了所有目标字符串的字符，且出现频次一定大于或等于指定频次
+            while (count == t.length()) {
+                //挡窗口的长度比已有的最短值小时，更改最小值，并记录起始位置
+                if (right - left < min) {
+                    min = right - left;
+                    start = left;
+                }
+                char l = s.charAt(left);
+                //如果左边即将要去掉的字符不被目标字符串需要，那么不需要多余判断，直接可以移动左指针
+                if (need[l] == 0) {
+                    left++;
+                    continue;
+                }
+                //如果左边即将要去掉的字符被目标字符串需要，且出现的频次正好等于指定频次，那么如果去掉了这个字符，
+                //就不满足覆盖子串的条件，此时要破坏循环条件跳出循环，即控制目标字符串指定字符的出现总频次(count）-1
+                if (have[l] == need[l]) {
+                    count--;
+                }
+                //已有字符串中目标字符出现的次数-1
+                have[l]--;
+                //移动左指针
+                left++;
+            }
+        }
+        //如果最小长度还为初始值，说明没有符合条件的子串
+        if (min == s.length() + 1) {
+            return "";
+        }
+        //返回的为以记录的起始位置为起点，记录的最短长度为距离的指定字符串中截取的子串
+        return s.substring(start, start + min);
+    }
+}
+```
+## 220 Contains Duplicate III
+Given an array of integers, find out whether there are two distinct indices i and j in the array such that the absolute difference between nums[i] and nums[j] is at most t and the absolute difference between i and j is at most k.
+
+**Example 1:**
+
+    Input: nums = [1,2,3,1], k = 3, t = 0
+    Output: true
+
+**Example 2:**
+
+    Input: nums = [1,0,1,1], k = 1, t = 2
+    Output: true
+
+**Example 3:**
+
+    Input: nums = [1,5,9,1,5,9], k = 2, t = 3
+    Output: false
+
+- [LeetCode讲解](https://leetcode-cn.com/problems/contains-duplicate-iii/solution/hua-dong-chuang-kou-er-fen-sou-suo-shu-zhao-shang-/)
+
+暴力解法
+```java
+public class Solution {
+
+    public boolean containsNearbyAlmostDuplicate(int[] nums, int k, int t) {
+        int len = nums.length;
+        long a;
+        long b;
+
+        for (int i = 0; i < len; i++) {
+            for (int j = i + 1; j < len && j <= i + k; j++) {
+                a = nums[i];
+                b = nums[j];
+                if (Math.abs(a - b) <= t) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+}
+```
+平衡二叉树（滑动窗口）
+```java
+class Solution {
+    public boolean containsNearbyAlmostDuplicate(int[] nums, int k, int t) {
+        TreeSet<Integer> set = new TreeSet<>();
+        for(int i = 0; i < nums.length; i++){
+            Integer s = set.ceiling(nums[i]);
+            Integer g = set.floor(nums[i]);
+            if(s != null && s <= nums[i] + t || g != null && g >= nums[i] - t){
+                return true;
+            }
+            set.add(nums[i]);
+            if (set.size() > k) {
+                set.remove(nums[i - k]);
+            }
+        }
+        return false;
+     }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Other
+## 9 Palindrome Number
 
 Determine whether an integer is a palindrome. An integer is a palindrome when it reads the same backward as forward.  
 ```java
@@ -37,7 +544,7 @@ class Solution {
     }
 }
 ```
-## 1 [Two Sum](https://leetcode.com/problems/two-sum/)
+## 1 Two Sum
 Given an array of integers, return indices of the two numbers such that they add up to a specific target.
 
 You may assume that each input would have exactly one solution, and you may not use the same element twice.
@@ -89,7 +596,7 @@ class Solution {
     }
 }
 ```
-## 14 [Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/)
+## 14 Longest Common Prefix
 Write a function to find the longest common prefix string amongst an array of strings.  
 If there is no common prefix, return an empty string "".
 
@@ -259,7 +766,7 @@ What should we return when needle is an empty string? This is a great question t
 
 For the purpose of this problem, we will return 0 when needle is an empty string. This is consistent to C's strstr() and Java's indexOf().
 
-## 21 [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
+## 21 Merge Two Sorted Lists
 Merge two sorted linked lists and return it as a new list. The new list should be made by splicing together the nodes of the first two lists.
 
 **Example:**
@@ -330,7 +837,7 @@ public ListNode mergeTwoLists(ListNode l1, ListNode l2){
 --- | --- | --- | --- 
 O(n) | O(1) | 6ms | 41.3MB
 
-## 27 [Remove Element](https://leetcode.com/problems/remove-element/)
+## 27 Remove Element
 Given an array nums and a value val, remove all instances of that value in-place and return the new length.
 
 Do not allocate extra space for another array, you must do this by **modifying the input array** in-place with O(1) extra memory.
@@ -379,7 +886,7 @@ class Solution {
     }
 }
 ```
-## 58 [Length of Last Word](https://leetcode.com/problems/length-of-last-word/)
+## 58 Length of Last Word
 
 Given a string s consists of upper/lower-case alphabets and empty space characters ' ', return the length of last word (last word means the last appearing word if we loop from left to right) in the string.
 
@@ -411,7 +918,7 @@ class Solution {
     }
 }
 ```
-## 83 [Remove Duplicates from Sorted List](https://leetcode.com/problems/remove-duplicates-from-sorted-list/)
+## 83 Remove Duplicates from Sorted List
 Given a sorted linked list, delete all duplicates such that each element appear only once.
 
 **Example 1:**
@@ -440,7 +947,7 @@ class Solution {
 }
 ```
 
-## 88 [Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/)
+## 88 Merge Sorted Array
 
 Given two sorted integer arrays nums1 and nums2, merge nums2 into nums1 as one sorted array.
 
@@ -492,7 +999,7 @@ Given two sorted integer arrays nums1 and nums2, merge nums2 into nums1 as one s
     }
 }
 ```
-## 100 [Same Tree](https://leetcode.com/problems/same-tree/)
+## 100 Same Tree
 Given two binary trees, write a function to check if they are the same or not.
 
 Two binary trees are considered the same if they are structurally identical and the nodes have the same value.
@@ -539,7 +1046,7 @@ class Solution {
 } 
 ```
 
-## 101 [Symmetric Tree](https://leetcode.com/problems/symmetric-tree/)
+## 101 Symmetric Tree
 Given a binary tree, check whether it is a mirror of itself (ie, symmetric around its center).
 
 For example, this binary tree `[1,2,2,3,4,4,3]` is symmetric:
@@ -578,42 +1085,234 @@ class Solution {
     }
 }
 ```
-## 322 [Coin Change](https://leetcode.com/problems/coin-change/)
-You are given coins of different denominations and a total amount of money amount. Write a function to compute the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.
+## 436 Find Right Interval
+
+- 排序+查找 / TreeMap
+
+Given a set of intervals, for each of the interval i, check if there exists an interval j whose start point is bigger than or equal to the end point of the interval i, which can be called that j is on the "right" of i.
+
+For any interval i, you need to store the minimum interval j's index, which means that the interval j has the minimum start point to build the "right" relationship for interval i. If the interval j doesn't exist, store -1 for the interval i. Finally, you need output the stored value of each interval as an array.
+
+Note:
+
+    You may assume the interval's end point is always bigger than its start point.
+    You may assume none of these intervals have the same start point.
 
 **Example 1:**
 
-    Input: coins = [1, 2, 5], amount = 11
-    Output: 3 
-    Explanation: 11 = 5 + 5 + 1
+    Input: [ [1,2] ]
+
+    Output: [-1]
+
+    Explanation: There is only one interval in the collection, so it outputs -1.
+ 
 
 **Example 2:**
 
-    Input: coins = [2], amount = 3
-    Output: -1
+    Input: [ [3,4], [2,3], [1,2] ]
 
-思路：这个题需要用到动态规划，且用动态规划是最好的解决办法，具体思路可以看我在算法的总结中的动态规划部分
+    Output: [-1, 0, 1]
 
-```java 
+    Explanation: There is no satisfied "right" interval for [3,4].
+    For [2,3], the interval [3,4] has minimum-"right" start point;
+    For [1,2], the interval [2,3] has minimum-"right" start point.
+ 
+
+**Example 3:**
+
+    Input: [ [1,4], [2,3], [3,4] ]
+
+    Output: [-1, 2, -1]
+
+    Explanation: There is no satisfied "right" interval for [1,4] and [3,4].
+    For [2,3], the interval [3,4] has minimum-"right" start point.
+
+## 442 Find All Duplicates in an Array
+
+Given an array of integers, 1 ≤ a[i] ≤ n (n = size of array), some elements appear twice and others appear once.
+
+Find all the elements that appear twice in this array.
+
+**Could you do it without extra space and in O(n) runtime?**
+
+**Example:**
+
+    Input:
+    [4,3,2,7,8,2,3,1]
+
+    Output:
+    [2,3]
+
+思路：题目中要求不要使用额外空间和O(n)时间复杂度，所以我们不能使用HashMap或者暴力搜索法。这道题其实思路也算是HashMap，只不过我们使用数组自己本身作为键值对配对。遍历数组中的元素，然后将该数 - 1作为index（因为数组长度正好等于最大数），然后将index对应的原数取负数，继续遍历，若此index对应的数为负，则说明已经出现过。
+
+```java
 class Solution {
-    public int coinChange(int[] coins, int amount) {
-        int[] f = new int[amount + 1];
-        int n = coins.length;
+    public List<Integer> findDuplicates(int[] nums) {
+        List<Integer> res = new ArrayList<>();
         
-        f[0] = 0;
-        
-        for(int i = 1; i <= amount; i++){
-            f[i] = Integer.MAX_VALUE;
-            for(int j = 0; j < n; j++){
-                if(i >= coins[j] && f[i - coins[j]] != Integer.MAX_VALUE){
-                    f[i] = Math.min(f[i - coins[j]] + 1, f[i]);
-                }
+        for(int num : nums){
+            int index = Math.abs(num) - 1;
+            if(nums[index] < 0){
+                res.add(Math.abs(num));
+            }else{
+                nums[index] = - nums[index];
             }
         }
-        if(f[amount] == Integer.MAX_VALUE){
-            f[amount] = -1;
-        }
-        return f[amount];
+        return res;
     }
+}
+```
+
+## 48 Rotate Image
+You are given an n x n 2D matrix representing an image, rotate the image by 90 degrees (clockwise).
+
+You have to rotate the image in-place, which means you have to modify the input 2D matrix directly. DO NOT allocate another 2D matrix and do the rotation.
+
+**Example 1:**
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200831000436.png)
+
+    Input: matrix = [[1,2,3],[4,5,6],[7,8,9]]
+    Output: [[7,4,1],[8,5,2],[9,6,3]]
+
+**Example 2:**
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200831000511.png)
+
+    Input: matrix = [[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]
+    Output: [[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]
+
+```java
+class Solution {
+    public void rotate(int[][] matrix) {
+        int N = matrix.length;
+        for(int i = 0; i < N; i++){
+            for(int j = i; j < N; j++){
+                int temp = matrix[i][j];
+                matrix[i][j] = matrix[j][i];
+                matrix[j][i] = temp;
+            }
+        }
+        
+        for(int i = 0; i < N; i++){
+            for(int j = 0; j < N / 2; j++){
+                int temp = matrix[i][j];
+                matrix[i][j] = matrix[i][N - 1 - j];
+                matrix[i][N - 1 - j] = temp;
+            }
+        }
+    }
+}
+```
+## 7 Reverse Integer
+Given a 32-bit signed integer, reverse digits of an integer.
+
+**Example 1:**
+
+    Input: 123
+    Output: 321
+
+**Example 2:**
+
+    Input: -123
+    Output: -321
+
+**Example 3:**
+
+    Input: 120
+    Output: 21
+
+
+思路：**先转成int再进行字符串反转** 或者利用下面的数学方法。
+
+看起来这道题就这么解决了，但请注意，题目上还有这么一句
+
+>设我们的环境只能存储得下 32 位的有符号整数，则其数值范围为 `[−2^31,  2^31 − 1]`。
+
+也就是说我们不能用`long`存储最终结果，而且有些数字可能是合法范围内的数字，但是反转过来就超过范围了。
+假设有`1147483649`这个数字，它是小于最大的32位整数`2147483647`的，但是将这个数字反转过来后就变成了`9463847411`，这就比最大的32位整数还要大了，这样的数字是没法存到int里面的，所以肯定要返回0(溢出了)。
+甚至，我们还需要提前判断:
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200831114818.png)
+
+上图中，绿色的是最大32位整数
+第二排数字中，橘子的是`5`，它是大于上面同位置的`4`，这就意味着`5`后跟任何数字，都会比最大32为整数都大。
+所以，我们到【最大数的1/10】时，就要开始判断了
+如果某个数字大于 `214748364`那后面就不用再判断了，肯定溢出了。
+如果某个数字等于 `214748364`呢，这对应到上图中第三、第四、第五排的数字，需要要跟最大数的末尾数字比较，如果这个数字比7还大，说明溢出了。
+
+对于负数也是一样的
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200831114859.png)
+
+上图中绿色部分是最小的32位整数，同样是在【最小数的 1/10】时开始判断
+如果某个数字小于 `-214748364`说明溢出了
+如果某个数字等于 `-214748364`，还需要跟最小数的末尾比较，即看它是否小于8
+
+
+```java
+class Solution {
+    public int reverse(int x) {
+        int res = 0;
+        while(x != 0){
+            int tmp = x % 10;
+            if (res > Integer.MAX_VALUE / 10 || (res == Integer.MAX_VALUE && tmp>7)) {
+                return 0;
+            }
+
+            if (res < Integer.MIN_VALUE / 10 || (res == Integer.MIN_VALUE && tmp<-8)) {
+                return 0;
+            }
+            res = res * 10 + tmp;
+            x /= 10;
+        }
+        return res;
+    }
+}
+```
+
+## Valid Anagram
+Given two strings s and t , write a function to determine if t is an anagram of s.
+
+**Example 1:**
+
+    Input: s = "anagram", t = "nagaram"
+    Output: true
+
+**Example 2:**
+
+    Input: s = "rat", t = "car"
+    Output: false
+
+思路：[LeetCode解法](https://leetcode-cn.com/problems/valid-anagram/solution/you-xiao-de-zi-mu-yi-wei-ci-by-leetcode/) 一种是排序，一种是哈希表。
+
+```java
+public boolean isAnagram(String s, String t) {
+    if (s.length() != t.length()) {
+        return false;
+    }
+    char[] str1 = s.toCharArray();
+    char[] str2 = t.toCharArray();
+    Arrays.sort(str1);
+    Arrays.sort(str2);
+    return Arrays.equals(str1, str2);
+}
+```
+```java
+public boolean isAnagram(String s, String t) {
+    if (s.length() != t.length()) {
+        return false;
+    }
+    int[] counter = new int[26];
+    for (int i = 0; i < s.length(); i++) {
+        counter[s.charAt(i) - 'a']++;
+        counter[t.charAt(i) - 'a']--;
+    }
+    for (int count : counter) {
+        if (count != 0) {
+            return false;
+        }
+    }
+    return true;
 }
 ```
