@@ -10,8 +10,12 @@
     - [994 Rotting Oranges](#994-rotting-oranges)
 - [Sliding Window](#sliding-window)
   - [3 Longest Substring Without Repeating Characters](#3-longest-substring-without-repeating-characters)
-  - [Minimum Window Substring](#minimum-window-substring)
+  - [76 Minimum Window Substring](#76-minimum-window-substring)
   - [220 Contains Duplicate III](#220-contains-duplicate-iii)
+  - [209 Minimum Size Subarray Sum](#209-minimum-size-subarray-sum)
+  - [239 Sliding Window Maximum](#239-sliding-window-maximum)
+- [Tree](#tree)
+  - [1305 All Elements in Two Binary Search Trees](#1305-all-elements-in-two-binary-search-trees)
 - [Other](#other)
   - [9 Palindrome Number](#9-palindrome-number)
   - [1 Two Sum](#1-two-sum)
@@ -33,6 +37,8 @@
   - [48 Rotate Image](#48-rotate-image)
   - [7 Reverse Integer](#7-reverse-integer)
   - [Valid Anagram](#valid-anagram)
+  - [459 Repeated Substring Pattern](#459-repeated-substring-pattern)
+  - [763 Partition Labels](#763-partition-labels)
 # Attention
 ## 注意事项
 - [刷题需要注意的小细节](LeetCode-Attention.md)
@@ -371,8 +377,8 @@ class Solution {
 }
 ```
 
-## Minimum Window Substring
-Given a string S and a string T, find the minimum window in S which will contain all the characters in T in complexity O(n).
+## 76 Minimum Window Substring
+Given a string S and a string T, find   the minimum window in S which will contain all the characters in T in complexity O(n).
 
 **Example:**
 
@@ -514,12 +520,226 @@ class Solution {
      }
 }
 ```
+## 209 Minimum Size Subarray Sum
+Given an array of n positive integers and a positive integer s, find the minimal length of a contiguous subarray of which the sum ≥ s. If there isn't one, return 0 instead.
+
+**Example:** 
+
+    Input: s = 7, nums = [2,3,1,2,4,3]
+    Output: 2
+    Explanation: the subarray [4,3] has the minimal length under the problem constraint.
+
+```java
+class Solution {
+    public int minSubArrayLen(int s, int[] nums) {
+        int N = nums.length;
+        int left = 0, right = 0, count = 0, minLen = N + 1;
+        
+        if(N == 0) return 0;
+        
+        while(right < N){
+            count += nums[right];
+            right++;
+            
+            while(count >= s && left <= right){
+                if(right - left < minLen){
+                    minLen = right - left;
+                }
+                count -= nums[left];
+                left++;
+            }
+        }
+        if(minLen == N + 1) return 0;
+        else return minLen;
+    }
+} 
+```
+## 239 Sliding Window Maximum
+
+Given an array nums, there is a sliding window of size k which is moving from the very left of the array to the very right. You can only see the k numbers in the window. Each time the sliding window moves right by one position. Return the max sliding window.
+
+Follow up:
+Could you solve it in linear time?
+
+**Example:**
+
+    Input: nums = [1,3,-1,-3,5,3,6,7], and k = 3
+    Output: [3,3,5,5,6,7] 
+    Explanation: 
+
+        Window position                Max
+        ---------------               -----
+       [1  3  -1] -3  5  3  6  7       3
+        1 [3  -1  -3] 5  3  6  7       3
+        1  3 [-1  -3  5] 3  6  7       5
+        1  3  -1 [-3  5  3] 6  7       5
+        1  3  -1  -3 [5  3  6] 7       6
+        1  3  -1  -3  5 [3  6  7]      7
+
+思路:[使用Deque双端队列](https://leetcode-cn.com/problems/sliding-window-maximum/solution/zui-da-suo-yin-dui-shuang-duan-dui-lie-cun-suo-yin/)
+
+```java
+class Solution {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        int N = nums.length;
+        if(N == 0) return new int[]{};
+        
+        int[] res = new int[N - k + 1];
+         // 滑动窗口，注意：保存的是索引值
+        ArrayDeque<Integer> deque = new ArrayDeque<>(k);
+        
+        for(int i = 0; i < N; i++){
+            // 当元素从左边界滑出的时候，如果它恰恰好是滑动窗口的最大值
+            // 那么将它弹出
+            while(!deque.isEmpty() && deque.peekFirst == i - k){
+                deque.pollFirst();
+            }
+            // 如果滑动窗口非空，新进来的数比队列里已经存在的数还要大
+            // 则说明已经存在数一定不会是滑动窗口的最大值（它们毫无出头之日）
+            // 将它们弹出
+            while(!deque.isEmpty() && nums[i] >= nums[deque.peekLast()]){
+                deque.pollLast();
+            }
+            deque.add(i);
+            // 队首一定是滑动窗口的最大值的索引
+            if(i >= k - 1){
+                res[i - k + 1] = nums[deque.peekFirst];
+            }
+        }
+        return res;
+    }
+}
+```
+
+# Tree
+## 1305 All Elements in Two Binary Search Trees
+Given two binary search trees root1 and root2.
+
+Return a list containing all the integers from both trees sorted in ascending order.
+
+ 
+
+**Example 1:**
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200905194207.png)
+
+    Input: root1 = [2,1,4], root2 = [1,0,3]
+    Output: [0,1,1,2,3,4]
+
+**Example 2:**
+
+    Input: root1 = [0,-10,10], root2 = [5,1,7,0,2]
+    Output: [-10,0,0,1,2,5,7,10]
+
+**Example 3:**
+
+    Input: root1 = [], root2 = [5,1,7,0,2]
+    Output: [0,1,2,5,7]
+
+**Example 4:**
+
+    Input: root1 = [0,-10,10], root2 = []
+    Output: [-10,0,10]
+
+**Example 5:**
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200905194218.png)
 
 
+    Input: root1 = [1,null,8], root2 = [8,1]
+    Output: [1,1,8,8]
 
-
-
-
+普通方法,就是把两个BST中的元素遍历到一个List中,最后利用`Collections.sort()`对List进行排序操作,但是这个方法并没有利用BST的优势
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<Integer> getAllElements(TreeNode root1, TreeNode root2) {
+        List<Integer> list = new ArrayList<>();
+        find(root1, list);
+        find(root2, list);
+        Collections.sort(list);
+        return list;
+    }
+    private void find(TreeNode root, List<Integer> list){
+        if(root == null) return;
+        list.add(root.val);
+        find(root.left, list);
+        find(root.right, list);
+    }
+}
+```
+方法二,通过中序遍历,利用BST的特性,这样保存到每一个List中的元素都是有序的,最后我们再利用Merge Sort即可节省大量的时间 
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<Integer> getAllElements(TreeNode root1, TreeNode root2) {
+        List<Integer> list1 = new ArrayList<>();
+        List<Integer> list2 = new ArrayList<>();
+        dfs(root1, list1);
+        dfs(root2, list2);
+        return merge(list1, list2);
+        
+    }
+    
+    private void dfs(TreeNode root, List<Integer> list){
+        if(root == null) return;
+        dfs(root.left, list);
+        list.add(root.val);
+        dfs(root.right, list);
+    }
+    
+    private List<Integer> merge(List<Integer> list1, List<Integer> list2){
+        List<Integer> res = new ArrayList<>();
+        int i = 0, j = 0;
+        while(i < list1.size() && j < list2.size()){
+            if(list1.get(i) < list2.get(j)){
+                res.add(list1.get(i));
+                i++;
+            }else{
+                res.add(list2.get(j));
+                j++;
+            }
+        }
+        while(i < list1.size()){
+            res.add(list1.get(i));
+            i++;
+        }
+        while(j < list2.size()){
+            res.add(list2.get(j));
+            j++;
+        }
+        return res;
+    }
+}
+```
 
 
 
@@ -1314,5 +1534,85 @@ public boolean isAnagram(String s, String t) {
         }
     }
     return true;
+}
+```
+
+## 459 Repeated Substring Pattern
+
+Given a non-empty string check if it can be constructed by taking a substring of it and appending multiple copies of the substring together. You may assume the given string consists of lowercase English letters only and its length will not exceed 10000.
+
+ 
+
+**Example 1:**
+
+    Input: "abab"
+    Output: True
+    Explanation: It's the substring "ab" twice.
+
+**Example 2:**
+
+    Input: "aba"
+    Output: False
+
+**Example 3:**
+
+    Input: "abcabcabcabc"
+    Output: True
+    Explanation: It's the substring "abc" four times. (And the substring "abcabc" twice.)
+
+```java
+class Solution {
+    public boolean repeatedSubstringPattern(String s) {
+        int N = s.length();
+        for(int i = 1; i <= N / 2; i++){
+            if(N % i == 0){
+                boolean flag = true;
+                for(int j = i; j < N; j++){
+                    if(s.charAt(j) != s.charAt(j - i)){
+                        flag = false;
+                        break;
+                    }
+                }
+                if(flag) return true;
+            }
+        }
+        return false;
+    }
+}
+```
+## 763 Partition Labels
+A string S of lowercase English letters is given. We want to partition this string into as many parts as possible so that each letter appears in at most one part, and return a list of integers representing the size of these parts.
+
+ 
+
+**Example 1:**
+
+    Input: S = "ababcbacadefegdehijhklij"
+    Output: [9,7,8]
+    Explanation:
+    The partition is "ababcbaca", "defegde", "hijhklij".
+    This is a partition so that each letter appears in at most one part.
+    A partition like "ababcbacadefegde", "hijhklij" is incorrect, because it splits S into less parts.
+
+```java
+class Solution {
+    public List<Integer> partitionLabels(String S) {
+        int N = S.length();
+        int[] last = new int[26];
+        List<Integer> res = new ArrayList<>();
+        for(int i = 0; i < N; i++){
+            last[S.charAt(i) - 'a'] = i;
+        }
+        int j = 0;
+        int now = 0;
+        for(int i = 0; i < N; i++){
+            j = Math.max(j, last[S.charAt(i) - 'a']);
+            if(i == j){
+                res.add(i - now + 1);
+                now = i + 1;
+            }
+        }
+        return res;
+    }
 }
 ```
