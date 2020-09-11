@@ -16,6 +16,7 @@
   - [239 Sliding Window Maximum](#239-sliding-window-maximum)
 - [Tree](#tree)
   - [1305 All Elements in Two Binary Search Trees](#1305-all-elements-in-two-binary-search-trees)
+  - [108 Convert Sorted Array to Binary Search Tree](#108-convert-sorted-array-to-binary-search-tree)
 - [Other](#other)
   - [9 Palindrome Number](#9-palindrome-number)
   - [1 Two Sum](#1-two-sum)
@@ -39,6 +40,7 @@
   - [Valid Anagram](#valid-anagram)
   - [459 Repeated Substring Pattern](#459-repeated-substring-pattern)
   - [763 Partition Labels](#763-partition-labels)
+  - [835 Image Overlap](#835-image-overlap)
 # Attention
 ## 注意事项
 - [刷题需要注意的小细节](LeetCode-Attention.md)
@@ -576,8 +578,27 @@ Could you solve it in linear time?
         1  3  -1  -3 [5  3  6] 7       6
         1  3  -1  -3  5 [3  6  7]      7
 
-思路:[使用Deque双端队列](https://leetcode-cn.com/problems/sliding-window-maximum/solution/zui-da-suo-yin-dui-shuang-duan-dui-lie-cun-suo-yin/)
+思路: Brute Force 或者[使用Deque双端队列](https://leetcode-cn.com/problems/sliding-window-maximum/solution/zui-da-suo-yin-dui-shuang-duan-dui-lie-cun-suo-yin/)
 
+最简单直接的方法是遍历每个滑动窗口，找到每个窗口的最大值。一共有 N - k + 1 个滑动窗口，每个有 k 个元素，于是算法的时间复杂度为 {O}(N k)O(Nk)，表现较差。
+
+```java
+class Solution {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        int n = nums.length;
+        if (n * k == 0) return new int[0];
+        
+        int [] output = new int[n - k + 1];
+        for (int i = 0; i < n - k + 1; i++) {
+            int max = Integer.MIN_VALUE;
+            for(int j = i; j < i + k; j++) 
+                max = Math.max(max, nums[j]);
+            output[i] = max;
+        }
+        return output;
+    }
+}
+```
 ```java
 class Solution {
     public int[] maxSlidingWindow(int[] nums, int k) {
@@ -740,9 +761,43 @@ class Solution {
     }
 }
 ```
+## 108 Convert Sorted Array to Binary Search Tree
+Given an array where elements are sorted in ascending order, convert it to a height balanced BST.
 
+For this problem, a height-balanced binary tree is defined as a binary tree in which the depth of the two subtrees of every node never differ by more than 1.
 
+**Example:**
 
+    Given the sorted array: [-10,-3,0,5,9],
+
+    One possible answer is: [0,-3,9,-10,null,5], which represents the following height balanced BST:
+
+         0
+        / \
+      -3   9
+      /   /
+    -10  5
+
+```java
+class Solution {
+    public TreeNode sortedArrayToBST(int[] nums) {
+        return dfs(nums, 0, nums.length - 1);
+    }
+
+    private TreeNode dfs(int[] nums, int lo, int hi) {
+        if (lo > hi) {
+            return null;
+        } 
+        // 以升序数组的中间元素作为根节点 root。
+        int mid = lo + (hi - lo) / 2;
+        TreeNode root = new TreeNode(nums[mid]);
+        // 递归的构建 root 的左子树与右子树。
+        root.left = dfs(nums, lo, mid - 1);
+        root.right = dfs(nums, mid + 1, hi); 
+        return root;
+    }
+}
+```
 
 
 
@@ -1610,6 +1665,57 @@ class Solution {
             if(i == j){
                 res.add(i - now + 1);
                 now = i + 1;
+            }
+        }
+        return res;
+    }
+}
+```
+## 835 Image Overlap
+Two images A and B are given, represented as binary, square matrices of the same size.  (A binary matrix has only 0s and 1s as values.)
+
+We translate one image however we choose (sliding it left, right, up, or down any number of units), and place it on top of the other image.  After, the overlap of this translation is the number of positions that have a 1 in both images.
+
+(Note also that a translation does **not** include any kind of rotation.)
+
+What is the largest possible overlap?
+
+**Example 1:**
+
+    Input:  A = [[1,1,0],
+                [0,1,0],
+                [0,1,0]]
+            B = [[0,0,0],
+                [0,1,1],
+                [0,0,1]]
+    Output: 3
+    Explanation: We slide A to right by 1 unit and down by 1 unit.
+
+思路:这个题是一个很傻逼的题,我们采取Brute Force的方法,四个for循环嵌套.
+巧妙的点在于,我们new一个 N * 2 的数组用来存放偏移量,若果下次的偏移量一样的话,那么数组里的值++.\
+
+```java
+class Solution {
+    public int largestOverlap(int[][] A, int[][] B) {
+        int N = A.length;
+        int[][] count = new int[2 * N][2 * N];
+        for(int i = 0; i < N; i++){
+            for(int j = 0; j < N; j++){
+                if(A[i][j] == 1){
+                    for(int a = 0; a < N; a++){
+                        for(int b =0; b < N; b++){
+                            if(B[a][b] == 1){
+                                count[i - a + N][j - b + N]++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        int res = 0;
+        for(int[] row : count){
+            for(int col : row){
+                res = Math.max(res, col);
             }
         }
         return res;
