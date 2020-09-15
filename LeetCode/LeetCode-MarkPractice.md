@@ -3,20 +3,31 @@
   - [注意事项](#注意事项)
   - [需要注意的一些API](#需要注意的一些api)
 - [Record](#record)
-  - [Dynamic Programming](#dynamic-programming)
-    - [53 Maximum Subarray](#53-maximum-subarray)
-    - [152 Maximum Product Subarray](#152-maximum-product-subarray)
-  - [DFS](#dfs)
-    - [994 Rotting Oranges](#994-rotting-oranges)
+- [Dynamic Programming](#dynamic-programming)
+  - [53 Maximum Subarray](#53-maximum-subarray)
+  - [152 Maximum Product Subarray](#152-maximum-product-subarray)
+  - [91 Decode Ways](#91-decode-ways)
+  - [978 Longest Turbulent Subarray](#978-longest-turbulent-subarray)
+- [BackTrack](#backtrack)
+  - [216 Combination Sum III](#216-combination-sum-iii)
+- [DFS](#dfs)
+  - [994 Rotting Oranges](#994-rotting-oranges)
 - [Sliding Window](#sliding-window)
   - [3 Longest Substring Without Repeating Characters](#3-longest-substring-without-repeating-characters)
   - [76 Minimum Window Substring](#76-minimum-window-substring)
   - [220 Contains Duplicate III](#220-contains-duplicate-iii)
   - [209 Minimum Size Subarray Sum](#209-minimum-size-subarray-sum)
   - [239 Sliding Window Maximum](#239-sliding-window-maximum)
+  - [424 Longest Repeating Character Replacement](#424-longest-repeating-character-replacement)
+  - [567 Permutation in String](#567-permutation-in-string)
 - [Tree](#tree)
   - [1305 All Elements in Two Binary Search Trees](#1305-all-elements-in-two-binary-search-trees)
   - [108 Convert Sorted Array to Binary Search Tree](#108-convert-sorted-array-to-binary-search-tree)
+  - [110. Balanced Binary Tree](#110-balanced-binary-tree)
+  - [95 Unique Binary Search Trees II](#95-unique-binary-search-trees-ii)
+  - [96 Unique Binary Search Trees](#96-unique-binary-search-trees)
+  - [98 Validate Binary Search Tree](#98-validate-binary-search-tree)
+  - [99 Recover Binary Search Tree](#99-recover-binary-search-tree)
 - [Other](#other)
   - [9 Palindrome Number](#9-palindrome-number)
   - [1 Two Sum](#1-two-sum)
@@ -41,6 +52,7 @@
   - [459 Repeated Substring Pattern](#459-repeated-substring-pattern)
   - [763 Partition Labels](#763-partition-labels)
   - [835 Image Overlap](#835-image-overlap)
+  - [Bulls and Cows](#bulls-and-cows)
 # Attention
 ## 注意事项
 - [刷题需要注意的小细节](LeetCode-Attention.md)
@@ -68,11 +80,11 @@
 
 
 
-## Dynamic Programming
+# Dynamic Programming
 
     一部分详见 Data Structures & Algorithms 中的专题部分
 
-### 53 Maximum Subarray
+## 53 Maximum Subarray
 
 Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.
 
@@ -103,7 +115,7 @@ class Solution {
     }
 }
 ```
-### 152 Maximum Product Subarray
+## 152 Maximum Product Subarray
 
 Given an integer array nums, find the contiguous subarray within an array (containing at least one number) which has the largest product.
 
@@ -196,7 +208,216 @@ class Solution {
     }
 }
 ```
-## DFS
+
+## 91 Decode Ways
+A message containing letters from A-Z is being encoded to numbers using the following mapping:
+
+    'A' -> 1
+    'B' -> 2
+    ...
+    'Z' -> 26
+
+Given a **non-empty** string containing only digits, determine the total number of ways to decode it.
+
+**Example 1:**
+
+    Input: "12"
+    Output: 2
+    Explanation: It could be decoded as "AB" (1 2) or "L" (12).
+
+**Example 2:**
+
+    Input: "226"
+    Output: 3
+    Explanation: It could be decoded as "BZ" (2 26), "VF" (22 6), or "BBF" (2 2 6).
+
+这个题其实就是爬楼梯的进阶，只不过边界条件多了一些，需要考虑的多了一点
+
+**第 1 步：定义状态**
+
+既然结尾的字符很重要，在定义状态的时候可以这样定义：
+
+`dp[i]`：以 `s[i]` 结尾的前缀子串有多少种解码方法。
+
+**第 2 步：推导状态转移方程**
+
+根据题意：
+
+如果 `s[i] == '0'` ，字符 `s[i]` 就不能单独解码，所以当 `s[i] != '0'` 时，`dp[i] = dp[i - 1] * 1`。
+说明：为了得到长度为 i + 1 的前缀子串的解码个数，需要先得到长度为 i 的解码个数，再对 `s[i]` 单独解码，这里分了两步，根据「分步计数原理」，用乘法。这里的 1 表示乘法单位，语义上表示 `s[i]` 只有 1 种编码。
+
+如果当前字符和它前一个字符，能够解码，即 `10 <= int(s[i - 1..i]) <= 26`，即 `dp[i] += dp[i - 2] * 1`；
+说明：不同的解码方法，使用「加法」，理论依据是「分类计数的加法原理」，所以这里用 +=。
+
+注意：状态转移方程里出现了下标 `i - 2`，需要单独处理（如何单独处理，需要耐心调试）。
+
+第 3 步：初始化
+
+如果首字符为 0 ，一定解码不了，可以直接返回 0，非零情况下，`dp[0] = 1`；
+第 4 步：考虑输出
+
+输出是 `dp[len - 1]`，符合原始问题。
+
+第 5 步：考虑优化空间
+
+这里当前状态值与前面两个状态有关，因此可以使用三个变量滚动计算。但空间资源一般来说不紧张，不是优化的方向，故不考虑。
+
+```java
+class Solution {
+    public int numDecodings(String s) {
+        int N = s.length();
+        if(N == 0) return 0;
+        
+        int[] dp = new int[N];
+        
+        if(s.charAt(0) == '0') return 0;
+        
+        dp[0] = 1;
+        for(int i = 1; i < N; i++){
+            if((s.charAt(i) - '0') != 0){
+                dp[i] = dp[i- 1];
+            }
+            
+            int num = 10 * (s.charAt(i - 1) - '0') + (s.charAt(i) - '0');
+            if(num >= 10 && num <= 26){
+                if(i == 1){
+                    // System.out.println(dp[i]);
+                    // System.out.println("----------");
+                    dp[i] += dp[i - 1];
+                    
+                }else{
+                    dp[i] += dp[i - 2];
+                }
+            }
+        }
+        return dp[N - 1];
+    }
+}
+```
+## 978 Longest Turbulent Subarray
+A subarray A[i], A[i+1], ..., A[j] of A is said to be turbulent if and only if:
+
+- For i <= k < j, A[k] > A[k+1] when k is odd, and A[k] < A[k+1] when k is even;
+- OR, for i <= k < j, A[k] > A[k+1] when k is even, and A[k] < A[k+1] when k is odd.
+
+That is, the subarray is turbulent if the comparison sign flips between each adjacent pair of elements in the subarray.
+
+Return the **length** of a maximum size turbulent subarray of A.
+
+ 
+
+**Example 1:**
+
+    Input: [9,4,2,10,7,8,8,1,9]
+    Output: 5
+    Explanation: (A[1] > A[2] < A[3] > A[4] < A[5])
+
+**Example 2:**
+
+    Input: [4,8,12,16]
+    Output: 2
+
+**Example 3:**
+
+    Input: [100]
+    Output: 1
+
+思路：这个题很不错，既可以用DP写，也可以用Sliding Window写
+
+```java
+class Solution {
+    public int maxTurbulenceSize(int[] A) {
+        if(A.length==1){
+            return 1;
+        }
+        int[] dp = new int[A.length];
+        for(int i=1;i<A.length;i++){
+            //如果i和i-1的值相等，那么i位的初始值为1，譬如A={9,9}，它返回的长度为1，而不是2。
+            dp[i] = A[i]==A[i-1]?1:2;
+        }
+        //初始化dp以后，从2到N去计算最长长度。
+        //状态转移方程: dp[i] = dp[i-1] + 1;
+        //i位的可能最大长度可能是：i-1位上最大长度 + 1（包含i自己）
+        //那么什么时候可以加上自己算总长度呢，当i位和i-1位的大小正好跟i-1和i-2的大小情况相反。说明i成功可以加入到前面已经计算的总长度里。
+        //否则i位就是默认初始化的长度。
+        int max = dp[1];
+        for(int i=2;i<A.length;i++){
+            if(A[i-1]-A[i-2]>0&&A[i]-A[i-1]<0 || A[i-1]-A[i-2]<0&&A[i]-A[i-1]>0){
+                dp[i] = dp[i-1] + 1;
+            }
+            max = Math.max(max,dp[i]);
+        }
+        return max;
+    }
+}
+```
+
+
+# BackTrack
+## 216 Combination Sum III
+Find all possible combinations of k numbers that add up to a number n, given that only numbers from 1 to 9 can be used and each combination should be a unique set of numbers.
+
+**Note:**
+
+- All numbers will be positive integers.
+- The solution set must not contain duplicate combinations.
+
+**Example 1:**
+
+    Input: k = 3, n = 7
+    Output: [[1,2,4]]
+
+**Example 2:**
+
+    Input: k = 3, n = 9
+    Output: [[1,2,6], [1,3,5], [2,3,4]]
+
+树的dfs从上往下开始执行的时候因为递归分为递和归两部分（也就是往下传递和往回走），来看一个简单的例子，比如阶乘的递归过程，是先往下传递，然后再往回走
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200913162606.png)
+
+所以上面代码也一样，往下传递的时候我们要把当前节点的值加入到一个集合中，并且用n减去当前节点的值，返回的时候再把它给移除掉就行了。那么终止条件是什么呢，就是集合中的size等于k，并且n等于0，搞懂了上面的过程，代码就呼之欲出了
+
+
+```java
+class Solution {
+    public List<List<Integer>> combinationSum3(int k, int n) {
+        List<List<Integer>> res = new ArrayList<>();
+        Deque<Integer> path = new ArrayDeque<>();
+        dfs(k, n, 1, res, path);
+        return res;
+    }
+    
+    private void dfs(int k, int n, int start, List<List<Integer>> res, Deque<Integer> path){
+        if(path.size() == k && n == 0){
+            res.add(new ArrayList<>(path));
+            return;
+        }
+        
+        for(int i = start; i <= 9; i++){
+            path.addLast(i);
+            dfs(k, n - i, i + 1, res, path);
+            path.removeLast();
+        }
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# DFS
 
 **什么情况应当用 BFS 搜索**
 
@@ -234,7 +455,7 @@ while queue 非空:
 ```
 
 
-### 994 Rotting Oranges
+## 994 Rotting Oranges
 In a given grid, each cell can have one of three values:
 
 - the value 0 representing an empty cell;
@@ -612,7 +833,7 @@ class Solution {
         for(int i = 0; i < N; i++){
             // 当元素从左边界滑出的时候，如果它恰恰好是滑动窗口的最大值
             // 那么将它弹出
-            while(!deque.isEmpty() && deque.peekFirst == i - k){
+            while(!deque.isEmpty() && deque.peekFirst() == i - k){
                 deque.pollFirst();
             }
             // 如果滑动窗口非空，新进来的数比队列里已经存在的数还要大
@@ -623,11 +844,121 @@ class Solution {
             }
             deque.add(i);
             // 队首一定是滑动窗口的最大值的索引
+            // i >= k -1 代表窗口长度已经满足要求了，而不是初始阶段 
             if(i >= k - 1){
                 res[i - k + 1] = nums[deque.peekFirst];
             }
         }
         return res;
+    }
+}
+```
+## 424 Longest Repeating Character Replacement
+Given a string s that consists of only uppercase English letters, you can perform at most k operations on that string.
+
+In one operation, you can choose any character of the string and change it to any other uppercase English character.
+
+Find the length of the longest sub-string containing all repeating letters you can get after performing the above operations.
+
+Note:
+Both the string's length and k will not exceed 104.
+
+**Example 1:**
+
+    Input:
+    s = "ABAB", k = 2
+
+    Output:
+    4
+
+    Explanation:
+    Replace the two 'A's with two 'B's or vice versa.
+ 
+
+**Example 2:**
+
+    Input:
+    s = "AABABBA", k = 1
+
+    Output:
+    4
+
+    Explanation:
+    Replace the one 'A' in the middle with 'B' and form "AABBBBA".
+    The substring "BBBB" has the longest repeating letters, which is 4.
+
+```java
+class Solution {
+    public int characterReplacement(String s, int k) {
+        int left = 0, right = 0;
+        int N = s.length();
+        int[] count = new int[28];
+        int max = 0;
+        int res = 0;
+        while(right < N){
+            count[s.charAt(right) - 'A']++;
+            max = Math.max(max, count[s.charAt(right) - 'A']);
+            while(right - left + 1 - max > k){
+                count[s.charAt(left) - 'A']--;
+                left++;
+            }
+            res = Math.max(res, right - left + 1);
+            right++;
+        }
+        return res;
+    }
+}
+```
+## 567 Permutation in String
+Given two strings s1 and s2, write a function to return true if s2 contains the permutation of s1. In other words, one of the first string's permutations is the substring of the second string.
+
+ 
+
+**Example 1:**
+
+    Input: s1 = "ab" s2 = "eidbaooo"
+    Output: True
+    Explanation: s2 contains one permutation of s1 ("ba").
+
+**Example 2:**
+
+    Input:s1= "ab" s2 = "eidboaoo"
+    Output: False
+
+```java
+class Solution {
+    public boolean matches(int[] s1map, int[] s2map) {
+        for (int i = 0; i < 26; i++) {
+            if (s1map[i] != s2map[i])
+                return false;
+        }
+        return true;
+    }
+
+    public boolean checkInclusion(String s1, String s2) {
+        int N1 = s1.length();
+        int N2 = s2.length();
+        int[] c1 = new int[26];
+        int[] c2 = new int[26];
+        
+        if(N1 > N2) return false;
+        
+        for(int i = 0; i < N1; i++){
+            c1[s1.charAt(i) - 'a']++;
+            c2[s2.charAt(i) - 'a']++;
+        }
+        
+        for(int left = 0; left < N2 - N1; left++){
+            for(int i = 0; i < 26; i++){
+                if(matches(c1, c2)) {
+                    return true;
+                }
+            }
+            c2[s2.charAt(left) - 'a']--;
+            c2[s2.charAt(left + N1) - 'a']++;
+            
+        }      
+        return matches(c1, c2);
     }
 }
 ```
@@ -798,9 +1129,333 @@ class Solution {
     }
 }
 ```
+## 110. Balanced Binary Tree
+Given a binary tree, determine if it is height-balanced.
+
+For this problem, a height-balanced binary tree is defined as:
+
+a binary tree in which the left and right subtrees of every node differ in height by no more than 1.
+
+ 
+
+**Example 1:**
+
+Given the following tree `[3,9,20,null,null,15,7]`:
+
+          3
+         / \
+        9  20
+          /  \
+         15   7
+
+Return true.
+
+**Example 2:**
+
+Given the following tree `[1,2,2,3,3,null,null,4,4]`:
+
+          1
+         / \
+        2   2
+       / \
+      3   3
+     / \
+    4   4
+
+思路：[Leetcode有一篇文章写的很不错](https://leetcode-cn.com/problems/balanced-binary-tree/solution/ping-heng-er-cha-shu-by-leetcode-solution/)，这个题可以有两个思路，一个是**自顶向下**，一个是**自底向上**
+
+**自顶向下的递归:**
+```java
+class Solution {
+    public boolean isBalanced(TreeNode root) {
+        if (root == null) {
+            return true;
+        } else {
+            return Math.abs(height(root.left) - height(root.right)) <= 1 && isBalanced(root.left) && isBalanced(root.right);
+        }
+    }
+
+    public int height(TreeNode root) {
+        if (root == null) {
+            return 0;
+        } else {
+            return Math.max(height(root.left), height(root.right)) + 1;
+        }
+    }
+}
+```
+
+方法一由于是自顶向下递归，因此对于同一个节点，函数 \texttt{height}height 会被重复调用，导致时间复杂度较高。如果使用自底向上的做法，则对于每个节点，函数 \texttt{height}height 只会被调用一次。
+
+自底向上递归的做法类似于后序遍历，对于当前遍历到的节点，先递归地判断其左右子树是否平衡，再判断以当前节点为根的子树是否平衡。如果一棵子树是平衡的，则返回其高度（高度一定是非负整数），否则返回 -1−1。如果存在一棵子树不平衡，则整个二叉树一定不平衡。
+
+**自底向上的递归:**
+```java
+class Solution {
+    public boolean isBalanced(TreeNode root) {
+        return height(root) >= 0;
+    }
+
+    public int height(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        int leftHeight = height(root.left);
+        int rightHeight = height(root.right);
+        if (leftHeight == -1 || rightHeight == -1 || Math.abs(leftHeight - rightHeight) > 1) {
+            return -1;
+        } else {
+            return Math.max(leftHeight, rightHeight) + 1;
+        }
+    }
+}
+```
+## 95 Unique Binary Search Trees II
+Given an integer n, generate all structurally unique BST's (binary search trees) that store values 1 ... n.
+
+**Example:**
+
+    Input: 3
+    Output:
+    [
+      [1,null,3,2],
+      [3,2,null,1],
+      [3,1,null,null,2],
+      [2,1,3],
+      [1,null,2,null,3]
+    ]
+    Explanation:
+    The above output corresponds to the 5 unique BST's shown below:
+
+       1         3     3      2      1
+        \       /     /      / \      \
+         3     2     1      1   3      2
+        /     /       \                 \
+       2     1         2                 3
+
+
+```java
+class Solution {
+    public List<TreeNode> generateTrees(int n) {
+        if(n == 0) return new ArrayList<>();
+        return helper(1, n);
+    }
+    
+    public List<TreeNode> helper(int begin, int end){
+        List<TreeNode> res = new ArrayList<>();
+        
+        if(begin > end){
+            res.add(null);
+            return res;
+        }
+        
+        for(int i = begin; i <= end; i++){
+            List<TreeNode> left = helper(begin, i - 1);
+            List<TreeNode> right = helper(i + 1, end);
+            
+            for(TreeNode l : left){
+                for(TreeNode r : right){
+                    TreeNode cur = new TreeNode(i);
+                    cur.left = l;
+                    cur.right = r;
+                    res.add(cur);
+                }
+            }
+        }
+        return res;
+    }
+}
+```
+
+## 96 Unique Binary Search Trees
+Given n, how many structurally unique BST's (binary search trees) that store values 1 ... n?
+
+**Example:**
+
+    Input: 3
+    Output: 5
+    Explanation:
+    Given n = 3, there are a total of 5 unique BST's:
+
+       1         3     3      2      1
+        \       /     /      / \      \
+         3     2     1      1   3      2S
+        /     /       \                 \
+       2     1         2                 3
+
+思路：这其实是一个动态规划的题目，
+```java
+class Solution {
+    public int numTrees(int n) {
+        int[] dp = new int[n + 1];
+        
+        dp[0] = 1;
+        dp[1] = 1;
+        
+        for(int i = 2; i <= n; i++){
+            for(int j = 1; j <= i; j++){
+                dp[i] += dp[j - 1] * dp[i - j];
+            }
+        }
+        return dp[n];
+    }
+}
+```
+
+## 98 Validate Binary Search Tree
+Given a binary tree, determine if it is a valid binary search tree (BST).
+
+Assume a BST is defined as follows:
+
+The left subtree of a node contains only nodes with keys less than the node's key.
+The right subtree of a node contains only nodes with keys greater than the node's key.
+Both the left and right subtrees must also be binary search trees.
+ 
+
+**Example 1:**
+
+      2
+     / \
+    1   3
+
+    Input: [2,1,3]
+    Output: true
+
+**Example 2:**
+
+     5
+    / \
+    1   4
+       / \
+      3   6
+
+    Input: [5,1,4,null,null,3,6]
+    Output: false
+    Explanation: The root node's value is 5 but its right child's value is 4.
+
+要解决这道题首先我们要了解二叉搜索树有什么性质可以给我们利用，由题目给出的信息我们可以知道：**如果该二叉树的左子树不为空，则左子树上所有节点的值均小于它的根节点的值； 若它的右子树不空，则右子树上所有节点的值均大于它的根节点的值；它的左右子树也为二叉搜索树。**
+
+这启示我们设计一个递归函数 `helper(root, min, max)` 来递归判断，函数表示考虑以 `root` 为根的子树，判断子树中所有节点的值是否都在 `(l,r)(l,r)` 的范围内（注意是开区间）。如果 `root` 节点的值 `val` 不在 `(l,r)(l,r)` 的范围内说明不满足条件直接返回，否则我们要继续递归调用检查它的左右子树是否满足，如果都满足才说明这是一棵二叉搜索树。
+
+那么根据二叉搜索树的性质，在递归调用左子树时，我们需要把上界 `max` 改为 `root`，即调用 `helper(root.left, min, root)`，因为左子树里所有节点的值均小于它的根节点的值。同理递归调用右子树时，我们需要把下界 `lower` 改为 `root`，即调用 `helper(root.right, root, max)`。
 
 
 
+```java
+class Solution {
+    public boolean isValidBST(TreeNode root) {
+        return helper(root, null, null);
+    }
+    
+    public boolean helper(TreeNode root, TreeNode min, TreeNode max){
+        if(root == null) return true;
+        
+        if(min != null && root.val <= min.val) return false;
+        if(max != null && root.val >= max.val) return false;
+        
+        return helper(root.left, min, root) && helper(root.right, root, max);
+    }
+}
+```
+这个题还有一个中序遍历的方法，基于方法一中提及的性质，我们可以进一步知道二叉搜索树「中序遍历」得到的值构成的序列一定是升序的，这启示我们在中序遍历的时候实时检查当前节点的值是否大于前一个中序遍历到的节点的值即可。如果均大于说明这个序列是升序的，整棵树是二叉搜索树，否则不是，下面的代码我们使用栈来模拟中序遍历的过程。
+
+可能由读者不知道中序遍历是什么，我们这里简单提及一下，中序遍历是二叉树的一种遍历方式，它先遍历左子树，再遍历根节点，最后遍历右子树。而我们二叉搜索树保证了左子树的节点的值均小于根节点的值，根节点的值均小于右子树的值，因此中序遍历以后得到的序列一定是升序序列。
+
+```java
+class Solution {
+    long pre = Long.MIN_VALUE;
+    public boolean isValidBST(TreeNode root) {
+        if (root == null) {
+            return true;
+        }
+        // 访问左子树
+        if (!isValidBST(root.left)) {
+            return false;
+        }
+        // 访问当前节点：如果当前节点小于等于中序遍历的前一个节点，说明不满足BST，返回 false；否则继续遍历。
+        if (root.val <= pre) {
+            return false;
+        }
+        pre = root.val;
+        // 访问右子树
+        return isValidBST(root.right);
+    }
+}
+```
+## 99 Recover Binary Search Tree
+Two elements of a binary search tree (BST) are swapped by mistake.
+
+Recover the tree without changing its structure.
+
+**Example 1:**
+
+    Input: [1,3,null,null,2]
+
+         1
+        /
+       3
+        \
+         2
+
+    Output: [3,1,null,null,2]
+
+         3
+        /
+       1
+        \
+         2
+
+**Example 2:**
+
+    Input: [3,1,4,null,null,2]
+
+         3
+        / \
+       1   4
+      /
+     2
+
+    Output: [2,1,4,null,null,3]
+
+         2
+        / \
+       1   4
+      /
+     3
+
+思路：[LeetCode题解](https://leetcode-cn.com/problems/recover-binary-search-tree/solution/san-chong-jie-fa-xiang-xi-tu-jie-99-hui-fu-er-cha-/)，根据二叉搜索树的特性，如果我们中序遍历二叉搜索树存在list里面，那么他一定是有序的，所以我们就可以利用这个特性，然后对比遍历后的值，最后替换即可，但是这种方法需要我们开拓额外的空间，所以我们有优化的算法。
+
+```java
+class Solution {
+    public void recoverTree(TreeNode root) {
+        List<TreeNode> list = new ArrayList<>();
+        dfs(root, list);
+        TreeNode x = null;
+        TreeNode y = null;
+        
+        for(int i = 0; i < list.size() - 1; i++){
+            if(list.get(i).val > list.get(i + 1).val){
+                y = list.get(i + 1);
+                if(x == null) x = list.get(i);
+            }
+        }
+        
+        if(x != null && y != null){
+            int tem = x.val;
+            x.val = y.val;
+            y.val = tem;
+        }
+    }
+    
+    public void dfs(TreeNode root, List<TreeNode> list){
+        if(root == null) return;
+        
+        dfs(root.left, list);
+        list.add(root);
+        dfs(root.right, list);
+    }
+}
+```
 
 # Other
 ## 9 Palindrome Number
@@ -1692,7 +2347,7 @@ What is the largest possible overlap?
     Explanation: We slide A to right by 1 unit and down by 1 unit.
 
 思路:这个题是一个很傻逼的题,我们采取Brute Force的方法,四个for循环嵌套.
-巧妙的点在于,我们new一个 N * 2 的数组用来存放偏移量,若果下次的偏移量一样的话,那么数组里的值++.\
+巧妙的点在于,我们new一个 N * 2 的数组用来存放偏移量,若果下次的偏移量一样的话,那么数组里的值++.
 
 ```java
 class Solution {
@@ -1718,6 +2373,54 @@ class Solution {
                 res = Math.max(res, col);
             }
         }
+        return res;
+    }
+}
+```
+
+## Bulls and Cows
+You are playing the following Bulls and Cows game with your friend: You write down a number and ask your friend to guess what the number is. Each time your friend makes a guess, you provide a hint that indicates how many digits in said guess match your secret number exactly in both digit and position (called "bulls") and how many digits match the secret number but locate in the wrong position (called "cows"). Your friend will use successive guesses and hints to eventually derive the secret number.
+
+Write a function to return a hint according to the secret number and friend's guess, use A to indicate the bulls and B to indicate the cows. 
+
+Please note that both secret number and friend's guess may contain duplicate digits.
+
+**Example 1:**
+
+    Input: secret = "1807", guess = "7810"
+
+    Output: "1A3B"
+
+    Explanation: 1 bull and 3 cows. The bull is 8, the cows are 0, 1 and 7.
+
+**Example 2:**
+
+    Input: secret = "1123", guess = "0111"
+
+    Output: "1A1B"
+
+    Explanation: The 1st 1 in friend's guess is a bull, the 2nd or 3rd 1 is a cow.
+
+```java
+class Solution {
+    public String getHint(String secret, String guess) {
+        if(secret.length() != guess.length()) return "4B";
+        int N = secret.length();
+        int bull = 0, cows = 0;
+        int[] s = new int[10];
+        int[] g = new int[10];
+        for(int i = 0; i < N; i++){
+            if(secret.charAt(i) == guess.charAt(i)){
+                bull++;
+            }else{
+                s[secret.charAt(i) - '0']++;
+                g[guess.charAt(i) - '0']++;
+            }
+        }
+        for(int i = 0; i < s.length; i++){
+            cows += Math.min(s[i], g[i]);
+        }
+        String res = bull + "A" + cows + "B";
         return res;
     }
 }
