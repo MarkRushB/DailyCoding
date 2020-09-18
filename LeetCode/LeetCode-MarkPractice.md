@@ -28,6 +28,7 @@
   - [96 Unique Binary Search Trees](#96-unique-binary-search-trees)
   - [98 Validate Binary Search Tree](#98-validate-binary-search-tree)
   - [99 Recover Binary Search Tree](#99-recover-binary-search-tree)
+  - [236 Lowest Common Ancestor of a Binary Tree](#236-lowest-common-ancestor-of-a-binary-tree)
 - [Other](#other)
   - [9 Palindrome Number](#9-palindrome-number)
   - [1 Two Sum](#1-two-sum)
@@ -53,6 +54,7 @@
   - [763 Partition Labels](#763-partition-labels)
   - [835 Image Overlap](#835-image-overlap)
   - [Bulls and Cows](#bulls-and-cows)
+  - [1041. Robot Bounded In Circle](#1041-robot-bounded-in-circle)
 # Attention
 ## 注意事项
 - [刷题需要注意的小细节](LeetCode-Attention.md)
@@ -1457,6 +1459,50 @@ class Solution {
 }
 ```
 
+
+## 236 Lowest Common Ancestor of a Binary Tree
+Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
+
+According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow **a node to be a descendant of itself**).”
+
+Given the following binary tree:  root = `[3,5,1,6,2,0,8,null,null,7,4]`
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200917001854.png)
+
+**Example 1:**
+
+    Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+    Output: 3
+    Explanation: The LCA of nodes 5 and 1 is 3.
+
+**Example 2:**
+
+    Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4
+    Output: 5
+    Explanation: The LCA of nodes 5 and 4 is 5, since a node can be a descendant of itself according to the LCA definition.
+
+思路：
+- [二叉树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/solution/er-cha-shu-de-zui-jin-gong-gong-zu-xian-by-leetc-2/)
+- [二叉树的最近公共祖先（后序遍历 DFS ，清晰图解）](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/solution/236-er-cha-shu-de-zui-jin-gong-gong-zu-xian-hou-xu/)
+- [java代码递归和非递归图文详解](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/solution/javadai-ma-di-gui-he-fei-di-gui-tu-wen-xiang-jie-b/)
+
+```java
+    public TreeNode lowestCommonAncestor(TreeNode cur, TreeNode p, TreeNode q) {
+        if (cur == null || cur == p || cur == q)
+            return cur;
+        TreeNode left = lowestCommonAncestor(cur.left, p, q);
+        TreeNode right = lowestCommonAncestor(cur.right, p, q);
+        //如果left为空，说明这两个节点在cur结点的右子树上，我们只需要返回右子树查找的结果即可
+        if (left == null)
+            return right;
+        //同上
+        if (right == null)
+            return left;
+        //如果left和right都不为空，说明这两个节点一个在cur的左子树上一个在cur的右子树上，
+        //我们只需要返回cur结点即可。
+        return cur;
+    }
+```
 # Other
 ## 9 Palindrome Number
 
@@ -2423,5 +2469,82 @@ class Solution {
         String res = bull + "A" + cows + "B";
         return res;
     }
+}
+```
+
+## 1041. Robot Bounded In Circle
+On an infinite plane, a robot initially stands at (0, 0) and faces north.  The robot can receive one of three instructions:
+
+- "G": go straight 1 unit;
+- "L": turn 90 degrees to the left;
+- "R": turn 90 degress to the right.
+The robot performs the instructions given in order, and repeats them forever.
+
+Return true if and only if there exists a circle in the plane such that the robot never leaves the circle.
+
+**Example 1:**
+
+    Input: "GGLLGG"
+    Output: true
+    Explanation: 
+    The robot moves from (0,0) to (0,2), turns 180 degrees, and then returns to (0,0).
+    When repeating these instructions, the robot remains in the circle of radius 2 centered at the origin.
+
+**Example 2:**
+
+    Input: "GG"
+    Output: false
+    Explanation: 
+    The robot moves north indefinitely.
+
+**Example 3:**
+
+    Input: "GL"
+    Output: true
+    Explanation: 
+    The robot moves from (0, 0) -> (0, 1) -> (-1, 1) -> (-1, 0) -> (0, 0) -> ...
+
+看了很多人写的似乎都用死循环来判断最后是否会回到终点，其实有点多此一举了，因为只要走完一轮后，方向改变，即不是直走的话，最后无论再走多少轮总有一轮会走回终点。
+下面看代码吧，最后困于环也就两种情况。
+
+```java
+public boolean isRobotBounded(String instructions) {
+    
+	int dir = 0; // 方向: 0上   1右   2下   3左
+	int x = 0;   // x轴坐标
+	int y = 0;   // y轴坐标
+	char ch;
+	for(int i = 0; i < instructions.length(); i ++){
+		ch = instructions.charAt(i); // 逐个读取字符
+		if(ch == 'L'){
+			if(dir == 0)
+				dir = 3;
+			else
+				dir --;
+		}
+		if(ch == 'R'){
+			if(dir == 3)
+				dir = 0;
+			else
+				dir ++;
+		}
+		if(ch == 'G'){
+			switch(dir){
+			case 0: y ++; break;
+			case 1: x ++; break;
+			case 2: y --; break;
+			case 3: x --; break;
+			}
+		}
+	}
+	// 情况1: 走完一轮回到原点
+	if(x == 0 && y == 0)
+		return true;
+	// 情况2: 走完一轮,只要方向改变了(即不是直走了),最后不管走多少轮总会回到起点
+	if(dir != 0)
+		return true;
+	
+	return false;
+	
 }
 ```
