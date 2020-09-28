@@ -10,6 +10,7 @@
   - [152 Maximum Product Subarray](#152-maximum-product-subarray)
   - [91 Decode Ways](#91-decode-ways)
   - [978 Longest Turbulent Subarray](#978-longest-turbulent-subarray)
+  - [1143 Longest Common Subsequence](#1143-longest-common-subsequence)
 - [BackTrack](#backtrack)
   - [216 Combination Sum III](#216-combination-sum-iii)
 - [DFS](#dfs)
@@ -399,7 +400,66 @@ class Solution {
     }
 }
 ```
+## 1143 Longest Common Subsequence 
+Given two strings text1 and text2, return the length of their longest common subsequence.
 
+A subsequence of a string is a new string generated from the original string with some characters(can be none) deleted without changing the relative order of the remaining characters. (eg, "ace" is a subsequence of "abcde" while "aec" is not). A common subsequence of two strings is a subsequence that is common to both strings.
+
+ 
+
+If there is no common subsequence, return 0.
+
+ 
+
+**Example 1:**
+
+    Input: text1 = "abcde", text2 = "ace" 
+    Output: 3  
+    Explanation: The longest common subsequence is "ace" and its length is 3.
+
+**Example 2:**
+
+    Input: text1 = "abc", text2 = "abc"
+    Output: 3
+    Explanation: The longest common subsequence is "abc" and its length is 3.
+
+**Example 3:**
+
+    Input: text1 = "abc", text2 = "def"
+    Output: 0
+    Explanation: There is no such common subsequence, so the result is 0.
+
+**Constraints:**
+
+    1 <= text1.length <= 1000
+    1 <= text2.length <= 1000
+    The input strings consist of lowercase English characters only.
+
+**思路:** 前景提要：[这个视频](https://leetcode-cn.com/problems/longest-common-subsequence/solution/shi-pin-jiang-jie-shi-yong-dong-tai-gui-hua-qiu-ji/)讲得很不错，可以看一下。
+这个题可以通过画表格来分析，会让我们的思路更加清晰，如果当前我们看到两个字符串`S1[i] == S2[j]`的时候，当前这个Chaeacter肯定是要考虑进最长公共子串的，那么当前最长的字串就是`dp[i - 1][j - 1] + 1`，如果`S1[i] != S2[j]`，这个当前的Character肯定不被考虑，那么当前最长公共字串肯定要在此Character之前的两个字符串中找最长的那一个
+
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200927225640.png)
+```java
+class Solution {
+    public int longestCommonSubsequence(String text1, String text2) {
+        int N1 = text1.length();
+        int N2 = text2.length();
+        int[][] dp = new int[N1 + 1][N2 + 1];
+        dp[0][0] = 0;
+        
+        for(int i = 1; i <= N1; i++){
+            for(int j = 1; j <= N2; j++){
+                if(text1.charAt(i - 1) == text2.charAt(j - 1)) 
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                else
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+        return dp[N1][N2];
+    }
+}
+```
 
 # BackTrack
 ## 216 Combination Sum III
@@ -1576,6 +1636,94 @@ The tree has no more than 1,000 nodes and the values are in the range -1,000,000
     1.  5 -> 3
     2.  5 -> 2 -> 1
     3. -3 -> 11
+
+
+马克弟弟有话说：这个题微信老哥给的解释十分清晰：
+
+总结：
+这道题目引入了一个点：前缀和，就是到达当前元素的路径上，之前所有元素的和。
+
+那么在写代码的时候，如何表示前缀和？
+从root开始往下dfs, 记录下所到的每一个节点的前缀和
+
+比如：存储当前节点i路径下的所有父节点j到root的和。那么`sum[i,j] = sum[i] - sum[j]`
+
+如果你看不太懂，那个一步到位使用 hashmap的方法，那么咱们一步一步的拆解。
+
+咱们抛开链接的题解，先用最朴素的方法来做，代码如下
+
+```java
+int counter = 0;
+private void helper(TreeNode node, int[] sums, int level, int target){
+    // 先检查本节点是否存在于上面节点的和==target的情况
+    if(sums[level] == target) ++counter;
+    for(int i = 0; i < level; ++i){
+        // System.out.println(i + "\t" + (sums[level] - sums[i]));
+        if(sums[level] - sums[i] == target) ++counter;
+    }
+    // sum存储从根节点到本节点，每个节点的到root的和
+    if(node.left != null){
+        sums[level + 1] = sums[level] + node.left.val;
+        helper(node.left, sums, level + 1, target);
+        sums[level + 1] = 0;
+    }
+    if(node.right != null){
+        sums[level + 1] = sums[level] + node.right.val;
+        helper(node.right, sums, level + 1, target);
+        sums[level + 1] = 0;
+    }
+}
+public int pathSum(TreeNode root, int target) {
+    if(root == null) return 0;
+    int[] sums = new int[1001];
+    sums[0] = root.val;
+    helper(root, sums, 0, target );
+    return counter;
+}
+```
+
+完事了，我们考虑优化：其实所有的和可以用hash表存取，更快。
+所以，优化之后的代码，如下：
+
+```java
+int counter = 0;
+  private void helper(TreeNode node, HashMap<Integer, Integer> sums, int lastSum, int target){
+      // 检查与根节点
+      int thisSum = lastSum + node.val;
+      if(thisSum == target) ++counter;
+      //检查与其它节点
+      if(sums.containsKey(thisSum - target)) {
+          counter += sums.get(thisSum - target);
+      }
+      //将本节点加入
+      if(sums.containsKey(thisSum)){
+          sums.replace(thisSum, sums.get(thisSum) + 1);
+      }
+      else sums.put(thisSum, 1);
+      if(node.left != null){
+          helper(node.left, sums,thisSum, target);
+      }
+      if(node.right != null){
+          helper(node.right, sums, thisSum, target);
+      }
+      //将本节点挪出
+      if(sums.get(thisSum) > 1) sums.replace(thisSum, sums.get(thisSum) - 1);
+      else sums.remove(thisSum);
+  }
+  public int pathSum(TreeNode root, int target) {
+      if(root == null) return 0;
+      HashMap<Integer, Integer> sums = new HashMap<>();
+      helper(root, sums, 0, target );
+      return counter;
+  }
+```
+其实，这道题之所以困惑，主要是有
+（1）之前没有接触过前缀和的概念
+（2）题解直接用了hashmap, 缺少最朴素的解法
+
+所以，先用“ 笨” 办法写出来，再考虑优化
+
+---
 
 这道题用到了一个概念，叫前缀和。就是到达当前元素的路径上，之前所有元素的和。
 
