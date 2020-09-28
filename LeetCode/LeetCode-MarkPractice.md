@@ -13,6 +13,7 @@
   - [1143 Longest Common Subsequence](#1143-longest-common-subsequence)
 - [BackTrack](#backtrack)
   - [216 Combination Sum III](#216-combination-sum-iii)
+- [300 Longest Increasing Subsequence](#300-longest-increasing-subsequence)
 - [DFS](#dfs)
   - [994 Rotting Oranges](#994-rotting-oranges)
 - [Sliding Window](#sliding-window)
@@ -510,10 +511,56 @@ class Solution {
     }
 }
 ```
+# 300 Longest Increasing Subsequence
 
+Given an unsorted array of integers, find the length of longest increasing subsequence.
 
+**Example:**
 
+    Input: [10,9,2,5,3,7,101,18]
+    Output: 4 
+    Explanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4. 
 
+**Note:**
+
+    There may be more than one LIS combination, it is only necessary for you to return the length.
+    Your algorithm should run in O(n2) complexity.
+
+这是一道动态规划的问题
+
+状态定义：
+
+- `dp[i]` 的值代表 `nums` 前 i 个数字的最长子序列长度。
+转移方程： 设 `j∈[0,i)`，考虑每轮计算新 `dp[i]` 时，遍历 `[0,i)` 列表区间，做以下判断：
+
+- 当 `nums[i]>nums[j]` 时： `nums[i]` 可以接在 `nums[j]` 之后（此题要求严格递增），此情况下最长上升子序列长度为 `dp[j] + 1`；
+- 当 `nums[i]<=nums[j]` 时： `nums[i]` 无法接在 `nums[j]` 之后，此情况上升子序列不成立，跳过。
+- 上述所有 1. 情况 下计算出的 `dp[j] + 1` 的最大值，为直到 ii 的最长上升子序列长度（即 `dp[i]` ）。实现方式为遍历 j 时，每轮执行 `dp[i] = max(dp[i], dp[j] + 1)`。
+- 转移方程： `dp[i] = max(dp[i], dp[j] + 1) for j in [0, i)`。
+初始状态：
+
+`dp[i]` 所有元素置 1，含义是每个元素都至少可以单独成为子序列，此时长度都为 1。
+返回值：
+
+返回 dp 列表最大值，即可得到全局最长上升子序列长度。
+
+```java
+class Solution {
+    public int lengthOfLIS(int[] nums) {
+        if(nums.length == 0) return 0;
+        int[] dp = new int[nums.length];
+        int res = 0;
+        Arrays.fill(dp, 1);
+        for(int i = 0; i < nums.length; i++) {
+            for(int j = 0; j < i; j++) {
+                if(nums[j] < nums[i]) dp[i] = Math.max(dp[i], dp[j] + 1);
+            }
+            res = Math.max(res, dp[i]);
+        }
+        return res;
+    }
+}
+```
 
 
 
