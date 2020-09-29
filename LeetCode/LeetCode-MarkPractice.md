@@ -11,9 +11,10 @@
   - [91 Decode Ways](#91-decode-ways)
   - [978 Longest Turbulent Subarray](#978-longest-turbulent-subarray)
   - [1143 Longest Common Subsequence](#1143-longest-common-subsequence)
+  - [300 Longest Increasing Subsequence](#300-longest-increasing-subsequence)
+  - [516 Longest Palindromic Subsequence](#516-longest-palindromic-subsequence)
 - [BackTrack](#backtrack)
   - [216 Combination Sum III](#216-combination-sum-iii)
-- [300 Longest Increasing Subsequence](#300-longest-increasing-subsequence)
 - [DFS](#dfs)
   - [994 Rotting Oranges](#994-rotting-oranges)
 - [Sliding Window](#sliding-window)
@@ -24,6 +25,7 @@
   - [239 Sliding Window Maximum](#239-sliding-window-maximum)
   - [424 Longest Repeating Character Replacement](#424-longest-repeating-character-replacement)
   - [567 Permutation in String](#567-permutation-in-string)
+  - [713 Subarray Product Less Than K](#713-subarray-product-less-than-k)
 - [Tree](#tree)
   - [1305 All Elements in Two Binary Search Trees](#1305-all-elements-in-two-binary-search-trees)
   - [108 Convert Sorted Array to Binary Search Tree](#108-convert-sorted-array-to-binary-search-tree)
@@ -461,6 +463,141 @@ class Solution {
     }
 }
 ```
+## 300 Longest Increasing Subsequence
+
+Given an unsorted array of integers, find the length of longest increasing subsequence.
+
+**Example:**
+
+    Input: [10,9,2,5,3,7,101,18]
+    Output: 4 
+    Explanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4. 
+
+**Note:**
+
+    There may be more than one LIS combination, it is only necessary for you to return the length.
+    Your algorithm should run in O(n2) complexity.
+
+这是一道动态规划的问题
+
+状态定义：
+
+- `dp[i]` 的值代表 `nums` 前 i 个数字的最长子序列长度。
+转移方程： 设 `j∈[0,i)`，考虑每轮计算新 `dp[i]` 时，遍历 `[0,i)` 列表区间，做以下判断：
+
+- 当 `nums[i]>nums[j]` 时： `nums[i]` 可以接在 `nums[j]` 之后（此题要求严格递增），此情况下最长上升子序列长度为 `dp[j] + 1`；
+- 当 `nums[i]<=nums[j]` 时： `nums[i]` 无法接在 `nums[j]` 之后，此情况上升子序列不成立，跳过。
+- 上述所有 1. 情况 下计算出的 `dp[j] + 1` 的最大值，为直到 ii 的最长上升子序列长度（即 `dp[i]` ）。实现方式为遍历 j 时，每轮执行 `dp[i] = max(dp[i], dp[j] + 1)`。
+- 转移方程： `dp[i] = max(dp[i], dp[j] + 1) for j in [0, i)`。
+初始状态：
+
+`dp[i]` 所有元素置 1，含义是每个元素都至少可以单独成为子序列，此时长度都为 1。
+返回值：
+
+返回 dp 列表最大值，即可得到全局最长上升子序列长度。
+
+```java
+class Solution {
+    public int lengthOfLIS(int[] nums) {
+        if(nums.length == 0) return 0;
+        int[] dp = new int[nums.length];
+        int res = 0;
+        Arrays.fill(dp, 1);
+        for(int i = 0; i < nums.length; i++) {
+            for(int j = 0; j < i; j++) {
+                if(nums[j] < nums[i]) dp[i] = Math.max(dp[i], dp[j] + 1);
+            }
+            res = Math.max(res, dp[i]);
+        }
+        return res;
+    }
+}
+```
+## 516 Longest Palindromic Subsequence
+Given a string s, find the longest palindromic subsequence's length in s. You may assume that the maximum length of s is 1000.
+
+**Example 1:**
+
+    Input:
+        "bbbab"
+    Output:
+        4
+    One possible longest palindromic subsequence is "bbbb".
+ 
+
+**Example 2:**
+
+    Input:
+        "cbbd"
+    Output:
+        2
+    One possible longest palindromic subsequence is "bb".
+ 
+
+**Constraints:**
+
+    1 <= s.length <= 1000
+    s consists only of lowercase English letters.
+
+![](https://pic.leetcode-cn.com/65ddfb82b07e9d66fad03d34fd5ceb74523e9d93bfea6debe5148b9ed181fcd0-516_5.GIF)
+
+**状态**
+
+ `f[i][j]` 表示 s 的第 i 个字符到第 j 个字符组成的子串中，最长的回文序列长度是多少。
+
+**转移方程**
+
+ 如果 s 的第 i 个字符和第 j 个字符相同的话
+
+`f[i][j] = f[i + 1][j - 1] + 2`
+
+如果 s 的第 i 个字符和第 j 个字符不同的话
+
+`f[i][j] = max(f[i + 1][j], f[i][j - 1])`
+
+然后注意遍历顺序，i 从最后一个字符开始往前遍历，j 从 i + 1 开始往后遍历，这样可以保证每个子问题都已经算好了。
+
+**初始化**
+
+ `f[i][i] = 1` 单个字符的最长回文序列是 1
+
+**结果**
+
+ `f[0][n - 1]`
+
+ 关于这个思路，举个例子来想：
+
+    1、当 s[i] == s[j] 时，考虑 i 和 j 中间序列的奇偶个数， dp[i][j] = dp[i+1][j-1] + 2
+        对上述 dp[i][j] =  dp[i+1][j-1] + 2 的解释：
+            当序列为 b aa b 时， i = 0, j = 3，则 dp[0][3] = dp[1][2] + 2 = 4
+            当序列为 b a b 时，i = 0, j = 2，则 dp[0][2] = dp[1][1] + 2 = 3 
+            当序列为 b b 时， i = 0, j = 1，则 dp[0][1] = dp[1][0] = 0 + 2 = 2 (dp[1][0] 默认值为 0)
+            该式子同时考虑到了奇偶
+    2、当 s[i] != s[j] ，那么 dp[i][j] = Math.max(dp[i+1][j],dp[i][j-1])
+        对上述 dp[i][j] 式子的解释：
+            假如序列为 d c b c c（index：0-4），s[0] != s[4] ，则 dp[0][4] = Math.max(dp[0][3],dp[1,4]) = Math.max(2,3) = 3
+
+至于为什么是从后往前遍历的，就是要考虑到： i 从最后一个字符开始往前遍历，j 从 i + 1 开始往后遍历，这样可以保证每个子问题都已经算好了。i从0开始到话，j要从i-1递减到0这样遍历，相应到状态方程改成`f[i][j]=f[i-1][j+1]` or `f[i][j] = max(f[i-1][j], f[i][j+1]`。
+
+```java
+class Solution {
+    public int longestPalindromeSubseq(String s) {
+        int n = s.length();
+        int[][] f = new int[n][n];
+        for (int i = n - 1; i >= 0; i--) {
+            f[i][i] = 1;
+            for (int j = i + 1; j < n; j++) {
+                if (s.charAt(i) == s.charAt(j)) {
+                    f[i][j] = f[i + 1][j - 1] + 2;
+                } else {
+                    f[i][j] = Math.max(f[i + 1][j], f[i][j - 1]);
+                }
+            }
+        }
+        return f[0][n - 1];
+    }
+}
+```
 
 # BackTrack
 ## 216 Combination Sum III
@@ -511,56 +648,7 @@ class Solution {
     }
 }
 ```
-# 300 Longest Increasing Subsequence
 
-Given an unsorted array of integers, find the length of longest increasing subsequence.
-
-**Example:**
-
-    Input: [10,9,2,5,3,7,101,18]
-    Output: 4 
-    Explanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4. 
-
-**Note:**
-
-    There may be more than one LIS combination, it is only necessary for you to return the length.
-    Your algorithm should run in O(n2) complexity.
-
-这是一道动态规划的问题
-
-状态定义：
-
-- `dp[i]` 的值代表 `nums` 前 i 个数字的最长子序列长度。
-转移方程： 设 `j∈[0,i)`，考虑每轮计算新 `dp[i]` 时，遍历 `[0,i)` 列表区间，做以下判断：
-
-- 当 `nums[i]>nums[j]` 时： `nums[i]` 可以接在 `nums[j]` 之后（此题要求严格递增），此情况下最长上升子序列长度为 `dp[j] + 1`；
-- 当 `nums[i]<=nums[j]` 时： `nums[i]` 无法接在 `nums[j]` 之后，此情况上升子序列不成立，跳过。
-- 上述所有 1. 情况 下计算出的 `dp[j] + 1` 的最大值，为直到 ii 的最长上升子序列长度（即 `dp[i]` ）。实现方式为遍历 j 时，每轮执行 `dp[i] = max(dp[i], dp[j] + 1)`。
-- 转移方程： `dp[i] = max(dp[i], dp[j] + 1) for j in [0, i)`。
-初始状态：
-
-`dp[i]` 所有元素置 1，含义是每个元素都至少可以单独成为子序列，此时长度都为 1。
-返回值：
-
-返回 dp 列表最大值，即可得到全局最长上升子序列长度。
-
-```java
-class Solution {
-    public int lengthOfLIS(int[] nums) {
-        if(nums.length == 0) return 0;
-        int[] dp = new int[nums.length];
-        int res = 0;
-        Arrays.fill(dp, 1);
-        for(int i = 0; i < nums.length; i++) {
-            for(int j = 0; j < i; j++) {
-                if(nums[j] < nums[i]) dp[i] = Math.max(dp[i], dp[j] + 1);
-            }
-            res = Math.max(res, dp[i]);
-        }
-        return res;
-    }
-}
-```
 
 
 
@@ -1117,7 +1205,47 @@ class Solution {
     }
 }
 ```
+## 713 Subarray Product Less Than K
+Your are given an array of positive integers `nums`.
 
+Count and print the number of (contiguous) subarrays where the product of all the elements in the subarray is less than `k`.
+
+**Example 1:**
+
+    Input: nums = [10, 5, 2, 6], k = 100
+    Output: 8
+    Explanation: The 8 subarrays that have product less than 100 are: [10], [5], [2], [6], [10, 5], [5, 2], [2, 6], [5, 2, 6].
+    Note that [10, 5, 2] is not included as the product of 100 is not strictly less than k.
+
+**Note:**
+
+    0 < nums.length <= 50000.
+    0 < nums[i] < 1000.
+    0 <= k < 10^6.
+
+```java
+class Solution {
+    public int numSubarrayProductLessThanK(int[] nums, int k) {
+        int N = nums.length;
+        int count = 0;
+        int product= 1;
+        int left = 0, right = 0;
+        if(k == 0) return 0;
+        if(k == 1) return 0;
+        while(right < N){
+            product *= nums[right];
+            while(left <= right && product >= k){
+                product /= nums[left];
+                left++;
+            }
+            count += right - left + 1;
+            right++;
+        }
+        return count;
+    }
+}
+
+```
 # Tree
 ## 1305 All Elements in Two Binary Search Trees
 Given two binary search trees root1 and root2.
