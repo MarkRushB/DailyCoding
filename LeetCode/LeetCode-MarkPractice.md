@@ -14,6 +14,8 @@
   - [300 Longest Increasing Subsequence](#300-longest-increasing-subsequence)
   - [516 Longest Palindromic Subsequence](#516-longest-palindromic-subsequence)
 - [BackTrack](#backtrack)
+  - [39 Combination Sum](#39-combination-sum)
+  - [40 Combination Sum II](#40-combination-sum-ii)
   - [216 Combination Sum III](#216-combination-sum-iii)
 - [DFS](#dfs)
   - [994 Rotting Oranges](#994-rotting-oranges)
@@ -600,6 +602,333 @@ class Solution {
 ```
 
 # BackTrack
+## 39 Combination Sum
+
+Given an array of distinct integers candidates and a target integer target, return a list of all unique combinations of candidates where the chosen numbers sum to target. You may return the combinations in any order.
+
+The same number may be chosen from candidates an unlimited number of times. Two combinations are unique if the frequency of at least one of the chosen numbers is different.
+
+It is guaranteed that the number of unique combinations that sum up to target is less than 150 combinations for the given input.
+
+ 
+
+**Example 1:**
+
+    Input: candidates = [2,3,6,7], target = 7
+    Output: [[2,2,3],[7]]
+    Explanation:
+    2 and 3 are candidates, and 2 + 2 + 3 = 7. Note that 2 can be used multiple times.
+    7 is a candidate, and 7 = 7.
+    These are the only two combinations.
+
+**Example 2:**
+
+    Input: candidates = [2,3,5], target = 8
+    Output: [[2,2,2,2],[2,3,3],[3,5]]
+
+**Example 3:**
+
+    Input: candidates = [2], target = 1
+    Output: []
+
+**Example 4:**
+
+    Input: candidates = [1], target = 1
+    Output: [[1]]
+
+**Example 5:**
+
+    Input: candidates = [1], target = 2
+    Output: [[1,1]]
+ 
+
+**Constraints:**
+
+    1 <= candidates.length <= 30
+    1 <= candidates[i] <= 200
+    All elements of candidates are distinct.
+    1 <= target <= 500
+
+ 以输入：`candidates = [2, 3, 6, 7]`, `target = 7` 为例：
+
+ ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201002231223.png)
+
+**说明：**
+
+- 以 `target = 7` 为 根结点 ，创建一个分支的时 做减法 ；
+- 每一个箭头表示：从父亲结点的数值减去边上的数值，得到孩子结点的数值。边的值就是题目中给出的 candidate 数组的每个元素的值；
+- 减到 00 或者负数的时候停止，即：结点 00 和负数结点成为叶子结点；
+- 所有从根结点到结点 00 的路径（只能从上往下，没有回路）就是题目要找的一个结果。
+
+这棵树有 44 个叶子结点的值 00，对应的路径列表是 `[[2, 2, 3], [2, 3, 2], [3, 2, 2], [7]]`，而示例中给出的输出只有 [[7], [2, 2, 3]]。即：题目中要求每一个符合要求的解是 不计算顺序 的。下面我们分析为什么会产生重复。
+
+**针对具体例子分析重复路径产生的原因（难点）**
+
+产生重复的原因是：在每一个结点，做减法，展开分支的时候，由于题目中说 **每一个元素可以重复使用**，我们考虑了 **所有的** 候选数，因此出现了重复的列表。
+
+一种简单的去重方案是借助哈希表的天然去重的功能，但实际操作一下，就会发现并没有那么容易。
+
+可不可以在搜索的时候就去重呢？答案是可以的。遇到这一类相同元素不计算顺序的问题，我们在搜索的时候就需要 **按某种顺序搜索**。具体的做法是：每一次搜索的时候设置 **下一轮搜索的起点** begin，请看下图。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201002231424.png)
+
+即：从每一层的第 2 个结点开始，都不能再搜索产生同一层结点已经使用过的 candidate 里的元素。
+
+```java
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+
+public class Solution {
+
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        int len = candidates.length;
+        List<List<Integer>> res = new ArrayList<>();
+        if (len == 0) {
+            return res;
+        }
+
+        Deque<Integer> path = new ArrayDeque<>();
+        dfs(candidates, 0, len, target, path, res);
+        return res;
+    }
+
+    /**
+     * @param candidates 候选数组
+     * @param begin      搜索起点
+     * @param len        冗余变量，是 candidates 里的属性，可以不传
+     * @param target     每减去一个元素，目标值变小
+     * @param path       从根结点到叶子结点的路径，是一个栈
+     * @param res        结果集列表
+     */
+    private void dfs(int[] candidates, int begin, int len, int target, Deque<Integer> path, List<List<Integer>> res) {
+        // target 为负数和 0 的时候不再产生新的孩子结点
+        if (target < 0) {
+            return;
+        }
+        if (target == 0) {
+            res.add(new ArrayList<>(path));
+            return;
+        }
+
+        // 重点理解这里从 begin 开始搜索的语意
+        for (int i = begin; i < len; i++) {
+            path.addLast(candidates[i]);
+
+            // 注意：由于每一个元素可以重复使用，下一轮搜索的起点依然是 i，这里非常容易弄错
+            dfs(candidates, i, len, target - candidates[i], path, res);
+
+            // 状态重置
+            path.removeLast();
+        }
+    }
+}
+```
+改进：剪枝
+```java
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.List;
+
+public class Solution {
+
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        int len = candidates.length;
+        List<List<Integer>> res = new ArrayList<>();
+        if (len == 0) {
+            return res;
+        }
+
+        // 排序是剪枝的前提
+        Arrays.sort(candidates);
+        Deque<Integer> path = new ArrayDeque<>();
+        dfs(candidates, 0, len, target, path, res);
+        return res;
+    }
+
+    private void dfs(int[] candidates, int begin, int len, int target, Deque<Integer> path, List<List<Integer>> res) {
+        // 由于进入更深层的时候，小于 0 的部分被剪枝，因此递归终止条件值只判断等于 0 的情况
+        if (target == 0) {
+            res.add(new ArrayList<>(path));
+            return;
+        }
+
+        for (int i = begin; i < len; i++) {
+            // 重点理解这里剪枝，前提是候选数组已经有序，
+            if (target - candidates[i] < 0) {
+                break;
+            }
+            
+            path.addLast(candidates[i]);
+            dfs(candidates, i, len, target - candidates[i], path, res);
+            path.removeLast();
+        }
+    }
+}
+```
+
+
+
+
+
+## 40 Combination Sum II
+Given a collection of candidate numbers (candidates) and a target number (target), find all unique combinations in candidates where the candidate numbers sums to target.
+
+Each number in candidates may only be used once in the combination.
+
+**Note:**
+
+- All numbers (including target) will be positive integers.
+- The solution set must not contain duplicate combinations.
+
+**Example 1:**
+
+    Input: candidates = [10,1,2,7,6,1,5], target = 8,
+    A solution set is:
+    [
+    [1, 7],
+    [1, 2, 5],
+    [2, 6],
+    [1, 1, 6]
+    ]
+
+**Example 2:**
+
+    Input: candidates = [2,5,2,1,2], target = 5,
+    A solution set is:
+    [
+    [1,2,2],
+    [5]
+    ]
+
+
+这道题与上一问的区别在于：
+
+    第 39 题：candidates 中的数字可以无限制重复被选取；
+    第 40 题：candidates 中的每个数字在每个组合中只能使用一次。
+
+相同点是：相同数字列表的不同排列视为一个结果。
+
+**如何去掉重复的集合（重点）**
+
+为了使得解集不包含重复的组合。有以下 22 种方案：
+
+1. 使用 哈希表 天然的去重功能，但是编码相对复杂；
+2. 这里我们使用和第 39 题和第 15 题（三数之和）类似的思路：不重复就需要按 顺序 搜索， 在搜索的过程中检测分支是否会出现重复结果 。注意：这里的顺序不仅仅指数组 candidates 有序，还指按照一定顺序搜索结果。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201003000606.png)
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201003000613.png)
+
+由第 39 题我们知道，数组 candidates 有序，也是 深度优先遍历 过程中实现「剪枝」的前提。
+将数组先排序的思路来自于这个问题：去掉一个数组中重复的元素。很容易想到的方案是：先对数组 升序 排序，重复的元素一定不是排好序以后相同的连续数组区域的第 11 个元素。也就是说，剪枝发生在：同一层数值相同的结点第 22、33 ... 个结点，因为数值相同的第 11 个结点已经搜索出了包含了这个数值的全部结果，同一层的其它结点，候选数的个数更少，搜索出的结果一定不会比第 11 个结点更多，并且是第 11 个结点的子集。（说明：这段文字很拗口，大家可以结合具体例子，在纸上写写画画进行理解。）
+
+```java
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.List;
+
+public class Solution {
+
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+        int len = candidates.length;
+        List<List<Integer>> res = new ArrayList<>();
+        if (len == 0) {
+            return res;
+        }
+
+        // 关键步骤
+        Arrays.sort(candidates);
+
+        Deque<Integer> path = new ArrayDeque<>(len);
+        dfs(candidates, len, 0, target, path, res);
+        return res;
+    }
+
+    /**
+     * @param candidates 候选数组
+     * @param len        冗余变量
+     * @param begin      从候选数组的 begin 位置开始搜索
+     * @param target     表示剩余，这个值一开始等于 target，基于题目中说明的"所有数字（包括目标数）都是正整数"这个条件
+     * @param path       从根结点到叶子结点的路径
+     * @param res
+     */
+    private void dfs(int[] candidates, int len, int begin, int target, Deque<Integer> path, List<List<Integer>> res) {
+        if (target == 0) {
+            res.add(new ArrayList<>(path));
+            return;
+        }
+        for (int i = begin; i < len; i++) {
+            // 大剪枝：减去 candidates[i] 小于 0，减去后面的 candidates[i + 1]、candidates[i + 2] 肯定也小于 0，因此用 break
+            if (target - candidates[i] < 0) {
+                break;
+            }
+
+            // 小剪枝：同一层相同数值的结点，从第 2 个开始，候选数更少，结果一定发生重复，因此跳过，用 continue
+            if (i > begin && candidates[i] == candidates[i - 1]) {
+                continue;
+            }
+
+            path.addLast(candidates[i]);
+            // 调试语句 ①
+            // System.out.println("递归之前 => " + path + "，剩余 = " + (target - candidates[i]));
+
+            // 因为元素不可以重复使用，这里递归传递下去的是 i + 1 而不是 i
+            dfs(candidates, len, i + 1, target - candidates[i], path, res);
+
+            path.removeLast();
+            // 调试语句 ②
+            // System.out.println("递归之后 => " + path + "，剩余 = " + (target - candidates[i]));
+        }
+    }
+
+    public static void main(String[] args) {
+        int[] candidates = new int[]{10, 1, 2, 7, 6, 1, 5};
+        int target = 8;
+        Solution solution = new Solution();
+        List<List<Integer>> res = solution.combinationSum2(candidates, target);
+        System.out.println("输出 => " + res);
+    }
+}
+```
+
+解释语句: `if cur > begin and candidates[cur-1] == candidates[cur]` 是如何避免重复的：
+
+    这个避免重复当思想是在是太重要了。
+    这个方法最重要的作用是，可以让同一层级，不出现相同的元素。即
+                     1
+                    / \
+                   2   2  这种情况不会发生 但是却允许了不同层级之间的重复即：
+                  /     \
+                 5       5
+                    例2
+                     1
+                    /
+                   2      这种情况确是允许的
+                  /
+                 2  
+                    
+    为何会有这种神奇的效果呢？
+    首先 cur-1 == cur 是用于判定当前元素是否和之前元素相同的语句。这个语句就能砍掉例1。
+    可是问题来了，如果把所有当前与之前一个元素相同的都砍掉，那么例二的情况也会消失。 
+    因为当第二个2出现的时候，他就和前一个2相同了。
+                    
+    那么如何保留例2呢？
+    那么就用cur > begin 来避免这种情况，你发现例1中的两个2是处在同一个层级上的，
+    例2的两个2是处在不同层级上的。
+    在一个for循环中，所有被遍历到的数都是属于一个层级的。我们要让一个层级中，
+    必须出现且只出现一个2，那么就放过第一个出现重复的2，但不放过后面出现的2。
+    第一个出现的2的特点就是 cur == begin. 第二个出现的2 特点是cur > begin.
+
+
+
+
+
 ## 216 Combination Sum III
 Find all possible combinations of k numbers that add up to a number n, given that only numbers from 1 to 9 can be used and each combination should be a unique set of numbers.
 
@@ -1222,6 +1551,40 @@ Count and print the number of (contiguous) subarrays where the product of all th
     0 < nums.length <= 50000.
     0 < nums[i] < 1000.
     0 <= k < 10^6.
+
+最后我们为什么采用这个等式呢？
+
+`ans += r - l + 1`
+
+    对于一个长度为len的连续的满足条件的子数组, 我们可以把它进行细分
+    第一次,细分为1个单位长度, 可以得到len个
+    第二次,细分为2个单位长度, 可以得到len-1个
+    ......
+    第len次,细分为len个单位长度, 可以得到1个
+    总共有1+2+...+len-1+len个
+
+当r右移时,若乘积超出范围了, 我们需要从左边摘除一部分数值使得乘积重新满足条件, 需要摘多少? 由于nums中元素均为正整数, 所以乘积必定大于等于1, 而题目要求不能取等号, 所以最坏的情况是l=r+1, 即左指针移到了右指针右边, 此时ans+=0
+
+如果经过摘除左边元素后l依然小于r,怎么推出`ans+=r-l+1`
+
+    r左边的元素均已经考虑了所有的组合, 所以我们只要考虑含r的组合, 显然含r的组合数刚好是子数组的长度
+    举个例子 [...5,6,3,4,8,...] 假设r遍历到了数值8的位置, l经过摘除后移到了数值5处, 
+    此时所有的组合情况是:
+    [56348]
+    [6348]
+    [348]
+    [48]
+    [8]
+    即5种
+
+具体实现时,需要注意俩个细节
+
+`if k<=1: return 0`
+`while l<=r and product >= k:`
+
+
+
+
 
 ```java
 class Solution {
