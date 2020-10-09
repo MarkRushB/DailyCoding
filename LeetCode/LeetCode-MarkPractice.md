@@ -38,6 +38,7 @@
   - [99 Recover Binary Search Tree](#99-recover-binary-search-tree)
   - [236 Lowest Common Ancestor of a Binary Tree](#236-lowest-common-ancestor-of-a-binary-tree)
   - [437 Path Sum III](#437-path-sum-iii)
+  - [105 Construct Binary Tree from Preorder and Inorder Traversal](#105-construct-binary-tree-from-preorder-and-inorder-traversal)
 - [Other](#other)
   - [9 Palindrome Number](#9-palindrome-number)
   - [1 Two Sum](#1-two-sum)
@@ -2350,7 +2351,58 @@ class Solution {
 }
 ```
 
+## 105 Construct Binary Tree from Preorder and Inorder Traversal
+Given preorder and inorder traversal of a tree, construct the binary tree.
 
+Note:
+You may assume that duplicates do not exist in the tree.
+
+For example, given
+
+    preorder = [3,9,20,15,7]
+    inorder = [9,3,15,20,7]
+
+Return the following binary tree:
+
+        3
+       / \
+      9  20
+        /  \
+       15   7
+
+这道题，典型的递归求解，通过分析前序和中序的特点：
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201008232803.png)
+
+利用前序遍历第一个节点就是根节点的特点，我们可以将中序遍历序列拆分，并找到整个树的左右子树，然后我们进一步递归，分别找左子树和右子树的根节点......
+
+```java
+class Solution {
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        int preLen = preorder.length;
+        int inLen = inorder.length;
+    
+        Map<Integer, Integer> map = new HashMap<>();
+        for(int i = 0; i < inLen; i++){
+            map.put(inorder[i], i);
+        }
+        
+        return helper(preorder, map, 0, preLen - 1, 0, inLen - 1);  
+    }
+    
+    private TreeNode helper(int[] preorder, Map<Integer, Integer> map, int preLeft, int preRight, int inLeft, int inRight){
+        if(preLeft > preRight || inLeft > inRight) return null;
+        
+        int rootVal = preorder[preLeft];
+        TreeNode root = new TreeNode(rootVal);
+        int pIndex=  map.get(rootVal);
+        
+        root.left = helper(preorder, map, preLeft + 1, pIndex - inLeft + preLeft, inLeft, pIndex - 1);
+        root.right = helper(preorder, map, pIndex - inLeft + preLeft + 1, preRight, pIndex + 1, inRight);
+        return root;
+    }
+}
+```
 
 
 
