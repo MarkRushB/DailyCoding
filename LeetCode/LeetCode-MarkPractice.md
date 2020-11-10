@@ -1766,7 +1766,7 @@ class Solution {
         if (lo > hi) {
             return null;
         } 
-        // 以升序数组的中间元素作为根节点 root。
+        // 以升序数组的中间元素作为根节点 root����
         int mid = lo + (hi - lo) / 2;
         TreeNode root = new TreeNode(nums[mid]);
         // 递归的构建 root 的左子树与右子树。
@@ -2375,6 +2375,8 @@ Return the following binary tree:
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201008232803.png)
 
 利用前序遍历第一个节点就是根节点的特点，我们可以将中序遍历序列拆分，并找到整个树的左右子树，然后我们进一步递归，分别找左子树和右子树的根节点......
+
+递归跳出的条件就是`preLeft > preRight || inLeft > inRight`
 
 ```java
 class Solution {
