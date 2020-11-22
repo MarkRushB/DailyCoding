@@ -40,8 +40,8 @@
 ### Leetcode
 ![](https://img.shields.io/badge/Status-Updating-black)
 >Mark的刷题总结，保持更新
-- [Practice](/DailyCoding/LeetCode/LeetCode-MarkPractice.md)
-- [Attention](/DailyCoding/LeetCode/LeetCode-Attention.md)
+- [Practice](LeetCode/LeetCode-MarkPractice.md)
+- [Attention](LeetCode/LeetCode-Attention.md)
 ### NEU Course
 ![](https://img.shields.io/badge/Status-Finished-black)
 >Mark NEU AED课程的quiz题，已完结
