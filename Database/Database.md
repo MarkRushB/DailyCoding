@@ -143,11 +143,11 @@ ELIMINATED (almost) all previous problems
 - Relationshipst
 
 ### Types of Keys
-|Key|Description|
-|:-:|:-|
-|Candidate|A field or combination of fields that uniquely identifies each record in a table. A table can have many candidate keys. Any one of the candidate keys can be chosen as the primary key of the table. Once the primary key is chosen, other candidate keys become just key fields, or alternate keys.|
-|Primary|The field that would always accept unique value and never hold a blank value is identified as primary key. The combination of two fields as a primary key is called composite primary key.|
-|Foreign|A field that matches the primary key column of another table.|
+|    Key    | Description                                                                                                                                                                                                                                                                                          |
+| :-------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Candidate | A field or combination of fields that uniquely identifies each record in a table. A table can have many candidate keys. Any one of the candidate keys can be chosen as the primary key of the table. Once the primary key is chosen, other candidate keys become just key fields, or alternate keys. |
+|  Primary  | The field that would always accept unique value and never hold a blank value is identified as primary key. The combination of two fields as a primary key is called composite primary key.                                                                                                           |
+|  Foreign  | A field that matches the primary key column of another table.                                                                                                                                                                                                                                        |
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200919130727.png)
 
@@ -374,3 +374,103 @@ What is Transitive Dependency?
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200926140840.png)
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200926140852.png)
+
+# Introduce to SQL
+
+## Role of SQL
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201020210703.png)
+
+- SQl commands are sent from front-end programs to back-end server
+- Back end server
+  - Parses command to determine action to be taken
+  - Completes the action
+  - Return results
+
+## SQL Commmand Categories
+
+**DDL：Data Definition Language**
+
+- DDL允许用户定义数据，也就是创建表、删除表、修改表结构这些操作。通常，DDL由数据库管理员执行。
+
+**DML：Data Manipulation Language**
+
+- DML为用户提供添加、删除、更新数据的能力，这些是应用程序对数据库的日常操作。
+
+**DQL：Data Query Language**
+
+- DQL允许用户查询数据，这也是通常最频繁的数据库日常操作。
+
+**DCL：Data Control Language**
+- Control user's permisssions
+
+
+|  DML   |     DDL      |  DCL   |
+| :----: | :----------: | :----: |
+| SELECT | CREATE TABLE | GRANT  |
+| INSERT | ALTER TABLE  | REVOKE |
+| UPDATE |  DROP TABLE  |  DENY  |
+| DELETE | CREATE VIEW  |        |
+|        |  ALTER VIEW  |        |
+|        |  DROP VIEW   |        |
+
+## SELECT (Transact-SQL)
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201020214241.png)
+
+### 基本查询
+```sql
+SELECT * FROM <表名>
+```
+SELECT语句其实并不要求一定要有FROM子句。
+
+```sql
+SELECT 100+200;
+```
+上述查询会直接计算出表达式的结果。虽然`SELECT`可以用作计算，但它并不是`SQL`的强项。但是，不带`FROM`子句的`SELECT`语句有一个有用的用途，就是用来判断当前到数据库的连接是否有效。许多检测工具会执行一条`SELECT 1`;来测试数据库连接。
+
+### 条件查询
+
+使用`SELECT * FROM <表名>`可以查询到一张表的所有记录。但是，很多时候，我们并不希望获得所有记录，而是根据条件选择性地获取指定条件的记录，例如，查询分数在80分以上的学生记录。在一张表有数百万记录的情况下，获取所有记录不仅费时，还费内存和网络带宽。
+
+`SELECT`语句可以通过`WHERE`条件来设定查询条件，查询结果是满足查询条件的记录。例如，要指定条件“分数在80分或以上的学生”，写成`WHERE`条件就是`SELECT * FROM students WHERE score >= 80`。
+
+其中，WHERE关键字后面的`score >= 80`就是条件。`score`是列名，该列存储了学生的成绩，因此，`score >= 80`就筛选出了指定条件的记录
+
+```sql
+SELECT * FROM <表名> WHERE <条件表达式>
+```
+
+条件表达式可以用`<条件1> AND <条件2>`表达满足条件1并且满足条件2。例如，符合条件“分数在80分或以上”，并且还符合条件“男生”，把这两个条件写出来：
+
+- 条件1：根据`score`列的数据判断：`score >= 80`；
+- 条件2：根据`gender`列的数据判断：`gender = 'M'`，注意`gender`列存储的是字符串，需要用单引号括起来。
+
+就可以写出`WHERE`条件：`score >= 80 AND gender = 'M'`：
+
+第二种条件是`<条件1> OR <条件2>`，表示满足条件1或者满足条件2。例如，把上述`AND`查询的两个条件改为`OR`，查询结果就是“分数在80分或以上”或者“男生”，满足任意之一的条件即选出该记录。
+
+第三种条件是`NOT <条件>`，表示“不符合该条件”的记录。例如，写一个“不是2班的学生”这个条件，可以先写出“是2班的学生”：`class_id = 2`，再加上NOT：`NOT class_id = 2`
+
+要组合三个或者更多的条件，就需要用小括号()表示如何进行条件运算。例如，编写一个复杂的条件：分数在80以下或者90以上，并且是男生: `SELECT * FROM students WHERE (score < 80 OR score > 90) AND gender = 'M';`
+
+SQL Logical Operators
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201020215323.png)
+
+常用的条件表达式：
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201020215148.png)
+
+# How to set database context
+
+## Problem with wrong database context
+- An error will occur for any sql command that uses a table that does not exist in the current context.
+- Data will be retrieved from the wrong table if table exists in both the current context and the intended context.
+- New tables, etc. will be created in wrong database
+
+## Accessing Table in a different database
+- Use a three-part name to access a table that exists in a different database than the context being applied in the current Query Editor window:
+  - `Databasename.schemaname.tablename`
+- Use a four-part name to access a table that exists in a different database than the context being applied in the current Query Editor window:
+  - `SQLservername.Databasename.schemaname.tablename`

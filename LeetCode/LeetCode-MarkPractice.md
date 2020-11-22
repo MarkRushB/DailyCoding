@@ -5,6 +5,7 @@
 - [Record](#record)
 - [LinkedList](#linkedlist)
   - [2 Add Two Numbers](#2-add-two-numbers)
+  - [23 Merge k Sorted Lists](#23-merge-k-sorted-lists)
 - [Dynamic Programming](#dynamic-programming)
   - [53 Maximum Subarray](#53-maximum-subarray)
   - [152 Maximum Product Subarray](#152-maximum-product-subarray)
@@ -135,7 +136,161 @@ class Solution {
 }
 ```
 
+## 23 Merge k Sorted Lists
+
+You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+
+Merge all the linked-lists into one sorted linked-list and return it.
+
+ 
+
+**Example 1:**
+
+    Input: lists = [[1,4,5],[1,3,4],[2,6]]
+    Output: [1,1,2,3,4,4,5,6]
+    Explanation: The linked-lists are:
+    [
+        1->4->5,
+        1->3->4,
+        2->6
+    ]
+    merging them into one sorted list:
+    1->1->2->3->4->4->5->6
+
+**Example 2:**
+
+    Input: lists = []
+    Output: []
+
+**Example 3:**
+
+    Input: lists = [[]]
+    Output: []
+ 
+
+Constraints:
+
+    k == lists.length
+    0 <= k <= 10^4
+    0 <= lists[i].length <= 500
+    -10^4 <= lists[i][j] <= 10^4
+    lists[i] is sorted in ascending order.
+    The sum of lists[i].length won't exceed 10^4.
+
+
+关于这个题，我们可以用堆做排序，这时候我们需要一种辅助数据结构-堆，有了堆这个数据结构，难度等级是困难的题目，瞬间变成简单了。
+我们把三个链表一股脑的全放到堆里面
+
+    1->4->5
+    1->3->4
+    2->6
+
+然后由堆根据节点的val自动排好序
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201109234409.png)
+
+这是一个小根堆，我们只需要每次输出堆顶的元素，直到整个堆为空即可。
+执行过程如下:
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201109234422.png)
+
+```java
+class Solution {
+	public ListNode mergeKLists(ListNode[] lists) {
+		if(lists==null || lists.length==0) {
+			return null;
+		}
+		//创建一个堆，并设置元素的排序方式
+		// PriorityQueue<ListNode> queue = new PriorityQueue(new Comparator<ListNode>() {
+		// 	public int compare(ListNode o1, ListNode o2) {
+		// 		return (o1.val - o2.val);
+		// 	}
+		// });
+        PriorityQueue<ListNode> queue = new PriorityQueue<>((v1, v2) -> v1.val - v2.val);
+		//遍历链表数组，然后将每个链表的每个节点都放入堆中
+		for(int i=0;i<lists.length;i++) {
+			while(lists[i] != null) {
+				queue.add(lists[i]);
+				lists[i] = lists[i].next;
+			}
+		}
+		ListNode dummy = new ListNode(-1);
+		ListNode head = dummy;
+		//从堆中不断取出元素，并将取出的元素串联起来
+		while( !queue.isEmpty() ) {
+			dummy.next = queue.poll();
+			dummy = dummy.next;
+		}
+		dummy.next = null;
+		return head.next;
+	}
+}
+```
+优化：
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201109234458.png)
+
+4个链表中的最小值，一定来自黄色的部分，黄色的部分就是一个小根堆。
+这个堆的元素个数是k个，也就是图中的4个。
+我们建立完k个大小的堆后，就不断的从堆中获取节点，如果获取到的节点不为空，即还有下一个节点，那么就将下一个节点放到堆中。利用这个特点我们就可以优化空间了，将原先的O(N)的空间复杂度优化到O(k)。
+
+![](https://pic.leetcode-cn.com/1d4fb6358f39ee7b4ad0b75119352a0fba44c550af0c310d594ae529717cbf3d-5.gif)
+
+```java
+class Solution {
+	public ListNode mergeKLists(ListNode[] lists) {
+		if(lists==null || lists.length==0) {
+			return null;
+		}
+		//创建一个小根堆，并定义好排序函数
+		// PriorityQueue<ListNode> queue = new PriorityQueue(new Comparator<ListNode>() {
+		// 	public int compare(ListNode o1, ListNode o2) {
+		// 		return (o1.val - o2.val);
+		// 	}
+		// });
+        PriorityQueue<ListNode> queue = new PriorityQueue<>((v1, v2) -> v1.val - v2.val);
+		ListNode dummy = new ListNode(-1);
+		ListNode cur = dummy;
+		//这里跟上一版不一样，不再是一股脑全部放到堆中
+		//而是只把k个链表的第一个节点放入到堆中
+		for(int i=0;i<lists.length;i++) {
+			ListNode head = lists[i];
+			if(head!=null) {
+				queue.add(head);
+			}
+		}
+		//之后不断从堆中取出节点，如果这个节点还有下一个节点，
+		//就将下个节点也放入堆中
+		while(queue.size()>0) {
+			ListNode node = queue.poll();
+			cur.next = node;
+			cur = cur.next;
+			if(node.next!=null) {
+				queue.add(node.next);
+			}
+		}
+		cur.next = null;
+		return dummy.next;
+	}
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Dynamic Programming
+
 
     一部分详见 Data Structures & Algorithms 中的专题部分
 
