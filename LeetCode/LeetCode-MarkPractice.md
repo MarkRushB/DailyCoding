@@ -38,6 +38,7 @@
   - [98 Validate Binary Search Tree](#98-validate-binary-search-tree)
   - [99 Recover Binary Search Tree](#99-recover-binary-search-tree)
   - [236 Lowest Common Ancestor of a Binary Tree](#236-lowest-common-ancestor-of-a-binary-tree)
+  - [113 Path Sum II](#113-path-sum-ii)
   - [437 Path Sum III](#437-path-sum-iii)
   - [105 Construct Binary Tree from Preorder and Inorder Traversal](#105-construct-binary-tree-from-preorder-and-inorder-traversal)
   - [250 Count Univalue Subtrees](#250-count-univalue-subtrees)
@@ -2304,7 +2305,77 @@ Given the following binary tree:  root = `[3,5,1,6,2,0,8,null,null,7,4]`
         return cur;
     }
 ```
+## 113 Path Sum II
+Given a binary tree and a sum, find all root-to-leaf paths where each path's sum equals the given sum.
 
+Note: A leaf is a node with no children.
+
+**Example:**
+
+Given the below binary tree and sum = 22,
+
+          5
+         / \
+        4   8
+       /   / \
+      11  13  4
+     /  \    / \
+    7    2  5   1
+
+**Return:**
+
+    [
+        [5,4,11,2],
+        [5,8,4,5]
+    ]
+
+思路：
+标准的回溯解题思路
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<List<Integer>> pathSum(TreeNode root, int sum) {
+        List<List<Integer>> res = new ArrayList<>();
+        Deque<Integer> path = new ArrayDeque<>();
+        
+        if(root == null){
+            return res;
+        }
+        
+        dfs(root, res, path, sum);
+        return res;
+        
+        
+    }
+    public void dfs(TreeNode root, List<List<Integer>> res, Deque<Integer> path, int sum){
+        if(root == null){
+            return;
+        }
+        path.addLast(root.val);
+        if(root.val == sum && root.left == null && root.right == null){
+            res.add(new ArrayList<>(path));
+        }
+        dfs(root.left, res, path, sum - root.val);
+        dfs(root.right, res, path, sum - root.val);
+        path.removeLast();
+    }
+}
+```
 ## 437 Path Sum III
 You are given a binary tree in which each node contains an integer value.
 
