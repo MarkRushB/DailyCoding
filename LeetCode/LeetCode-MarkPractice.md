@@ -40,6 +40,7 @@
   - [236 Lowest Common Ancestor of a Binary Tree](#236-lowest-common-ancestor-of-a-binary-tree)
   - [437 Path Sum III](#437-path-sum-iii)
   - [105 Construct Binary Tree from Preorder and Inorder Traversal](#105-construct-binary-tree-from-preorder-and-inorder-traversal)
+  - [250 Count Univalue Subtrees](#250-count-univalue-subtrees)
 - [Other](#other)
   - [9 Palindrome Number](#9-palindrome-number)
   - [1 Two Sum](#1-two-sum)
@@ -2561,11 +2562,83 @@ class Solution {
 }
 ```
 
+## 250 Count Univalue Subtrees
 
+Given the root of a binary tree, return the number of uni-value subtrees.
 
+A uni-value subtree means all nodes of the subtree have the same value.
 
+**Example 1:**
 
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201123191313.png)
 
+    Input: root = [5,1,5,5,5,null,5]
+    Output: 4
+
+**Example 2:**
+
+    Input: root = []
+    Output: 0
+
+**Example 3:**
+
+    Input: root = [5,5,5,5,5,null,5]
+    Output: 6
+
+思路：
+
+节点node若是同值子树点，则其左右子树首先都是同值子树点，并且左右孩子的val与node的val相同。介于此，遍历node的时候，对左右子树dfs返回一个bool值，若都为真，再将三者的val进行对比，否则直接返回false。
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int res;
+    public int countUnivalSubtrees(TreeNode root) {
+        helper(root);
+        return res;
+    }
+    
+    public boolean helper(TreeNode root){
+        if(root == null){
+            return true;
+        }
+        
+        //递归查看节点左边是不是满足同值子树
+        boolean left = helper(root.left);
+        //递归查看节点右边是不是满足同值子树
+        boolean right = helper(root.right);
+        //如果都是的话，在判断当前节点是不是满足同值子树
+        if(left && right){
+            //这里有两种情况
+            //1. 左子树为空 || 根结点值等于根的左子树的值
+            //2. 右子树为空 || 根结点值等于根的右子树的值
+            if(root.left != null && root.val != root.left.val){
+                return false;
+            }
+            if(root.right != null && root.val != root.right.val){
+                return false;
+            }
+            res++;
+            return true;
+        }
+        return false;
+    }
+}
+```
 
 # Other
 ## 9 Palindrome Number
@@ -2613,7 +2686,7 @@ class Solution {
 ## Maximum Subarray
 Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.  
 
-**Example:  **
+**Example:**
 
     Input: [-2,1,-3,4,-1,2,1,-5,4],  
     Output: 6  
