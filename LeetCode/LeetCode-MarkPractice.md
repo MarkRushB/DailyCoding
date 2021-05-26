@@ -1,81 +1,3 @@
-- [Attention](#attention)
-  - [注意事项](#注意事项)
-  - [需要注意的一些API](#需要注意的一些api)
-  - [2 Add Two Numbers](#2-add-two-numbers)
-  - [23 Merge k Sorted Lists](#23-merge-k-sorted-lists)
-- [Dynamic Programming](#dynamic-programming)
-  - [53 Maximum Subarray](#53-maximum-subarray)
-  - [152 Maximum Product Subarray](#152-maximum-product-subarray)
-  - [91 Decode Ways](#91-decode-ways)
-  - [978 Longest Turbulent Subarray](#978-longest-turbulent-subarray)
-  - [1143 Longest Common Subsequence](#1143-longest-common-subsequence)
-  - [300 Longest Increasing Subsequence](#300-longest-increasing-subsequence)
-  - [516 Longest Palindromic Subsequence](#516-longest-palindromic-subsequence)
-- [BackTrack](#backtrack)
-  - [39 Combination Sum](#39-combination-sum)
-  - [40 Combination Sum II](#40-combination-sum-ii)
-  - [216 Combination Sum III](#216-combination-sum-iii)
-- [DFS](#dfs)
-  - [Island Question](#island-question)
-    - [网格类问题的 DFS 遍历方法](#网格类问题的-dfs-遍历方法)
-      - [网格问题的基本概念](#网格问题的基本概念)
-      - [DFS 的基本结构](#dfs-的基本结构)
-      - [如何避免重复遍历](#如何避免重复遍历)
-    - [200. Number of Islands](#200-number-of-islands)
-    - [695. Max Area of Island](#695-max-area-of-island)
-    - [463. Island Perimeter](#463-island-perimeter)
-- [BFS](#bfs)
-  - [994 Rotting Oranges](#994-rotting-oranges)
-- [Sliding Window](#sliding-window)
-  - [3 Longest Substring Without Repeating Characters](#3-longest-substring-without-repeating-characters)
-  - [76 Minimum Window Substring](#76-minimum-window-substring)
-  - [220 Contains Duplicate III](#220-contains-duplicate-iii)
-  - [209 Minimum Size Subarray Sum](#209-minimum-size-subarray-sum)
-  - [239 Sliding Window Maximum](#239-sliding-window-maximum)
-  - [424 Longest Repeating Character Replacement](#424-longest-repeating-character-replacement)
-  - [567 Permutation in String](#567-permutation-in-string)
-  - [713 Subarray Product Less Than K](#713-subarray-product-less-than-k)
-- [Tree](#tree)
-  - [1305 All Elements in Two Binary Search Trees](#1305-all-elements-in-two-binary-search-trees)
-  - [108 Convert Sorted Array to Binary Search Tree](#108-convert-sorted-array-to-binary-search-tree)
-  - [110. Balanced Binary Tree](#110-balanced-binary-tree)
-  - [95 Unique Binary Search Trees II](#95-unique-binary-search-trees-ii)
-  - [96 Unique Binary Search Trees](#96-unique-binary-search-trees)
-  - [98 Validate Binary Search Tree](#98-validate-binary-search-tree)
-  - [99 Recover Binary Search Tree](#99-recover-binary-search-tree)
-  - [236 Lowest Common Ancestor of a Binary Tree](#236-lowest-common-ancestor-of-a-binary-tree)
-  - [113 Path Sum II](#113-path-sum-ii)
-  - [437 Path Sum III](#437-path-sum-iii)
-  - [105 Construct Binary Tree from Preorder and Inorder Traversal](#105-construct-binary-tree-from-preorder-and-inorder-traversal)
-  - [250 Count Univalue Subtrees](#250-count-univalue-subtrees)
-- [Other](#other)
-  - [9 Palindrome Number](#9-palindrome-number)
-  - [1 Two Sum](#1-two-sum)
-  - [Maximum Subarray](#maximum-subarray)
-  - [14 Longest Common Prefix](#14-longest-common-prefix)
-  - [204 Count Primes](#204-count-primes)
-  - [20 Valid Parentheses](#20-valid-parentheses)
-  - [169 Majority Element](#169-majority-element)
-  - [28 Implement strStr()](#28-implement-strstr)
-  - [21 Merge Two Sorted Lists](#21-merge-two-sorted-lists)
-  - [27 Remove Element](#27-remove-element)
-  - [58 Length of Last Word](#58-length-of-last-word)
-  - [83 Remove Duplicates from Sorted List](#83-remove-duplicates-from-sorted-list)
-  - [88 Merge Sorted Array](#88-merge-sorted-array)
-  - [100 Same Tree](#100-same-tree)
-  - [101 Symmetric Tree](#101-symmetric-tree)
-  - [436 Find Right Interval](#436-find-right-interval)
-  - [442 Find All Duplicates in an Array](#442-find-all-duplicates-in-an-array)
-  - [48 Rotate Image](#48-rotate-image)
-  - [7 Reverse Integer](#7-reverse-integer)
-  - [Valid Anagram](#valid-anagram)
-  - [459 Repeated Substring Pattern](#459-repeated-substring-pattern)
-  - [763 Partition Labels](#763-partition-labels)
-  - [835 Image Overlap](#835-image-overlap)
-  - [Bulls and Cows](#bulls-and-cows)
-  - [1041. Robot Bounded In Circle](#1041-robot-bounded-in-circle)
-  - [229 Majority Element II](#229-majority-element-ii)
-
 # Attention
 
 ## 注意事项
@@ -91,9 +13,9 @@
 - **`getOrDefault(Object key, V defaultValue)`** Returns the value to which the specified key is mapped, or defaultValue if this map contains no mapping for the key.
 - **`Character.toLowerCase`**
 
-## 2 Add Two Numbers
-
 You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order and each of their nodes contain a single digit. Add the two numbers and return it as a linked list.
+
+## 2 Add Two Numbers
 
 You may assume the two numbers do not contain any leading zero, except the number 0 itself.
 
@@ -111,17 +33,17 @@ class Solution {
         ListNode res = new ListNode(0);
         ListNode p = l1, q = l2, cur = res;
         int carry = 0;
-    
+  
         if(l1 == null && l2 == null) return null;
-    
+  
         while(p != null || q != null){
             int x = 0, y = 0;
             if(p != null) x = p.val;
             if(q != null) y = q.val;
             int sum = carry + x + y;
-        
+  
             carry = sum / 10;
-        
+  
             cur.next = new ListNode(sum % 10);
             cur = cur.next;
             if(p != null) p = p.next;
@@ -307,7 +229,7 @@ Explanation: [4,-1,2,1] has the largest sum = 6.
 class Solution {
     public int maxSubArray(int[] nums) {
         int N = nums.length;
-    
+  
         if(N == 0) return 0;
         int[] dp = new int[N];
         dp[0] = nums[0];
@@ -485,24 +407,24 @@ class Solution {
     public int numDecodings(String s) {
         int N = s.length();
         if(N == 0) return 0;
-    
+  
         int[] dp = new int[N];
-    
+  
         if(s.charAt(0) == '0') return 0;
-    
+  
         dp[0] = 1;
         for(int i = 1; i < N; i++){
             if((s.charAt(i) - '0') != 0){
                 dp[i] = dp[i- 1];
             }
-        
+  
             int num = 10 * (s.charAt(i - 1) - '0') + (s.charAt(i) - '0');
             if(num >= 10 && num <= 26){
                 if(i == 1){
                     // System.out.println(dp[i]);
                     // System.out.println("----------");
                     dp[i] += dp[i - 1];
-                
+          
                 }else{
                     dp[i] += dp[i - 2];
                 }
@@ -628,7 +550,7 @@ class Solution {
         int N2 = text2.length();
         int[][] dp = new int[N1 + 1][N2 + 1];
         dp[0][0] = 0;
-    
+  
         for(int i = 1; i <= N1; i++){
             for(int j = 1; j <= N2; j++){
                 if(text1.charAt(i - 1) == text2.charAt(j - 1)) 
@@ -961,7 +883,7 @@ public class Solution {
             if (target - candidates[i] < 0) {
                 break;
             }
-        
+  
             path.addLast(candidates[i]);
             dfs(candidates, i, len, target - candidates[i], path, res);
             path.removeLast();
@@ -1115,12 +1037,12 @@ public class Solution {
                2      这种情况确是允许的
               /
              2  
-            
+      
 为何会有这种神奇的效果呢？
 首先 cur-1 == cur 是用于判定当前元素是否和之前元素相同的语句。这个语句就能砍掉例1。
 可是问题来了，如果把所有当前与之前一个元素相同的都砍掉，那么例二的情况也会消失。 
 因为当第二个2出现的时候，他就和前一个2相同了。
-            
+      
 那么如何保留例2呢？
 那么就用cur > begin 来避免这种情况，你发现例1中的两个2是处在同一个层级上的，
 例2的两个2是处在不同层级上的。
@@ -1172,7 +1094,7 @@ class Solution {
             res.add(new ArrayList<>(path));
             return;
         }
-    
+  
         for(int i = start; i <= 9; i++){
             path.addLast(i);
             dfs(k, n - i, i + 1, res, path);
@@ -1181,11 +1103,94 @@ class Solution {
     }
 }
 ```
+
+# Subarray (preSum)
+
+## [523. Continuous Subarray Sum](https://leetcode.com/problems/continuous-subarray-sum/)
+
+Given an integer array nums and an integer k, return true if nums has a continuous subarray of size at least two whose elements sum up to a multiple of k, or false otherwise.
+
+An integer x is a multiple of k if there exists an integer n such that x = n * k. 0 is always a multiple of k.
+
+**Example 1:**
+
+```
+Input: nums = [23,2,4,6,7], k = 6
+Output: true
+Explanation: [2, 4] is a continuous subarray of size 2 whose elements sum up to 6.
+```
+
+**Example 2:**
+
+```
+Input: nums = [23,2,6,4,7], k = 6
+Output: true
+Explanation: [23, 2, 6, 4, 7] is an continuous subarray of size 5 whose elements sum up to 42.
+42 is a multiple of 6 because 42 = 7 * 6 and 7 is an integer.
+```
+
+**Example 3:**
+
+```
+Input: nums = [23,2,6,4,7], k = 13
+Output: false
+```
+
+思路分析：
+
+- 使用HashMap记录前缀和取模的值，以及该值对应的索引。`Map<Integer, Integer> map = new HashMap<>()`;键为`preSum % k`, 值为索引。
+- 在计算前缀和的过程中，如果前缀和取模的值出现重复，两个重复值之间的间隔大于1（题目要求子数组长度至少为2）则返回true，否则循环结束后返回false。然后这里我们来详细证明一下为什么这样做是正确的。
+- 首先，得知道`(A + B) % k = (A % k + B) % k`，加法减法没有区别，也就是`(A - B) % k = (A % k - B) % k`。
+  - 使用sum表示前缀和根据题目要求，`(sum[j] - sum[i]) % k = 0`也就是`(sum[j] % k - sum[i]) % k = 0`也就是`sum[j] % k - sum[i] = n * k`，其中n为非负整数。
+  - 然后对上式两边对k取余，即`sum[j] % k % k - sum[i] % k = n * k % k`，显然左边第一项就等于`sun[j] % k`，右边为0。
+  - 移项就得到`sum[j] % k = sum[i] % k`。
+  - 也就是说，如果子数组`[i, j - 1]`的和`sum[j] - sum[i]`是k的n倍，那么`sum[j] % k = sum[i] % k`。
+- 所以通过哈希表去查看是否会在求前缀和的过程中对k取模得到的值相等即可，也就是`map.containsKey(temp)`，记录每一个取余结果的索引的意义是：要求子数组的长度至少为2，所以当出现对k取模相等时，还要判断`i - map.get(temp) > 1`，如果成立，就返回true;否则继续循环。
+  - 注意这里不需要更新索引，因为是要求数组的最小长度，所以记录第一个索引就好。
+- 首先要将表示没有元素的那种情况记录`map.put(0, -1)`;
+- 其次要特殊处理k为0的情况，此时不能取模，这种情况是要求前缀和之差为0也就是`sum[i] == sum[j]`，所以map记录的就是前缀和而不是取余。所以在累加`sum += nums[i]`;之后记录值`map.put(temp, i)`;之前，要先处理在map中记录什么值`int temp = k == 0 ? sum : sum % k`。
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+public class Solution {
+
+    public boolean checkSubarraySum(int[] nums, int k) {
+        int sum = 0;
+
+        // key：区间 [0..i] 里所有元素的和 % k
+        // value：下标 i
+        Map<Integer, Integer> map = new HashMap<>();
+        // 理解初始化的意义
+        map.put(0, -1);
+        int len = nums.length;
+        for (int i = 0; i < len; i++) {
+            sum += nums[i];
+            if (k != 0) {
+                sum = sum % k;
+            }
+      
+            if (map.containsKey(sum)) {
+                if (i - map.get(sum) > 1) {
+                    return true;
+                }
+            } else {
+                map.put(sum, i);
+            }
+
+        }
+        return false;
+    }
+}
+```
+
 # DFS
 
 ## Island Question
 
 ### 网格类问题的 DFS 遍历方法
+
 #### 网格问题的基本概念
 
 我们首先明确一下岛屿问题中的网格结构是如何定义的，以方便我们后面的讨论。
@@ -1256,6 +1261,7 @@ boolean inArea(int[][] grid, int r, int c) {
 ```
 
 #### 如何避免重复遍历
+
 网格结构的 DFS 与二叉树的 DFS 最大的不同之处在于，遍历中可能遇到遍历过的结点。这是因为，网格结构本质上是一个「图」，我们可以把每个格子看成图中的结点，每个结点有向上下左右的四条边。在图中遍历时，自然可能遇到重复遍历结点。
 
 这时候，DFS 可能会不停地「兜圈子」，永远停不下来，如下图所示：
@@ -1281,7 +1287,7 @@ void dfs(int[][] grid, int r, int c) {
         return;
     }
     grid[r][c] = 2; // 将格子标记为「已遍历过」
-    
+  
     // 访问上、下、左、右四个相邻结点
     dfs(grid, r - 1, c);
     dfs(grid, r + 1, c);
@@ -1300,10 +1306,11 @@ boolean inArea(int[][] grid, int r, int c) {
 
 这样，我们就得到了一个岛屿问题、乃至各种网格问题的通用 DFS 遍历方法。以下所讲的几个例题，其实都只需要在 DFS 遍历框架上稍加修改而已。
 
-    小贴士：
+```
+小贴士：
 
-    在一些题解中，可能会把「已遍历过的陆地格子」标记为和海洋格子一样的 0，美其名曰「陆地沉没方法」，即遍历完一个陆地格子就让陆地「沉没」为海洋。这种方法看似很巧妙，但实际上有很大隐患，因为这样我们就无法区分「海洋格子」和「已遍历过的陆地格子」了。如果题目更复杂一点，这很容易出 bug。
-
+在一些题解中，可能会把「已遍历过的陆地格子」标记为和海洋格子一样的 0，美其名曰「陆地沉没方法」，即遍历完一个陆地格子就让陆地「沉没」为海洋。这种方法看似很巧妙，但实际上有很大隐患，因为这样我们就无法区分「海洋格子」和「已遍历过的陆地格子」了。如果题目更复杂一点，这很容易出 bug。
+```
 
 ### [200. Number of Islands](https://leetcode.com/problems/number-of-islands/)
 
@@ -1313,24 +1320,27 @@ An island is surrounded by water and is formed by connecting adjacent lands hori
 
 **Example 1:**
 
-    Input: grid = [
-    ["1","1","1","1","0"],
-    ["1","1","0","1","0"],
-    ["1","1","0","0","0"],
-    ["0","0","0","0","0"]
-    ]
-    Output: 1
-
+```
+Input: grid = [
+["1","1","1","1","0"],
+["1","1","0","1","0"],
+["1","1","0","0","0"],
+["0","0","0","0","0"]
+]
+Output: 1
+```
 
 **Example 2:**
 
-    Input: grid = [
-    ["1","1","0","0","0"],
-    ["1","1","0","0","0"],
-    ["0","0","1","0","0"],
-    ["0","0","0","1","1"]
-    ]
-    Output: 3
+```
+Input: grid = [
+["1","1","0","0","0"],
+["1","1","0","0","0"],
+["0","0","1","0","0"],
+["0","0","0","1","1"]
+]
+Output: 3
+```
 
 ```java
 class Solution {
@@ -1350,7 +1360,7 @@ class Solution {
         }
         return res;
     }
-    
+  
     private void dfs(char[][] grid, int x, int y){
         if(x < 0 || x > m - 1|| y < 0 || y > n - 1 || grid[x][y] == '0'){
             return;
@@ -1372,28 +1382,33 @@ Find the maximum area of an island in the given 2D array. (If there is no island
 
 **Example 1:**
 
-    [[0,0,1,0,0,0,0,1,0,0,0,0,0],
-    [0,0,0,0,0,0,0,1,1,1,0,0,0],
-    [0,1,1,0,1,0,0,0,0,0,0,0,0],
-    [0,1,0,0,1,1,0,0,1,0,1,0,0],
-    [0,1,0,0,1,1,0,0,1,1,1,0,0],
-    [0,0,0,0,0,0,0,0,0,0,1,0,0],
-    [0,0,0,0,0,0,0,1,1,1,0,0,0],
-    [0,0,0,0,0,0,0,1,1,0,0,0,0]]
-    Given the above grid, return 6. Note the answer is not 11, because the island must be connected 4-directionally.
+```
+[[0,0,1,0,0,0,0,1,0,0,0,0,0],
+[0,0,0,0,0,0,0,1,1,1,0,0,0],
+[0,1,1,0,1,0,0,0,0,0,0,0,0],
+[0,1,0,0,1,1,0,0,1,0,1,0,0],
+[0,1,0,0,1,1,0,0,1,1,1,0,0],
+[0,0,0,0,0,0,0,0,0,0,1,0,0],
+[0,0,0,0,0,0,0,1,1,1,0,0,0],
+[0,0,0,0,0,0,0,1,1,0,0,0,0]]
+Given the above grid, return 6. Note the answer is not 11, because the island must be connected 4-directionally.
+```
 
 **Example 2:**
 
-    [[0,0,0,0,0,0,0,0]]
+```
+[[0,0,0,0,0,0,0,0]]
+```
 
 Given the above grid, return 0.
 
 **Note**: The length of each dimension in the given grid does not exceed 50.
 
-    给定一个包含了一些 0 和 1 的非空二维数组 grid，一个岛屿是一组相邻的 1（代表陆地），这里的「相邻」要求两个 1 必须在水平或者竖直方向上相邻。你可以假设 grid 的四个边缘都被 0（代表海洋）包围着。
+```
+给定一个包含了一些 0 和 1 的非空二维数组 grid，一个岛屿是一组相邻的 1（代表陆地），这里的「相邻」要求两个 1 必须在水平或者竖直方向上相邻。你可以假设 grid 的四个边缘都被 0（代表海洋）包围着。
 
-    找到给定的二维数组中最大的岛屿面积。如果没有岛屿，则返回面积为 0 。
-
+找到给定的二维数组中最大的岛屿面积。如果没有岛屿，则返回面积为 0 。
+```
 
 这道题目只需要对每个岛屿做 DFS 遍历，求出每个岛屿的面积就可以了。求岛屿面积的方法也很简单，代码如下，每遍历到一个格子，就把面积加一。
 
@@ -1431,7 +1446,7 @@ int area(int[][] grid, int r, int c) {
         return 0;
     }
     grid[r][c] = 2;
-    
+  
     return 1 
         + area(grid, r - 1, c)
         + area(grid, r + 1, c)
@@ -1457,20 +1472,25 @@ The island doesn't have "lakes", meaning the water inside isn't connected to the
 
 ![](https://assets.leetcode.com/uploads/2018/10/12/island.png)
 
-    Input: grid = [[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]]
-    Output: 16
-    Explanation: The perimeter is the 16 yellow stripes in the image above.
+```
+Input: grid = [[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]]
+Output: 16
+Explanation: The perimeter is the 16 yellow stripes in the image above.
+```
 
 **Example 2:**
 
-    Input: grid = [[1]]
-    Output: 4
+```
+Input: grid = [[1]]
+Output: 4
+```
 
 **Example 3:**
 
-    Input: grid = [[1,0]]
-    Output: 4
-
+```
+Input: grid = [[1,0]]
+Output: 4
+```
 
 实话说，这道题用 DFS 来解并不是最优的方法。对于岛屿，直接用数学的方法求周长会更容易。不过这道题是一个很好的理解 DFS 遍历过程的例题，不信你跟着我往下看。
 
@@ -1487,7 +1507,7 @@ void dfs(int[][] grid, int r, int c) {
         return;
     }
     grid[r][c] = 2; // 将格子标记为「已遍历过」
-    
+  
     // 访问上、下、左、右四个相邻结点
     dfs(grid, r - 1, c);
     dfs(grid, r + 1, c);
@@ -1508,7 +1528,7 @@ boolean inArea(int[][] grid, int r, int c) {
 - grid[r][c] != 1，即当前格子不是岛屿格子，这又分为两种情况：
   - grid[r][c] == 0，当前格子是海洋格子
   - grid[r][c] == 2，当前格子是已遍历的陆地格子
-那么这些和我们岛屿的周长有什么关系呢？实际上，岛屿的周长是计算岛屿全部的「边缘」，而这些边缘就是我们在 DFS 遍历中，dfs 函数返回的位置。观察题目示例，我们可以将岛屿的周长中的边分为两类，如下图所示。黄色的边是与网格边界相邻的周长，而蓝色的边是与海洋格子相邻的周长。
+    那么这些和我们岛屿的周长有什么关系呢？实际上，岛屿的周长是计算岛屿全部的「边缘」，而这些边缘就是我们在 DFS 遍历中，dfs 函数返回的位置。观察题目示例，我们可以将岛屿的周长中的边分为两类，如下图所示。黄色的边是与网格边界相邻的周长，而蓝色的边是与海洋格子相邻的周长。
 
 ![](https://pic.leetcode-cn.com/66d817362c1037ebe7705aacfbc6546e321c2b6a2e4fec96791f47604f546638.jpg)
 
@@ -1554,7 +1574,84 @@ boolean inArea(int[][] grid, int r, int c) {
 }
 ```
 
+### [1631. Path With Minimum Effort](https://leetcode.com/problems/path-with-minimum-effort/)
 
+You are a hiker preparing for an upcoming hike. You are given heights, a 2D array of size rows x columns, where heights[row][col] represents the height of cell (row, col). You are situated in the top-left cell, (0, 0), and you hope to travel to the bottom-right cell, (rows-1, columns-1) (i.e., 0-indexed). You can move up, down, left, or right, and you wish to find a route that requires the minimum effort.
+
+A route's effort is the maximum absolute difference in heights between two consecutive cells of the route.
+
+Return the minimum effort required to travel from the top-left cell to the bottom-right cell.
+
+**Example 1:**
+
+![](https://assets.leetcode.com/uploads/2020/10/04/ex1.png)
+
+    Input: heights = [[1,2,2],[3,8,2],[5,3,5]]
+    Output: 2
+    Explanation: The route of [1,3,5,3,5] has a maximum absolute difference of 2 in consecutive cells.
+    This is better than the route of [1,2,2,2,5], where the maximum absolute difference is 3.
+
+**Constraints:**
+- rows == heights.length
+- columns == heights[i].length
+- 1 <= rows, columns <= 100
+- 1 <= heights[i][j] <= 1000000
+
+
+
+这个题如果没有这些条件限制，其实是一道不难的dfs题。问题在于我们要找出 Mini Effort。
+
+所以一开始我并没有太多的思考用dfs和回溯，结果肯定是超时的。后来看到解析中说可以用二分法来缩短时间，觉得这个思路很好。
+
+二分法其实是转换了思路，因为题目给出了`1 <= heights[i][j] <= 1000000`，所以最大的effort也不会超过1000000，所以我们可以在0和1000000这个范围中不断地二分搜索，去看每一步的effort在不在这个范围内，如果在，缩小二分边界，如果不在，证明找到了最小值。
+
+
+```java
+class Solution {
+    int m;
+    int n;
+    int[][] dir = {{0, 1},{0, -1},{1, 0},{-1, 0}};
+    public int minimumEffortPath(int[][] heights) {
+        m = heights.length;
+        n = heights[0].length;
+        // 二分搜索的起始左右边界
+        int left = 0;
+        int right = 1000000;
+        // 普通二分搜索套路
+        while(left < right){
+            int mid = (left + right) / 2;
+            // 判断条件是当前mid left right条件下， dfs能否搜索到
+            // 注意，这里有个小坑，一开始我在loop外初始化vis数组，然后传入dfs，结果报错
+            // 原因就是每一次二分搜索都是一次独立的dfs全过程，所以我们的vis数组应该在每一次二分搜索时候重置
+            if(dfs(heights, 0, 0, mid, new boolean[m][n])){
+                right = mid;
+            }else{
+                left = mid + 1;
+            }
+        }
+        return left;
+    }
+    private boolean dfs(int[][] heights, int x, int y, int mid, boolean[][] vis){
+        // 判断条件：当走到图的右下角的时候，证明存在这样一条路径，return true
+        if(x == m - 1 && y == n - 1){
+            return true;
+        }
+        // 修改vis状态
+        vis[x][y] = true;
+        for(int[] d : dir){
+            int nx = x + d[0];
+            int ny = y + d[1];
+            // 递归条件：不出界，未访问，高度差满足要求
+            if(nx >= 0 && nx < m && ny >= 0 && ny < n && !vis[nx][ny] && Math.abs(heights[nx][ny] - heights[x][y]) <= mid){
+                if(dfs(heights, nx, ny, mid, vis)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+}
+```
 # BFS
 
 **什么情况应当用 BFS 搜索**
@@ -1641,11 +1738,11 @@ class Solution {
     public int orangesRotting(int[][] grid) {
         int N = grid.length;
         int M = grid[0].length;
-    
+  
         Queue<int[]> queue = new LinkedList<>();
-    
+  
         int count = 0;
-    
+  
         for(int i = 0; i < N; i++){
             for(int j = 0; j < M; j++){
                 if(grid[i][j] == 1){
@@ -1655,7 +1752,7 @@ class Solution {
                 }
             }
         }
-    
+  
         int level = 0;
         while(count > 0 && !queue.isEmpty()){
             level++;
@@ -1664,19 +1761,19 @@ class Solution {
                 int[] rott = queue.poll();
                 int i = rott[0];
                 int j = rott[1];
-            
+      
                 if(i - 1 >= 0 && grid[i - 1][j] == 1){
                     grid[i - 1][j] = 2;
                     count--;
                     queue.add(new int[]{i - 1, j});
                 }
-            
+      
                 if(i + 1 < N && grid[i + 1][j] ==1){
                     grid[i + 1][j] = 2;
                     count--;
                     queue.add(new int[]{i + 1, j});
                 }
-                          
+                    
                 if(j - 1 >= 0 && grid[i][j - 1] ==1){
                     grid[i][j - 1] = 2;
                     count--;
@@ -1695,6 +1792,81 @@ class Solution {
         }else{
             return level;
         }
+    }
+}
+```
+
+## [207. Course Schedule](https://leetcode.com/problems/course-schedule/)
+
+There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.
+
+- For example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.
+  Return true if you can finish all courses. Otherwise, return false.
+
+**Example 1:**
+
+```
+Input: numCourses = 2, prerequisites = [[1,0]]
+Output: true
+Explanation: There are a total of 2 courses to take. 
+To take course 1 you should have finished course 0. So it is possible.
+```
+
+**Example 2:**
+
+```
+Input: numCourses = 2, prerequisites = [[1,0],[0,1]]
+Output: false
+Explanation: There are a total of 2 courses to take. 
+To take course 1 you should have finished course 0, and to take course 0 you should also have finished course 1. So it is impossible.
+```
+
+这道题是典型的用拓扑排序的题目，我们考虑拓扑排序中最前面的节点，该节点一定不会有任何入边，也就是它没有任何的先修课程要求。当我们将一个节点加入答案中后，我们就可以移除它的所有出边，代表着它的相邻节点少了一门先修课程的要求。如果某个相邻节点变成了「没有任何入边的节点」，那么就代表着这门课可以开始学习了。按照这样的流程，我们不断地将没有入边的节点加入答案，直到答案中包含所有的节点（得到了一种拓扑排序）或者不存在没有入边的节点（图中包含环）。
+
+上面的想法类似于广度优先搜索，因此我们可以将广度优先搜索的流程与拓扑排序的求解联系起来。
+
+```java
+class Solution {
+    List<List<Integer>> edges;
+    int[] indeg;
+
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        // 邻接表：通过结点的索引，我们能够得到这个结点的后继结点
+        edges = new ArrayList<List<Integer>>();
+        for (int i = 0; i < numCourses; ++i) {
+            edges.add(new ArrayList<Integer>());
+        }
+        // 入度数组：通过结点的索引，我们能够得到指向这个结点的结点个数
+        indeg = new int[numCourses];
+        for (int[] info : prerequisites) {
+            edges.get(info[1]).add(info[0]);
+            ++indeg[info[0]];
+        }
+
+        Queue<Integer> queue = new LinkedList<Integer>();
+        // 扫描入度数组，将入度为0的放入队列中
+        for (int i = 0; i < numCourses; ++i) {
+            if (indeg[i] == 0) {
+                queue.offer(i);
+            }
+        }
+
+        // 记录已经出队的课程数量
+        int visited = 0;
+        // 只要队列非空，就从队首取出入度为0的节点
+        while (!queue.isEmpty()) {
+            ++visited;
+            int u = queue.poll();
+            // 遍历当前出队节点的所有后继节点
+            for (int v: edges.get(u)) {
+                --indeg[v];
+                if (indeg[v] == 0) {
+                    queue.offer(v);
+                }
+            }
+        }
+
+        return visited == numCourses;
     }
 }
 ```
@@ -1742,7 +1914,7 @@ class Solution {
                 left = Math.max(left, map.get(s.charAt(right)) + 1);
             }
             map.put(s.charAt(right), right);
-            res = Math.max(res, right - left + 1);    
+            res = Math.max(res, right - left + 1);  
         }
         return res;
     }
@@ -1784,7 +1956,7 @@ class Solution {
             //说明该字符不被目标字符串需要，此时有两种情况
             // 1.循环刚开始，那么直接移动右指针即可，不需要做多余判断
             // 2.循环已经开始一段时间，此处又有两种情况
-            //  2.1 上一次条件不满足，已有字符串指定字符出现次数不满足目标字符串指定字符出现次数，那么此时
+            //  2.1 上一次条件不满足，已有字符串指定字���出现次数不满足目标字符串指定字符出现次数，那么此时
             //      如果该字符还不被目标字符串需要，就不需要进行多余判断，右指针移动即可
             //  2.2 左指针已经移动完毕，那么此时就相当于循环刚开始，同理直接移动右指针
             if (need[r] == 0) {
@@ -1924,13 +2096,13 @@ class Solution {
     public int minSubArrayLen(int s, int[] nums) {
         int N = nums.length;
         int left = 0, right = 0, count = 0, minLen = N + 1;
-    
+  
         if(N == 0) return 0;
-    
+  
         while(right < N){
             count += nums[right];
             right++;
-        
+  
             while(count >= s && left <= right){
                 if(right - left < minLen){
                     minLen = right - left;
@@ -1978,7 +2150,7 @@ class Solution {
     public int[] maxSlidingWindow(int[] nums, int k) {
         int n = nums.length;
         if (n * k == 0) return new int[0];
-    
+  
         int [] output = new int[n - k + 1];
         for (int i = 0; i < n - k + 1; i++) {
             int max = Integer.MIN_VALUE;
@@ -1996,11 +2168,11 @@ class Solution {
     public int[] maxSlidingWindow(int[] nums, int k) {
         int N = nums.length;
         if(N == 0) return new int[]{};
-    
+  
         int[] res = new int[N - k + 1];
          // 滑动窗口，注意：保存的是索引值
         ArrayDeque<Integer> deque = new ArrayDeque<>(k);
-    
+  
         for(int i = 0; i < N; i++){
             // 当元素从左边界滑出的时候，如果它恰恰好是滑动窗口的最大值
             // 那么将它弹出
@@ -2120,14 +2292,14 @@ class Solution {
         int N2 = s2.length();
         int[] c1 = new int[26];
         int[] c2 = new int[26];
-    
+  
         if(N1 > N2) return false;
-    
+  
         for(int i = 0; i < N1; i++){
             c1[s1.charAt(i) - 'a']++;
             c2[s2.charAt(i) - 'a']++;
         }
-    
+  
         for(int left = 0; left < N2 - N1; left++){
             for(int i = 0; i < 26; i++){
                 if(matches(c1, c2)) {
@@ -2136,7 +2308,7 @@ class Solution {
             }
             c2[s2.charAt(left) - 'a']--;
             c2[s2.charAt(left + N1) - 'a']++;
-        
+  
         }  
         return matches(c1, c2);
     }
@@ -2331,7 +2503,7 @@ class Solution {
         dfs(root1, list1);
         dfs(root2, list2);
         return merge(list1, list2);
-    
+  
     }
   
     private void dfs(TreeNode root, List<Integer> list){
@@ -2529,16 +2701,16 @@ class Solution {
   
     public List<TreeNode> helper(int begin, int end){
         List<TreeNode> res = new ArrayList<>();
-    
+  
         if(begin > end){
             res.add(null);
             return res;
         }
-    
+  
         for(int i = begin; i <= end; i++){
             List<TreeNode> left = helper(begin, i - 1);
             List<TreeNode> right = helper(i + 1, end);
-        
+  
             for(TreeNode l : left){
                 for(TreeNode r : right){
                     TreeNode cur = new TreeNode(i);
@@ -2578,10 +2750,10 @@ Given n = 3, there are a total of 5 unique BST's:
 class Solution {
     public int numTrees(int n) {
         int[] dp = new int[n + 1];
-    
+  
         dp[0] = 1;
         dp[1] = 1;
-    
+  
         for(int i = 2; i <= n; i++){
             for(int j = 1; j <= i; j++){
                 dp[i] += dp[j - 1] * dp[i - j];
@@ -2641,10 +2813,10 @@ class Solution {
   
     public boolean helper(TreeNode root, TreeNode min, TreeNode max){
         if(root == null) return true;
-    
+  
         if(min != null && root.val <= min.val) return false;
         if(max != null && root.val >= max.val) return false;
-    
+  
         return helper(root.left, min, root) && helper(root.right, root, max);
     }
 }
@@ -2731,14 +2903,14 @@ class Solution {
         dfs(root, list);
         TreeNode x = null;
         TreeNode y = null;
-    
+  
         for(int i = 0; i < list.size() - 1; i++){
             if(list.get(i).val > list.get(i + 1).val){
                 y = list.get(i + 1);
                 if(x == null) x = list.get(i);
             }
         }
-    
+  
         if(x != null && y != null){
             int tem = x.val;
             x.val = y.val;
@@ -2748,7 +2920,7 @@ class Solution {
   
     public void dfs(TreeNode root, List<TreeNode> list){
         if(root == null) return;
-    
+  
         dfs(root.left, list);
         list.add(root);
         dfs(root.right, list);
@@ -2858,15 +3030,15 @@ class Solution {
     public List<List<Integer>> pathSum(TreeNode root, int sum) {
         List<List<Integer>> res = new ArrayList<>();
         Deque<Integer> path = new ArrayDeque<>();
-    
+  
         if(root == null){
             return res;
         }
-    
+  
         dfs(root, res, path, sum);
         return res;
-    
-    
+  
+  
     }
     public void dfs(TreeNode root, List<List<Integer>> res, Deque<Integer> path, int sum){
         if(root == null){
@@ -3131,17 +3303,17 @@ class Solution {
         for(int i = 0; i < inLen; i++){
             map.put(inorder[i], i);
         }
-    
+  
         return helper(preorder, map, 0, preLen - 1, 0, inLen - 1);  
     }
   
     private TreeNode helper(int[] preorder, Map<Integer, Integer> map, int preLeft, int preRight, int inLeft, int inRight){
         if(preLeft > preRight || inLeft > inRight) return null;
-    
+  
         int rootVal = preorder[preLeft];
         TreeNode root = new TreeNode(rootVal);
         int pIndex=  map.get(rootVal);
-    
+  
         root.left = helper(preorder, map, preLeft + 1, pIndex - inLeft + preLeft, inLeft, pIndex - 1);
         root.right = helper(preorder, map, pIndex - inLeft + preLeft + 1, preRight, pIndex + 1, inRight);
         return root;
@@ -3209,7 +3381,7 @@ class Solution {
         if(root == null){
             return true;
         }
-    
+  
         //递归查看节点左边是不是满足同值子树
         boolean left = helper(root.left);
         //递归查看节点右边是不是满足同值子树
@@ -3430,7 +3602,7 @@ class Solution {
             }  
         }
         return stack.isEmpty();
-    }    
+    }  
 }
 ```
 
@@ -3753,7 +3925,7 @@ Output: [1,2,2,3,5,6]\
         int i = m - 1;
         int j = n - 1;
         int index = m + n - 1;
-    
+  
         while(i >= 0 && j >= 0){
             if(nums1[i] > nums2[j]){
                 nums1[index] = nums1[i];
@@ -3952,7 +4124,7 @@ Output:
 class Solution {
     public List<Integer> findDuplicates(int[] nums) {
         List<Integer> res = new ArrayList<>();
-    
+  
         for(int num : nums){
             int index = Math.abs(num) - 1;
             if(nums[index] < 0){
@@ -4001,7 +4173,7 @@ class Solution {
                 matrix[j][i] = temp;
             }
         }
-    
+  
         for(int i = 0; i < N; i++){
             for(int j = 0; j < N / 2; j++){
                 int temp = matrix[i][j];
@@ -4510,5 +4682,3 @@ class Solution {
     }
 }
 ```
-
-
