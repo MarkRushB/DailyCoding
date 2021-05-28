@@ -1187,6 +1187,118 @@ public class Solution {
 
 # DFS
 
+## Tree Question
+### [1469. Find All The Lonely Nodes](https://leetcode.com/problems/find-all-the-lonely-nodes/)
+
+In a binary tree, a lonely node is a node that is the only child of its parent node. The root of the tree is not lonely because it does not have a parent node.
+
+Given the root of a binary tree, return an array containing the values of all lonely nodes in the tree. Return the list in any order.
+
+ 
+
+**Example 1:**
+
+![](https://assets.leetcode.com/uploads/2020/06/03/e1.png)
+
+    Input: root = [1,2,3,null,4]
+    Output: [4]
+    Explanation: Light blue node is the only lonely node.
+    Node 1 is the root and is not lonely.
+    Nodes 2 and 3 have the same parent and are not lonely.
+
+这个题的思路就是利用dfs去查找孤独的子节点，为了方便dfs，我们不仅需要传入当前的node，还需要把node的parent也传进去，方便我们做判断。
+
+要注意的是，虽然传入的是两个node，但是跳出递归的条件还是`node==null`
+
+
+```java
+class Solution {
+    List<Integer> res = new ArrayList<>();
+    public List<Integer> getLonelyNodes(TreeNode root) {
+        dfs(root, null);
+        return res;
+        
+    }
+    private void dfs(TreeNode node, TreeNode parent){
+        // 递归跳出的条件
+        if(node == null){
+            return;
+        }
+        // 理论上来说如果可以执行到这里，那么parent必不可能是null
+        // 那么为什么要带 parent != null 这个判断条件呢？
+        // 看起来多此一举，其实是为了递归第一次开始的条件特判，也可以不写，那这样的话，递归开始就要写成：
+        // dfs(root.left, root);
+        // dfs(root.right, root);
+        // 一样的道理
+        if(parent != null && (parent.left == null || parent.right == null)){
+            res.add(node.val);
+        }
+        dfs(node.left, node);
+        dfs(node.right, node);
+    }
+}
+```
+### [897. Increasing Order Search Tree](https://leetcode.com/problems/increasing-order-search-tree/)
+
+Given the root of a binary search tree, rearrange the tree in in-order so that the leftmost node in the tree is now the root of the tree, and every node has no left child and only one right child.
+
+**Example 1:**
+
+![](https://assets.leetcode.com/uploads/2020/11/17/ex1.jpg)
+
+    Input: root = [5,3,6,2,4,null,8,1,null,null,null,7,9]
+    Output: [1,null,2,null,3,null,4,null,5,null,6,null,7,null,8,null,9]
+
+这个题算是比较简单的dfs，思路很好想，首先这是个BST, 直接inorder然后重新构建一棵树就好。中间用List临时保存节点。
+需要注意一点是，最好保存node.val，构建新树的时候，初始化新节点，这样做的好处就是不用担心之前的树结构，否则我们需要在构建节点前先清空之前的节点结构。
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    List<TreeNode> res = new ArrayList<>();
+    public TreeNode increasingBST(TreeNode root) {
+        inorder(root);
+        TreeNode tmp = new TreeNode();
+        TreeNode cur = tmp;
+        for(TreeNode node : res){
+            // 重点就在这里，我们构建新节点之前，需要先清空原来节点的结构，防止产生环
+            // 当然更好的操作是如下：
+            // cur.right = new TreeNode(node.val);
+            node.left = null;
+            node.right = null;
+            cur.left = null;
+            cur.right = node;
+            cur = cur.right;
+            
+        }
+        return tmp.right;
+    }
+    private void inorder(TreeNode node){
+        if(node == null){
+            return;
+        }
+        inorder(node.left);
+        res.add(node);
+        inorder(node.right);
+    }
+}
+```
+
+
 ## Island Question
 
 ### 网格类问题的 DFS 遍历方法
@@ -1574,7 +1686,7 @@ boolean inArea(int[][] grid, int r, int c) {
 }
 ```
 
-### [1631. Path With Minimum Effort](https://leetcode.com/problems/path-with-minimum-effort/)
+## [1631. Path With Minimum Effort](https://leetcode.com/problems/path-with-minimum-effort/)
 
 You are a hiker preparing for an upcoming hike. You are given heights, a 2D array of size rows x columns, where heights[row][col] represents the height of cell (row, col). You are situated in the top-left cell, (0, 0), and you hope to travel to the bottom-right cell, (rows-1, columns-1) (i.e., 0-indexed). You can move up, down, left, or right, and you wish to find a route that requires the minimum effort.
 
@@ -1652,6 +1764,9 @@ class Solution {
     }
 }
 ```
+
+
+
 # BFS
 
 **什么情况应当用 BFS 搜索**
