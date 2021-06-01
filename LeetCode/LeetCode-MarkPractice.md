@@ -8,12 +8,38 @@
 
 ## 需要注意的一些API
 
-- **`java.lang.Character.isLetterOrDigit(int codePoint)`** 确定指定字符(Unicode代码点)是一个字母或数字。
-  字符被确定是字母或数字，如果不是isLetter(codePoint) 也不是 isDigit(codePoint) 的字符，则返回true。
-- **`getOrDefault(Object key, V defaultValue)`** Returns the value to which the specified key is mapped, or defaultValue if this map contains no mapping for the key.
-- **`Character.toLowerCase`**
+### java.lang.Character.isLetterOrDigit(int codePoint) 
+确定指定字符(Unicode代码点)是一个字母或数字。
+字符被确定是字母或数字，如果不是isLetter(codePoint) 也不是 isDigit(codePoint) 的字符，则返回true。
+### getOrDefault(Object key, V defaultValue)
+Returns the value to which the specified key is mapped, or defaultValue if this map contains no mapping for the key.
+### Character.toLowerCase
+### Map.Entry<K,V>
+A map entry (key-value pair). The Map.entrySet method returns a collection-view of the map, whose elements are of this class. The only way to obtain a reference to a map entry is from the iterator of this collection-view. These Map.Entry objects are valid only for the duration of the iteration; more formally, the behavior of a map entry is undefined if the backing map has been modified after the entry was returned by the iterator, except through the setValue operation on the map entry.
+### List转数组
+使用toArray()方法
+需要特别注意，不能这样写：
+```java
+ArrayList<String> list=new ArrayList<String>();
+String strings[]=(String [])list.toArray();
+```
+这样写编译没有什么问题，但是运行时会报ClassCastException，这是因为Java中允许向上和向下转型，但是这个转型是否成功是根据Java虚拟机中这个对象的类型来实现的。Java虚拟机中保存了每个对象的类型。而数组也是一个对象。数组的类型是java.lang.Object。把java.lang.Object转换成java.lang.String是显然不可能的事情，因为这里是一个向下转型，而虚拟机只保存了这是一个Object的数组，不能保证数组中的元素是String的，所以这个转型不能成功。数组里面的元素只是元素的引用，不是存储的具体元素，所以数组中元素的类型还是保存在Java虚拟机中的。
 
-You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order and each of their nodes contain a single digit. Add the two numbers and return it as a linked list.
+因此正确的方法是这样的：
+```java
+//要转换的list集合
+List<String> testList = new ArrayList<String>(){{add("aa");add("bb");add("cc");}};
+
+//使用toArray(T[] a)方法
+String[] array2 = testList.toArray(new String[testList.size()]);
+
+//打印该数组
+for(int i = 0; i < array2.length; i++){
+    System.out.println(array2[i]);
+}
+```
+
+
 
 ## 2 Add Two Numbers
 
@@ -1253,21 +1279,6 @@ Given the root of a binary search tree, rearrange the tree in in-order so that t
 需要注意一点是，最好保存node.val，构建新树的时候，初始化新节点，这样做的好处就是不用担心之前的树结构，否则我们需要在构建节点前先清空之前的节点结构。
 
 ```java
-/**
- * Definition for a binary tree node.
- * public class TreeNode {
- *     int val;
- *     TreeNode left;
- *     TreeNode right;
- *     TreeNode() {}
- *     TreeNode(int val) { this.val = val; }
- *     TreeNode(int val, TreeNode left, TreeNode right) {
- *         this.val = val;
- *         this.left = left;
- *         this.right = right;
- *     }
- * }
- */
 class Solution {
     List<TreeNode> res = new ArrayList<>();
     public TreeNode increasingBST(TreeNode root) {
@@ -1297,6 +1308,45 @@ class Solution {
     }
 }
 ```
+### [124. Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)
+
+A path in a binary tree is a sequence of nodes where each pair of adjacent nodes in the sequence has an edge connecting them. A node can only appear in the sequence at most once. Note that the path does not need to pass through the root.
+
+The path sum of a path is the sum of the node's values in the path.
+
+Given the root of a binary tree, return the maximum path sum of any path.
+
+**Example 1:**
+
+![](https://assets.leetcode.com/uploads/2020/10/13/exx2.jpg)
+
+    Input: root = [-10,9,20,null,null,15,7]
+    Output: 42
+    Explanation: The optimal path is 15 -> 20 -> 7 with a path sum of 15 + 20 + 7 = 42.
+
+```java
+class Solution {
+    int res = Integer.MIN_VALUE;
+    public int maxPathSum(TreeNode root) {
+        dfs(root);
+        return res;
+    }
+    private int dfs(TreeNode node){
+        if(node == null){
+            return 0;
+        }
+        
+        int left = Math.max(dfs(node.left), 0);
+        int right = Math.max(dfs(node.right), 0);
+        int tmp = left + right + node.val;
+        res = Math.max(res, tmp);
+        return node.val + Math.max(left, right);
+    }
+}
+```
+
+
+
 
 
 ## Island Question
@@ -3520,27 +3570,10 @@ class Solution {
 }
 ```
 
-# Other
+# Array
+## N sum Question
 
-## 9 Palindrome Number
-
-Determine whether an integer is a palindrome. An integer is a palindrome when it reads the same backward as forward.
-
-```java
-class Solution {
-    public boolean isPalindrome(int x) {
-        String str = String.valueOf(x);
-        String reverse = new StringBuilder(str).reverse().toString();
-        if(reverse.equals(str)){
-            return true;
-        }else{
-            return false;
-        }
-    }
-}
-```
-
-## 1 Two Sum
+### [1. Two Sum](https://leetcode.com/problems/two-sum/)
 
 Given an array of integers, return indices of the two numbers such that they add up to a specific target.
 
@@ -3569,6 +3602,186 @@ class Solution {
     }
 }
 ```
+### [16. 3Sum Closest](https://leetcode.com/problems/3sum-closest/)
+
+Given an array nums of n integers and an integer target, find three integers in nums such that the sum is closest to target. Return the sum of the three integers. You may assume that each input would have exactly one solution.
+
+ **Example 1:**
+
+    Input: nums = [-1,2,1,-4], target = 1
+    Output: 2
+    Explanation: The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
+
+思路就是双指针，从头扫到尾，在这个过程中创建两个指针，`left = i + 1`, `right = nums.length - 1`。
+然后求`sum = nums[i] + nums[left] + nums[right]`，最后判断和target的接近程度，不断刷新res的值。
+
+```java
+class Solution {
+    public int threeSumClosest(int[] nums, int target) {
+        Arrays.sort(nums);
+        // 注意这里，我本来初始化res是int最大值，但是在下面 sum - target的过程中，target有可能是负数，就导致整形溢出。这里要考虑一下。
+        int res = Integer.MAX_VALUE / 2;
+        for(int i = 0; i < nums.length; i++){
+            int left = i + 1;
+            int right = nums.length - 1;
+            while(left < right){
+                int sum  = nums[i] + nums[left] + nums[right];
+                if(Math.abs(sum - target) < Math.abs(res - target)){
+                    res = sum;
+                }
+                if(sum > target){
+                    right--;
+                }else if(sum < target){
+                    left++;
+                }else{
+                    return res;
+                }
+            }
+        }
+        return res;
+    }
+}
+```
+## Interval Question (insert, merge)
+### 252. [Meeting Rooms](https://leetcode.com/problems/meeting-rooms/)
+
+Given an array of meeting time intervals where intervals[i] = [starti, endi], determine if a person could attend all meetings.
+
+**Example 1:**
+
+    Input: intervals = [[0,30],[5,10],[15,20]]
+    Output: false
+
+**Example 2:**
+
+    Input: intervals = [[7,10],[2,4]]
+    Output: true
+
+思路很简单，看代码即可。
+
+```java
+class Solution {
+    public boolean canAttendMeetings(int[][] intervals) {
+        Arrays.sort(intervals, (a, b) -> a[0] - b[0]);
+        for(int i = 1; i < intervals.length; i++){
+            if(intervals[i][0] < intervals[i - 1][1]){
+                return false;
+            }
+        }
+        return true;
+    }
+}
+```
+### [56. Merge Intervals](https://leetcode.com/problems/merge-intervals/)
+Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.
+
+**Example 1:**
+
+    Input: intervals = [[1,3],[2,6],[8,10],[15,18]]
+    Output: [[1,6],[8,10],[15,18]]
+    Explanation: Since intervals [1,3] and [2,6] overlaps, merge them into [1,6].
+
+**Example 2:**
+
+    Input: intervals = [[1,4],[4,5]]
+    Output: [[1,5]]
+    Explanation: Intervals [1,4] and [4,5] are considered overlapping.
+
+首先重写`Arrays.sort`，根据子数组的第一位，对原数组进行重新sort。
+
+        1                2             3
+    ---------        ---------     --------
+        -------        -----                ------
+
+一共有以上三种情况，其中1和2可以归在一类里面考虑，我们只需要比较 res数组中最后一个的第二位 和 待处理数组的第一位的大小，如果待处理的第一位比res数组最后一个的第二位大，那么直接加进去就好。如果小，那么接着比较各自的第二位即可。
+
+要注意：List转数组用toArray()的正确写法
+```java
+class Solution {
+    public int[][] merge(int[][] intervals) {
+        int n = intervals.length;
+        Arrays.sort(intervals, (a, b) -> a[0] - b[0]);
+        List<int[]> res = new ArrayList<>();
+        for(int i = 0; i < n; i++){
+            int L = intervals[i][0];
+            int R = intervals[i][1];
+            if(res.size() == 0 || res.get(res.size() - 1)[1] < L){
+                res.add(intervals[i]);
+            }else{
+                res.get(res.size() - 1)[1] = Math.max(R, res.get(res.size() - 1)[1]);
+            }
+        }
+        return res.toArray(new int[res.size()][2]);
+    }
+}
+```
+### [57. Insert Interval](https://leetcode.com/problems/insert-interval/)
+Given a set of non-overlapping intervals, insert a new interval into the intervals (merge if necessary).
+
+You may assume that the intervals were initially sorted according to their start times.
+
+ 
+
+**Example 1:**
+
+    Input: intervals = [[1,3],[6,9]], newInterval = [2,5]
+    Output: [[1,5],[6,9]]
+
+**Example 2:**
+
+    Input: intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
+    Output: [[1,2],[3,10],[12,16]]
+    Explanation: Because the new interval [4,8] overlaps with [3,5],[6,7],[8,10].
+
+
+```java
+class Solution {
+    public int[][] insert(int[][] intervals, int[] newInterval) {
+        int n = intervals.length;
+        List<int[]> res = new ArrayList<>();
+        int i = 0;
+        while(i < n && intervals[i][1] < newInterval[0]){
+            res.add(intervals[i]);
+            i++;
+        }
+        int[] tmp = new int[]{newInterval[0], newInterval[1]};
+        while(i < n && intervals[i][0] <= newInterval[1]){
+            tmp[0] = Math.min(intervals[i][0], tmp[0]);
+            tmp[1] = Math.max(intervals[i][1], tmp[1]);
+            i++;
+        }
+        res.add(tmp);
+        while(i < n){
+            res.add(intervals[i]);
+            i++;
+        }
+        return res.toArray(new int[res.size()][2]);
+    }
+}
+```
+
+
+# Other
+
+## 9 Palindrome Number
+
+Determine whether an integer is a palindrome. An integer is a palindrome when it reads the same backward as forward.
+
+```java
+class Solution {
+    public boolean isPalindrome(int x) {
+        String str = String.valueOf(x);
+        String reverse = new StringBuilder(str).reverse().toString();
+        if(reverse.equals(str)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+}
+```
+
+
 
 ## Maximum Subarray
 
