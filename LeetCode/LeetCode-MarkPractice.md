@@ -6,31 +6,31 @@
 - 滑动窗口典型问题：第 3 题、第 76 题、第 438 题
 - 双指针典型问题：第 11 题、第 15 题、第 42 题
 
-## 需要注意的一些API
+## 需要注意的一些 API
 
 ### java.lang.Character.isLetterOrDigit(int codePoint) 
-确定指定字符(Unicode代码点)是一个字母或数字。
-字符被确定是字母或数字，如果不是isLetter(codePoint) 也不是 isDigit(codePoint) 的字符，则返回true。
+确定指定字符 (Unicode 代码点）是一个字母或数字。
+字符被确定是字母或数字，如果不是 isLetter(codePoint) 也不是 isDigit(codePoint) 的字符，则返回 true。
 ### getOrDefault(Object key, V defaultValue)
 Returns the value to which the specified key is mapped, or defaultValue if this map contains no mapping for the key.
 ### Character.toLowerCase
 ### Map.Entry<K,V>
 A map entry (key-value pair). The Map.entrySet method returns a collection-view of the map, whose elements are of this class. The only way to obtain a reference to a map entry is from the iterator of this collection-view. These Map.Entry objects are valid only for the duration of the iteration; more formally, the behavior of a map entry is undefined if the backing map has been modified after the entry was returned by the iterator, except through the setValue operation on the map entry.
-### List转数组
-使用toArray()方法
+### List 转数组
+使用 toArray() 方法
 需要特别注意，不能这样写：
 ```java
 ArrayList<String> list=new ArrayList<String>();
 String strings[]=(String [])list.toArray();
 ```
-这样写编译没有什么问题，但是运行时会报ClassCastException，这是因为Java中允许向上和向下转型，但是这个转型是否成功是根据Java虚拟机中这个对象的类型来实现的。Java虚拟机中保存了每个对象的类型。而数组也是一个对象。数组的类型是java.lang.Object。把java.lang.Object转换成java.lang.String是显然不可能的事情，因为这里是一个向下转型，而虚拟机只保存了这是一个Object的数组，不能保证数组中的元素是String的，所以这个转型不能成功。数组里面的元素只是元素的引用，不是存储的具体元素，所以数组中元素的类型还是保存在Java虚拟机中的。
+这样写编译没有什么问题，但是运行时会报 ClassCastException，这是因为 Java 中允许向上和向下转型，但是这个转型是否成功是根据 Java 虚拟机中这个对象的类型来实现的。Java 虚拟机中保存了每个对象的类型。而数组也是一个对象。数组的类型是 java.lang.Object。把 java.lang.Object 转换成 java.lang.String 是显然不可能的事情，因为这里是一个向下转型，而虚拟机只保存了这是一个 Object 的数组，不能保证数组中的元素是 String 的，所以这个转型不能成功。数组里面的元素只是元素的引用，不是存储的具体元素，所以数组中元素的类型还是保存在 Java 虚拟机中的。
 
 因此正确的方法是这样的：
 ```java
-//要转换的list集合
+//要转换的 list 集合
 List<String> testList = new ArrayList<String>(){{add("aa");add("bb");add("cc");}};
 
-//使用toArray(T[] a)方法
+//使用 toArray(T[] a) 方法
 String[] array2 = testList.toArray(new String[testList.size()]);
 
 //打印该数组
@@ -38,8 +38,6 @@ for(int i = 0; i < array2.length; i++){
     System.out.println(array2[i]);
 }
 ```
-
-
 
 ## 2 Add Two Numbers
 
@@ -139,12 +137,12 @@ The sum of lists[i].length won't exceed 10^4.
 2->6
 ```
 
-然后由堆根据节点的val自动排好序
+然后由堆根据节点的 val 自动排好序
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201109234409.png)
 
 这是一个小根堆，我们只需要每次输出堆顶的元素，直到整个堆为空即可。
-执行过程如下:
+执行过程如下：
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201109234422.png)
 
@@ -185,9 +183,9 @@ class Solution {
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201109234458.png)
 
-4个链表中的最小值，一定来自黄色的部分，黄色的部分就是一个小根堆。
-这个堆的元素个数是k个，也就是图中的4个。
-我们建立完k个大小的堆后，就不断的从堆中获取节点，如果获取到的节点不为空，即还有下一个节点，那么就将下一个节点放到堆中。利用这个特点我们就可以优化空间了，将原先的O(N)的空间复杂度优化到O(k)。
+4 个链表中的最小值，一定来自黄色的部分，黄色的部分就是一个小根堆。
+这个堆的元素个数是 k 个，也就是图中的 4 个。
+我们建立完 k 个大小的堆后，就不断的从堆中获取节点，如果获取到的节点不为空，即还有下一个节点，那么就将下一个节点放到堆中。利用这个特点我们就可以优化空间了，将原先的 O(N) 的空间复杂度优化到 O(k)。
 
 ![](https://pic.leetcode-cn.com/1d4fb6358f39ee7b4ad0b75119352a0fba44c550af0c310d594ae529717cbf3d-5.gif)
 
@@ -207,7 +205,7 @@ class Solution {
 		ListNode dummy = new ListNode(-1);
 		ListNode cur = dummy;
 		//这里跟上一版不一样，不再是一股脑全部放到堆中
-		//而是只把k个链表的第一个节点放入到堆中
+		//而是只把 k 个链表的第一个节点放入到堆中
 		for(int i=0;i<lists.length;i++) {
 			ListNode head = lists[i];
 			if(head!=null) {
@@ -229,6 +227,60 @@ class Solution {
 	}
 }
 ```
+
+# Priority Queue / Heap
+
+## [1383. Maximum Performance of a Team](https://leetcode.com/problems/maximum-performance-of-a-team/)
+
+You are given two integers n and k and two integer arrays speed and efficiency both of length n. There are n engineers numbered from 1 to n. `speed[i]` and `efficiency[i]` represent the speed and efficiency of the ith engineer respectively.
+
+Choose at most k different engineers out of the n engineers to form a team with the maximum performance.
+
+The performance of a team is the sum of their engineers' speeds multiplied by the minimum efficiency among their engineers.
+
+Return the maximum performance of this team. Since the answer can be a huge number, return it modulo `1000000000 + 7`.
+
+**Example 1:**
+
+    Input: n = 6, speed = [2,10,3,1,5,8], efficiency = [5,4,3,9,7,2], k = 2
+    Output: 60
+    Explanation: 
+    We have the maximum performance of the team by selecting engineer 2 (with speed=10 and efficiency=4) and engineer 5 (with speed=5 and efficiency=7). That is, performance = (10 + 5) * min(4, 7) = 60.
+
+
+开一个2d数组，用来存放speed和efficiency的对应关系，然后根据efficiency从大到小排序。
+
+![](https://pic.leetcode-cn.com/a3b459b5c8401c57a2a5f4f74153b0e2a4df4f94255ef625307f2d3db5e514f4-图片.png)
+
+然后遍历数组，其实这里运用了贪心的算法思想，我们只看当前元素左边的，这样的话每个人作为最低效率时，在其左侧找出至多K - 1个最大速度即可。
+
+其中我们利用Priority Queue（默认小顶堆）来存放speed，这样的好处是当`pq.size() > k - 1`时，我们就从pq里poll出一个，由于小顶堆的特性，我们poll出的一定是当前speed最小的。
+
+```java
+class Solution {
+    public int maxPerformance(int n, int[] speed, int[] efficiency, int k) {
+        int[][] item = new int[speed.length][2];
+        for(int i = 0; i < speed.length; i++){
+            item[i][0] = speed[i];
+            item[i][1] = efficiency[i];
+        }
+        Arrays.sort(item, (a, b) -> b[1] - a[1]);
+        PriorityQueue<Integer> queue = new PriorityQueue<>();
+        long res = 0, sum = 0;
+        for(int i = 0 ; i < n ; i++){
+            if(queue.size() > k - 1){
+                sum -= queue.poll();
+            }
+            res = Math.max(res, (sum + item[i][0]) * item[i][1]);
+            queue.offer(item[i][0]);
+            sum += item[i][0];
+        }
+        return (int)(res % ((int)1e9 + 7));
+    }
+}
+```
+
+
 
 # Dynamic Programming
 
@@ -494,7 +546,7 @@ Input: [100]
 Output: 1
 ```
 
-思路：这个题很不错，既可以用DP写，也可以用Sliding Window写
+思路：这个题很不错，既可以用 DP 写，也可以用 Sliding Window 写
 
 ```java
 class Solution {
@@ -504,14 +556,14 @@ class Solution {
         }
         int[] dp = new int[A.length];
         for(int i=1;i<A.length;i++){
-            //如果i和i-1的值相等，那么i位的初始值为1，譬如A={9,9}，它返回的长度为1，而不是2。
+            //如果 i 和 i-1 的值相等，那么 i 位的初始值为 1，譬如 A={9,9}，它返回的长度为 1，而不是 2。
             dp[i] = A[i]==A[i-1]?1:2;
         }
-        //初始化dp以后，从2到N去计算最长长度。
-        //状态转移方程: dp[i] = dp[i-1] + 1;
-        //i位的可能最大长度可能是：i-1位上最大长度 + 1（包含i自己）
-        //那么什么时候可以加上自己算总长度呢，当i位和i-1位的大小正好跟i-1和i-2的大小情况相反。说明i成功可以加入到前面已经计算的总长度里。
-        //否则i位就是默认初始化的长度。
+        //初始化 dp 以后，从 2 到 N 去计算最长长度。
+        //状态转移方程：dp[i] = dp[i-1] + 1;
+        //i 位的可能最大长度可能是：i-1 位上最大长度 + 1（包含 i 自己）
+        //那么什么时候可以加上自己算总长度呢，当 i 位和 i-1 位的大小正好跟 i-1 和 i-2 的大小情况相反。说明 i 成功可以加入到前面已经计算的总长度里。
+        //否则 i 位就是默认初始化的长度。
         int max = dp[1];
         for(int i=2;i<A.length;i++){
             if(A[i-1]-A[i-2]>0&&A[i]-A[i-1]<0 || A[i-1]-A[i-2]<0&&A[i]-A[i-1]>0){
@@ -564,8 +616,8 @@ Explanation: There is no such common subsequence, so the result is 0.
 The input strings consist of lowercase English characters only.
 ```
 
-**思路:** 前景提要：[这个视频](https://leetcode-cn.com/problems/longest-common-subsequence/solution/shi-pin-jiang-jie-shi-yong-dong-tai-gui-hua-qiu-ji/)讲得很不错，可以看一下。
-这个题可以通过画表格来分析，会让我们的思路更加清晰，如果当前我们看到两个字符串 `S1[i] == S2[j]`的时候，当前这个Chaeacter肯定是要考虑进最长公共子串的，那么当前最长的字串就是 `dp[i - 1][j - 1] + 1`，如果 `S1[i] != S2[j]`，这个当前的Character肯定不被考虑，那么当前最长公共字串肯定要在此Character之前的两个字符串中找最长的那一个
+**思路：** 前景提要：[这个视频](https://leetcode-cn.com/problems/longest-common-subsequence/solution/shi-pin-jiang-jie-shi-yong-dong-tai-gui-hua-qiu-ji/) 讲得很不错，可以看一下。
+这个题可以通过画表格来分析，会让我们的思路更加清晰，如果当前我们看到两个字符串 `S1[i] == S2[j]`的时候，当前这个 Chaeacter 肯定是要考虑进最长公共子串的，那么当前最长的字串就是 `dp[i - 1][j - 1] + 1`，如果 `S1[i] != S2[j]`，这个当前的 Character 肯定不被考虑，那么当前最长公共字串肯定要在此 Character 之前的两个字符串中找最长的那一个
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200927225640.png)
 
@@ -715,7 +767,7 @@ s consists only of lowercase English letters.
         假如序列为 d c b c c（index：0-4），s[0] != s[4] ，则 dp[0][4] = Math.max(dp[0][3],dp[1,4]) = Math.max(2,3) = 3
 ```
 
-至于为什么是从后往前遍历的，就是要考虑到： i 从最后一个字符开始往前遍历，j 从 i + 1 开始往后遍历，这样可以保证每个子问题都已经算好了。i从0开始到话，j要从i-1递减到0这样遍历，相应到状态方程改成 `f[i][j]=f[i-1][j+1]` or `f[i][j] = max(f[i-1][j], f[i][j+1]`。
+至于为什么是从后往前遍历的，就是要考虑到： i 从最后一个字符开始往前遍历，j 从 i + 1 开始往后遍历，这样可以保证每个子问题都已经算好了。i 从 0 开始到话，j 要从 i-1 递减到 0 这样遍历，相应到状态方程改成 `f[i][j]=f[i-1][j+1]` or `f[i][j] = max(f[i-1][j], f[i][j+1]`。
 
 ```java
 class Solution {
@@ -733,6 +785,124 @@ class Solution {
             }
         }
         return f[0][n - 1];
+    }
+}
+```
+## [256. Paint House](https://leetcode.com/problems/paint-house/)
+There is a row of n houses, where each house can be painted one of three colors: red, blue, or green. The cost of painting each house with a certain color is different. You have to paint all the houses such that no two adjacent houses have the same color.
+
+The cost of painting each house with a certain color is represented by an n x 3 cost matrix costs.
+
+For example, costs[0][0] is the cost of painting house 0 with the color red; costs[1][2] is the cost of painting house 1 with color green, and so on...
+Return the minimum cost to paint all houses.
+
+ 
+
+**Example 1:**
+
+    Input: costs = [[17,2,17],[16,16,5],[14,3,19]]
+    Output: 10
+    Explanation: Paint house 0 into blue, paint house 1 into green, paint house 2 into blue.
+    Minimum cost: 2 + 5 + 3 = 10.
+
+动态规划，看图：
+![](https://leetcode.com/problems/paint-house/Figures/256/dp_func_call_grid.png)
+![](https://leetcode.com/problems/paint-house/Figures/256/dp_in_grid.png)
+用这个图来分析，从 index = 1 开始，针对三种颜色，我们分别找出选用当前颜色时，所需要的最少花费：当前花费 + 上一间屋子另外两种颜色的最少花费，这样我们就写好了状态转移方程。
+
+```java
+class Solution {
+    public int minCost(int[][] costs) {
+        int n = costs.length;
+        int[][] dp = costs;
+        for(int i = 1; i < n; i++){
+            dp[i][0] += Math.min(dp[i - 1][1], dp[i - 1][2]);
+            dp[i][1] += Math.min(dp[i - 1][0], dp[i - 1][2]);
+            dp[i][2] += Math.min(dp[i - 1][1], dp[i - 1][0]);
+        }
+        return Math.min(dp[n - 1][0], Math.min(dp[n - 1][1], dp[n - 1][2]));
+    }
+}
+```
+
+## [97. Interleaving String](https://leetcode.com/problems/interleaving-string/)
+
+Given an m x n board of characters and a list of strings words, return all words on the board.
+
+Each word must be constructed from letters of sequentially adjacent cells, where **adjacent cells** are horizontally or vertically neighboring. The same letter cell may not be used more than once in a word.
+
+**Example 1:**
+
+![](https://assets.leetcode.com/uploads/2020/11/07/search1.jpg)
+
+    Input: board = [["o","a","a","n"],["e","t","a","e"],["i","h","k","r"],["i","f","l","v"]], words = ["oath","pea","eat","rain"]
+    Output: ["eat","oath"]
+
+思路：这个题如果单纯的使用 dfs，时间一定会超出限制，所以我们采用 TrieTree（字典树）来优化。关于这个题，B 站这个老姐讲的特别好：[[LeetCode]212. Word Search II 中文](https://www.bilibili.com/video/BV1TJ411K7hM?from=search&seid=5461741200199469049)
+```java
+class TrieNode{
+    String word;
+    TrieNode[] children;
+    public TrieNode(){
+        children = new TrieNode[26];
+        word = null;
+    }
+}
+class Solution {
+    int[][] dir = {{1, 0},{-1, 0},{0, 1},{0, -1}};
+    List<String> res;
+    int m;
+    int n;
+    public List<String> findWords(char[][] board, String[] words) {
+        res = new ArrayList<>();
+        m = board.length;
+        n = board[0].length;
+        TrieNode root = new TrieNode();
+        buildTrie(words, root);
+        for(int i = 0; i < m; i++){
+            for(int j = 0; j < n; j++){
+                char c = board[i][j]; 
+                if(root.children[c - 'a'] != null){
+                    dfs(board, i, j, root);
+                }
+            }
+        }
+        return res;      
+    }
+    private void dfs(char[][] board, int x, int y, TrieNode cur){
+        
+        if(x < 0 || x > m - 1 || y < 0 || y > n - 1){
+            return;
+        }
+        char c = board[x][y];
+        if( c == '*' || cur.children[c - 'a'] == null){
+            return;
+        }
+        cur = cur.children[c - 'a'];
+        if(cur.word != null){
+            res.add(cur.word);
+            cur.word = null;
+        }
+        board[x][y] = '*';
+        for(int[] d : dir){
+            int nx = x + d[0];
+            int ny = y + d[1];
+            dfs(board, nx, ny, cur);
+        }
+        board[x][y] = c;
+        
+    }
+    private void buildTrie(String[] words, TrieNode root){
+        for(String s : words){
+            TrieNode cur = root;
+            for(char c : s.toCharArray()){
+                if(cur.children[c - 'a'] == null){
+                    cur.children[c - 'a'] = new TrieNode();
+                }
+                cur = cur.children[c - 'a'];
+            }
+            cur.word = s;
+        }
     }
 }
 ```
@@ -1047,7 +1217,7 @@ public class Solution {
 }
 ```
 
-解释语句: `if cur > begin and candidates[cur-1] == candidates[cur]` 是如何避免重复的：
+解释语句：`if cur > begin and candidates[cur-1] == candidates[cur]` 是如何避免重复的：
 
 ```
 这个避免重复当思想是在是太重要了。
@@ -1057,7 +1227,7 @@ public class Solution {
                2   2  这种情况不会发生 但是却允许了不同层级之间的重复即：
               /     \
              5       5
-                例2
+                例 2
                  1
                 /
                2      这种情况确是允许的
@@ -1065,16 +1235,16 @@ public class Solution {
              2  
       
 为何会有这种神奇的效果呢？
-首先 cur-1 == cur 是用于判定当前元素是否和之前元素相同的语句。这个语句就能砍掉例1。
+首先 cur-1 == cur 是用于判定当前元素是否和之前元素相同的语句。这个语句就能砍掉例 1。
 可是问题来了，如果把所有当前与之前一个元素相同的都砍掉，那么例二的情况也会消失。 
-因为当第二个2出现的时候，他就和前一个2相同了。
+因为当第二个 2 出现的时候，他就和前一个 2 相同了。
       
-那么如何保留例2呢？
-那么就用cur > begin 来避免这种情况，你发现例1中的两个2是处在同一个层级上的，
-例2的两个2是处在不同层级上的。
-在一个for循环中，所有被遍历到的数都是属于一个层级的。我们要让一个层级中，
-必须出现且只出现一个2，那么就放过第一个出现重复的2，但不放过后面出现的2。
-第一个出现的2的特点就是 cur == begin. 第二个出现的2 特点是cur > begin.
+那么如何保留例 2 呢？
+那么就用 cur > begin 来避免这种情况，你发现例 1 中的两个 2 是处在同一个层级上的，
+例 2 的两个 2 是处在不同层级上的。
+在一个 for 循环中，所有被遍历到的数都是属于一个层级的。我们要让一个层级中，
+必须出现且只出现一个 2，那么就放过第一个出现重复的 2，但不放过后面出现的 2。
+第一个出现的 2 的特点就是 cur == begin. 第二个出现的 2 特点是 cur > begin.
 ```
 
 ## 216 Combination Sum III
@@ -1100,11 +1270,11 @@ Input: k = 3, n = 9
 Output: [[1,2,6], [1,3,5], [2,3,4]]
 ```
 
-树的dfs从上往下开始执行的时候因为递归分为递和归两部分（也就是往下传递和往回走），来看一个简单的例子，比如阶乘的递归过程，是先往下传递，然后再往回走
+树的 dfs 从上往下开始执行的时候因为递归分为递和归两部分（也就是往下传递和往回走），来看一个简单的例子，比如阶乘的递归过程，是先往下传递，然后再往回走
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200913162606.png)
 
-所以上面代码也一样，往下传递的时候我们要把当前节点的值加入到一个集合中，并且用n减去当前节点的值，返回的时候再把它给移除掉就行了。那么终止条件是什么呢，就是集合中的size等于k，并且n等于0，搞懂了上面的过程，代码就呼之欲出了
+所以上面代码也一样，往下传递的时候我们要把当前节点的值加入到一个集合中，并且用 n 减去当前节点的值，返回的时候再把它给移除掉就行了。那么终止条件是什么呢，就是集合中的 size 等于 k，并且 n 等于 0，搞懂了上面的过程，代码就呼之欲出了
 
 ```java
 class Solution {
@@ -1164,17 +1334,17 @@ Output: false
 
 思路分析：
 
-- 使用HashMap记录前缀和取模的值，以及该值对应的索引。`Map<Integer, Integer> map = new HashMap<>()`;键为`preSum % k`, 值为索引。
-- 在计算前缀和的过程中，如果前缀和取模的值出现重复，两个重复值之间的间隔大于1（题目要求子数组长度至少为2）则返回true，否则循环结束后返回false。然后这里我们来详细证明一下为什么这样做是正确的。
+- 使用 HashMap 记录前缀和取模的值，以及该值对应的索引。`Map<Integer, Integer> map = new HashMap<>()`; 键为`preSum % k`, 值为索引。
+- 在计算前缀和的过程中，如果前缀和取模的值出现重复，两个重复值之间的间隔大于 1（题目要求子数组长度至少为 2）则返回 true，否则循环结束后返回 false。然后这里我们来详细证明一下为什么这样做是正确的。
 - 首先，得知道`(A + B) % k = (A % k + B) % k`，加法减法没有区别，也就是`(A - B) % k = (A % k - B) % k`。
-  - 使用sum表示前缀和根据题目要求，`(sum[j] - sum[i]) % k = 0`也就是`(sum[j] % k - sum[i]) % k = 0`也就是`sum[j] % k - sum[i] = n * k`，其中n为非负整数。
-  - 然后对上式两边对k取余，即`sum[j] % k % k - sum[i] % k = n * k % k`，显然左边第一项就等于`sun[j] % k`，右边为0。
+  - 使用 sum 表示前缀和根据题目要求，`(sum[j] - sum[i]) % k = 0`也就是`(sum[j] % k - sum[i]) % k = 0`也就是`sum[j] % k - sum[i] = n * k`，其中 n 为非负整数。
+  - 然后对上式两边对 k 取余，即`sum[j] % k % k - sum[i] % k = n * k % k`，显然左边第一项就等于`sun[j] % k`，右边为 0。
   - 移项就得到`sum[j] % k = sum[i] % k`。
-  - 也就是说，如果子数组`[i, j - 1]`的和`sum[j] - sum[i]`是k的n倍，那么`sum[j] % k = sum[i] % k`。
-- 所以通过哈希表去查看是否会在求前缀和的过程中对k取模得到的值相等即可，也就是`map.containsKey(temp)`，记录每一个取余结果的索引的意义是：要求子数组的长度至少为2，所以当出现对k取模相等时，还要判断`i - map.get(temp) > 1`，如果成立，就返回true;否则继续循环。
+  - 也就是说，如果子数组`[i, j - 1]`的和`sum[j] - sum[i]`是 k 的 n 倍，那么`sum[j] % k = sum[i] % k`。
+- 所以通过哈希表去查看是否会在求前缀和的过程中对 k 取模得到的值相等即可，也就是`map.containsKey(temp)`，记录每一个取余结果的索引的意义是：要求子数组的长度至少为 2，所以当出现对 k 取模相等时，还要判断`i - map.get(temp) > 1`，如果成立，就返回 true; 否则继续循环。
   - 注意这里不需要更新索引，因为是要求数组的最小长度，所以记录第一个索引就好。
 - 首先要将表示没有元素的那种情况记录`map.put(0, -1)`;
-- 其次要特殊处理k为0的情况，此时不能取模，这种情况是要求前缀和之差为0也就是`sum[i] == sum[j]`，所以map记录的就是前缀和而不是取余。所以在累加`sum += nums[i]`;之后记录值`map.put(temp, i)`;之前，要先处理在map中记录什么值`int temp = k == 0 ? sum : sum % k`。
+- 其次要特殊处理 k 为 0 的情况，此时不能取模，这种情况是要求前缀和之差为 0 也就是`sum[i] == sum[j]`，所以 map 记录的就是前缀和而不是取余。所以在累加`sum += nums[i]`; 之后记录值`map.put(temp, i)`; 之前，要先处理在 map 中记录什么值`int temp = k == 0 ? sum : sum % k`。
 
 ```java
 import java.util.HashMap;
@@ -1232,10 +1402,9 @@ Given the root of a binary tree, return an array containing the values of all lo
     Node 1 is the root and is not lonely.
     Nodes 2 and 3 have the same parent and are not lonely.
 
-这个题的思路就是利用dfs去查找孤独的子节点，为了方便dfs，我们不仅需要传入当前的node，还需要把node的parent也传进去，方便我们做判断。
+这个题的思路就是利用 dfs 去查找孤独的子节点，为了方便 dfs，我们不仅需要传入当前的 node，还需要把 node 的 parent 也传进去，方便我们做判断。
 
-要注意的是，虽然传入的是两个node，但是跳出递归的条件还是`node==null`
-
+要注意的是，虽然传入的是两个 node，但是跳出递归的条件还是`node==null`
 
 ```java
 class Solution {
@@ -1250,7 +1419,7 @@ class Solution {
         if(node == null){
             return;
         }
-        // 理论上来说如果可以执行到这里，那么parent必不可能是null
+        // 理论上来说如果可以执行到这里，那么 parent 必不可能是 null
         // 那么为什么要带 parent != null 这个判断条件呢？
         // 看起来多此一举，其实是为了递归第一次开始的条件特判，也可以不写，那这样的话，递归开始就要写成：
         // dfs(root.left, root);
@@ -1275,8 +1444,8 @@ Given the root of a binary search tree, rearrange the tree in in-order so that t
     Input: root = [5,3,6,2,4,null,8,1,null,null,null,7,9]
     Output: [1,null,2,null,3,null,4,null,5,null,6,null,7,null,8,null,9]
 
-这个题算是比较简单的dfs，思路很好想，首先这是个BST, 直接inorder然后重新构建一棵树就好。中间用List临时保存节点。
-需要注意一点是，最好保存node.val，构建新树的时候，初始化新节点，这样做的好处就是不用担心之前的树结构，否则我们需要在构建节点前先清空之前的节点结构。
+这个题算是比较简单的 dfs，思路很好想，首先这是个 BST, 直接 inorder 然后重新构建一棵树就好。中间用 List 临时保存节点。
+需要注意一点是，最好保存 node.val，构建新树的时候，初始化新节点，这样做的好处就是不用担心之前的树结构，否则我们需要在构建节点前先清空之前的节点结构。
 
 ```java
 class Solution {
@@ -1344,10 +1513,6 @@ class Solution {
     }
 }
 ```
-
-
-
-
 
 ## Island Question
 
@@ -1496,7 +1661,6 @@ Output: 1
 
 ```
 Input: grid = [
-["1","1","0","0","0"],
 ["1","1","0","0","0"],
 ["0","0","1","0","0"],
 ["0","0","0","1","1"]
@@ -1759,14 +1923,11 @@ Return the minimum effort required to travel from the top-left cell to the botto
 - 1 <= rows, columns <= 100
 - 1 <= heights[i][j] <= 1000000
 
+这个题如果没有这些条件限制，其实是一道不难的 dfs 题。问题在于我们要找出 Mini Effort。
 
+所以一开始我并没有太多的思考用 dfs 和回溯，结果肯定是超时的。后来看到解析中说可以用二分法来缩短时间，觉得这个思路很好。
 
-这个题如果没有这些条件限制，其实是一道不难的dfs题。问题在于我们要找出 Mini Effort。
-
-所以一开始我并没有太多的思考用dfs和回溯，结果肯定是超时的。后来看到解析中说可以用二分法来缩短时间，觉得这个思路很好。
-
-二分法其实是转换了思路，因为题目给出了`1 <= heights[i][j] <= 1000000`，所以最大的effort也不会超过1000000，所以我们可以在0和1000000这个范围中不断地二分搜索，去看每一步的effort在不在这个范围内，如果在，缩小二分边界，如果不在，证明找到了最小值。
-
+二分法其实是转换了思路，因为题目给出了`1 <= heights[i][j] <= 1000000`，所以最大的 effort 也不会超过 1000000，所以我们可以在 0 和 1000000 这个范围中不断地二分搜索，去看每一步的 effort 在不在这个范围内，如果在，缩小二分边界，如果不在，证明找到了最小值。
 
 ```java
 class Solution {
@@ -1782,9 +1943,9 @@ class Solution {
         // 普通二分搜索套路
         while(left < right){
             int mid = (left + right) / 2;
-            // 判断条件是当前mid left right条件下， dfs能否搜索到
-            // 注意，这里有个小坑，一开始我在loop外初始化vis数组，然后传入dfs，结果报错
-            // 原因就是每一次二分搜索都是一次独立的dfs全过程，所以我们的vis数组应该在每一次二分搜索时候重置
+            // 判断条件是当前 mid left right 条件下， dfs 能否搜索到
+            // 注意，这里有个小坑，一开始我在 loop 外初始化 vis 数组，然后传入 dfs，结果报错
+            // 原因就是每一次二分搜索都是一次独立的 dfs 全过程，所以我们的 vis 数组应该在每一次二分搜索时候重置
             if(dfs(heights, 0, 0, mid, new boolean[m][n])){
                 right = mid;
             }else{
@@ -1798,7 +1959,7 @@ class Solution {
         if(x == m - 1 && y == n - 1){
             return true;
         }
-        // 修改vis状态
+        // 修改 vis 状态
         vis[x][y] = true;
         for(int[] d : dir){
             int nx = x + d[0];
@@ -1814,8 +1975,6 @@ class Solution {
     }
 }
 ```
-
-
 
 # BFS
 
@@ -1834,10 +1993,10 @@ BFS 可以看成是层序遍历。从某个结点出发，BFS 首先遍历到距
 我们都知道 BFS 需要使用队列，代码框架是这样子的（伪代码）：
 
 ```python
-while queue 非空:
+while queue 非空：
 	node = queue.pop()
     for node 的所有相邻结点 m:
-        if m 未访问过:
+        if m 未访问过：
             queue.push(m)
 ```
 
@@ -1845,13 +2004,13 @@ while queue 非空:
 
 ```python
 depth = 0 # 记录遍历到第几层
-while queue 非空:
+while queue 非空：
     depth++
     n = queue 中的元素个数
-    循环 n 次:
+    循环 n 次：
         node = queue.pop()
         for node 的所有相邻结点 m:
-            if m 未访问过:
+            if m 未访问过：
                 queue.push(m)
 ```
 
@@ -2009,7 +2168,7 @@ class Solution {
         }
 
         Queue<Integer> queue = new LinkedList<Integer>();
-        // 扫描入度数组，将入度为0的放入队列中
+        // 扫描入度数组，将入度为 0 的放入队列中
         for (int i = 0; i < numCourses; ++i) {
             if (indeg[i] == 0) {
                 queue.offer(i);
@@ -2018,7 +2177,7 @@ class Solution {
 
         // 记录已经出队的课程数量
         int visited = 0;
-        // 只要队列非空，就从队首取出入度为0的节点
+        // 只要队列非空，就从队首取出入度为 0 的节点
         while (!queue.isEmpty()) {
             ++visited;
             int u = queue.poll();
@@ -2032,6 +2191,96 @@ class Solution {
         }
 
         return visited == numCourses;
+    }
+}
+```
+
+## [752. Open the Lock](https://leetcode.com/problems/open-the-lock/)
+You have a lock in front of you with 4 circular wheels. Each wheel has 10 slots: `'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'`. The wheels can rotate freely and wrap around: for example we can turn `'9'` to be `'0'`, or `'0'` to be `'9'`. Each move consists of turning one wheel one slot.
+
+The lock initially starts at `'0000'`, a string representing the state of the 4 wheels.
+
+You are given a list of deadends dead ends, meaning if the lock displays any of these codes, the wheels of the lock will stop turning and you will be unable to open it.
+
+Given a target representing the value of the wheels that will unlock the lock, return the minimum total number of turns required to open the lock, or `-1` if it is impossible.
+
+**Example 1:**
+
+    Input: deadends = ["0201","0101","0102","1212","2002"], target = "0202"
+    Output: 6
+    Explanation:
+    A sequence of valid moves would be "0000" -> "1000" -> "1100" -> "1200" -> "1201" -> "1202" -> "0202".
+    Note that a sequence like "0000" -> "0001" -> "0002" -> "0102" -> "0202" would be invalid,
+    because the wheels of the lock become stuck after the display becomes the dead end "0102".
+
+这个题的本质其实是在求最短路径，转化成图的问题就是 BFS 求最短路径。
+
+由于是转轮锁，所以我们一次有两个选择，往上拨或者往下拨，所以四位数的密码一次就有八种可能，这就把这个问题转换成了 8 叉的 dfs。
+
+只需要注意这三个问题：
+1. 密码的临界问题，9 往前就是 0，0 往后就是 9。
+2. 走回头路。比如说我们从 "0000" 拨到 "1000"，但是等从队列拿出 "1000" 时，还会拨出一个 "0000"，这样的话会产生死循环。
+3. 终止条件，按照题目要求，我们找到 target 就应该结束并返回拨动的次数。
+4. 对 deadends 的处理，按道理这些「死亡密码」是不能出现的，也就是说你遇到这些密码的时候需要跳过。
+
+```java
+class Solution {
+    public int openLock(String[] deadends, String target) {
+        Set<String> dead = new HashSet<>();
+        for(String s : deadends){
+            dead.add(s);
+        }
+        Set<String> vis = new HashSet<>();
+        Queue<String> q = new LinkedList<>();
+        int res = 0;
+        q.offer("0000");
+        vis.add("0000");
+        
+        while(!q.isEmpty()){
+            int size = q.size();
+            for(int i = 0; i < size; i++){
+                String tmp = q.poll();
+                if(dead.contains(tmp)){
+                    continue;
+                }
+                if(tmp.equals(target)){
+                    return res;
+                }
+                for(int j = 0; j < 4; j++){
+                    String up = up(tmp, j);
+                    if(!vis.contains(up)){
+                        q.offer(up);
+                        vis.add(up);
+                    }
+                    String down = down(tmp, j);
+                    if(!vis.contains(down)){
+                        q.offer(down);
+                        vis.add(down);
+                    }
+                }
+            }
+            res++;
+
+        }
+        return -1;
+    }
+    private String up(String s, int index){
+        char[] c = s.toCharArray();
+        if(c[index] == '9'){
+            c[index] = '0';
+        }else{
+            c[index]++;
+        }
+        return String.valueOf(c);
+    }
+    private String down(String s, int index){
+        char[] c = s.toCharArray();
+        if(c[index] == '0'){
+            c[index] = '9';
+        }else{
+            c[index]--;
+        }
+        return String.valueOf(c);
     }
 }
 ```
@@ -2104,7 +2353,7 @@ class Solution {
             return "";
         }
         //维护两个数组，记录已有字符串指定字符的出现次数，和目标字符串指定字符的出现次数
-        //ASCII表总长128
+        //ASCII 表总长 128
         int[] need = new int[128];
         int[] have = new int[128];
 
@@ -2113,14 +2362,14 @@ class Solution {
             need[t.charAt(i)]++;
         }
 
-        //分别为左指针，右指针，最小长度(初始值为一定不可达到的长度)
+        //分别为左指针，右指针，最小长度（初始值为一定不可达到的长度）
         //已有字符串中目标字符串指定字符的出现总频次以及最小覆盖子串在原字符串中的起始位置
         int left = 0, right = 0, min = s.length() + 1, count = 0, start = 0;
         while (right < s.length()) {
             char r = s.charAt(right);
             //说明该字符不被目标字符串需要，此时有两种情况
-            // 1.循环刚开始，那么直接移动右指针即可，不需要做多余判断
-            // 2.循环已经开始一段时间，此处又有两种情况
+            // 1. 循环刚开始，那么直接移动右指针即可，不需要做多余判断
+            // 2. 循环已经开始一段时间，此处又有两种情况
             //  2.1 上一次条件不满足，已有字符串指定字���出现次数不满足目标字符串指定字符出现次数，那么此时
             //      如果该字符还不被目标字符串需要，就不需要进行多余判断，右指针移动即可
             //  2.2 左指针已经移动完毕，那么此时就相当于循环刚开始，同理直接移动右指针
@@ -2128,7 +2377,7 @@ class Solution {
                 right++;
                 continue;
             }
-            //当且仅当已有字符串目标字符出现的次数小于目标字符串字符的出现次数时，count才会+1
+            //当且仅当已有字符串目标字符出现的次数小于目标字符串字符的出现次数时，count 才会+1
             //是为了后续能直接判断已有字符串是否已经包含了目标字符串的所有字符，不需要挨个比对字符出现的次数
             if (have[r] < need[r]) {
                 count++;
@@ -2151,7 +2400,7 @@ class Solution {
                     continue;
                 }
                 //如果左边即将要去掉的字符被目标字符串需要，且出现的频次正好等于指定频次，那么如果去掉了这个字符，
-                //就不满足覆盖子串的条件，此时要破坏循环条件跳出循环，即控制目标字符串指定字符的出现总频次(count）-1
+                //就不满足覆盖子串的条件，此时要破坏循环条件跳出循环，即控制目标字符串指定字符的出现总频次 (count）-1
                 if (have[l] == need[l]) {
                     count--;
                 }
@@ -2196,7 +2445,7 @@ Input: nums = [1,5,9,1,5,9], k = 2, t = 3
 Output: false
 ```
 
-- [LeetCode讲解](https://leetcode-cn.com/problems/contains-duplicate-iii/solution/hua-dong-chuang-kou-er-fen-sou-suo-shu-zhao-shang-/)
+- [LeetCode 讲解](https://leetcode-cn.com/problems/contains-duplicate-iii/solution/hua-dong-chuang-kou-er-fen-sou-suo-shu-zhao-shang-/)
 
 暴力解法
 
@@ -2306,7 +2555,7 @@ Explanation:
     1  3  -1  -3  5 [3  6  7]      7
 ```
 
-思路: Brute Force 或者[使用Deque双端队列](https://leetcode-cn.com/problems/sliding-window-maximum/solution/zui-da-suo-yin-dui-shuang-duan-dui-lie-cun-suo-yin/)
+思路：Brute Force 或者 [使用 Deque 双端队列](https://leetcode-cn.com/problems/sliding-window-maximum/solution/zui-da-suo-yin-dui-shuang-duan-dui-lie-cun-suo-yin/)
 
 最简单直接的方法是遍历每个滑动窗口，找到每个窗口的最大值。一共有 N - k + 1 个滑动窗口，每个有 k 个元素，于是算法的时间复杂度为 {O}(N k)O(Nk)，表现较差。
 
@@ -2508,31 +2757,31 @@ Note that [10, 5, 2] is not included as the product of 100 is not strictly less 
 `ans += r - l + 1`
 
 ```
-对于一个长度为len的连续的满足条件的子数组, 我们可以把它进行细分
-第一次,细分为1个单位长度, 可以得到len个
-第二次,细分为2个单位长度, 可以得到len-1个
+对于一个长度为 len 的连续的满足条件的子数组，我们可以把它进行细分
+第一次，细分为 1 个单位长度，可以得到 len 个
+第二次，细分为 2 个单位长度，可以得到 len-1 个
 ......
-第len次,细分为len个单位长度, 可以得到1个
-总共有1+2+...+len-1+len个
+第 len 次，细分为 len 个单位长度，可以得到 1 个
+总共有 1+2+...+len-1+len 个
 ```
 
-当r右移时,若乘积超出范围了, 我们需要从左边摘除一部分数值使得乘积重新满足条件, 需要摘多少? 由于nums中元素均为正整数, 所以乘积必定大于等于1, 而题目要求不能取等号, 所以最坏的情况是l=r+1, 即左指针移到了右指针右边, 此时ans+=0
+当 r 右移时，若乘积超出范围了，我们需要从左边摘除一部分数值使得乘积重新满足条件，需要摘多少？由于 nums 中元素均为正整数，所以乘积必定大于等于 1, 而题目要求不能取等号，所以最坏的情况是 l=r+1, 即左指针移到了右指针右边，此时 ans+=0
 
-如果经过摘除左边元素后l依然小于r,怎么推出 `ans+=r-l+1`
+如果经过摘除左边元素后 l 依然小于 r, 怎么推出 `ans+=r-l+1`
 
 ```
-r左边的元素均已经考虑了所有的组合, 所以我们只要考虑含r的组合, 显然含r的组合数刚好是子数组的长度
-举个例子 [...5,6,3,4,8,...] 假设r遍历到了数值8的位置, l经过摘除后移到了数值5处, 
-此时所有的组合情况是:
+r 左边的元素均已经考虑了所有的组合，所以我们只要考虑含 r 的组合，显然含 r 的组合数刚好是子数组的长度
+举个例子 [...5,6,3,4,8,...] 假设 r 遍历到了数值 8 的位置，l 经过摘除后移到了数值 5 处，
+此时所有的组合情况是：
 [56348]
 [6348]
 [348]
 [48]
 [8]
-即5种
+即 5 种
 ```
 
-具体实现时,需要注意俩个细节
+具体实现时，需要注意俩个细节
 
 `if k<=1: return 0`
 `while l<=r and product >= k:`
@@ -2608,7 +2857,7 @@ Input: root1 = [1,null,8], root2 = [8,1]
 Output: [1,1,8,8]
 ```
 
-普通方法,就是把两个BST中的元素遍历到一个List中,最后利用 `Collections.sort()`对List进行排序操作,但是这个方法并没有利用BST的优势
+普通方法，就是把两个 BST 中的元素遍历到一个 List 中，最后利用 `Collections.sort()`对 List 进行排序操作，但是这个方法并没有利用 BST 的优势
 
 ```java
 /**
@@ -2643,7 +2892,7 @@ class Solution {
 }
 ```
 
-方法二,通过中序遍历,利用BST的特性,这样保存到每一个List中的元素都是有序的,最后我们再利用Merge Sort即可节省大量的时间
+方法二，通过中序遍历，利用 BST 的特性，这样保存到每一个 List 中的元素都是有序的，最后我们再利用 Merge Sort 即可节省大量的时间
 
 ```java
 /**
@@ -2780,9 +3029,9 @@ Given the following tree `[1,2,2,3,3,null,null,4,4]`:
 4   4
 ```
 
-思路：[Leetcode有一篇文章写的很不错](https://leetcode-cn.com/problems/balanced-binary-tree/solution/ping-heng-er-cha-shu-by-leetcode-solution/)，这个题可以有两个思路，一个是**自顶向下**，一个是**自底向上**
+思路：[Leetcode 有一篇文章写的很不错](https://leetcode-cn.com/problems/balanced-binary-tree/solution/ping-heng-er-cha-shu-by-leetcode-solution/)，这个题可以有两个思路，一个是**自顶向下**，一个是**自底向上**
 
-**自顶向下的递归:**
+**自顶向下的递归：**
 
 ```java
 class Solution {
@@ -2808,7 +3057,7 @@ class Solution {
 
 自底向上递归的做法类似于后序遍历，对于当前遍历到的节点，先递归地判断其左右子树是否平衡，再判断以当前节点为根的子树是否平衡。如果一棵子树是平衡的，则返回其高度（高度一定是非负整数），否则返回 -1−1。如果存在一棵子树不平衡，则整个二叉树一定不平衡。
 
-**自底向上的递归:**
+**自底向上的递归：**
 
 ```java
 class Solution {
@@ -3002,7 +3251,7 @@ class Solution {
         if (!isValidBST(root.left)) {
             return false;
         }
-        // 访问当前节点：如果当前节点小于等于中序遍历的前一个节点，说明不满足BST，返回 false；否则继续遍历。
+        // 访问当前节点：如果当前节点小于等于中序遍历的前一个节点，说明不满足 BST，返回 false；否则继续遍历。
         if (root.val <= pre) {
             return false;
         }
@@ -3059,7 +3308,7 @@ Output: [2,1,4,null,null,3]
  3
 ```
 
-思路：[LeetCode题解](https://leetcode-cn.com/problems/recover-binary-search-tree/solution/san-chong-jie-fa-xiang-xi-tu-jie-99-hui-fu-er-cha-/)，根据二叉搜索树的特性，如果我们中序遍历二叉搜索树存在list里面，那么他一定是有序的，所以我们就可以利用这个特性，然后对比遍历后的值，最后替换即可，但是这种方法需要我们开拓额外的空间，所以我们有优化的算法。
+思路：[LeetCode 题解](https://leetcode-cn.com/problems/recover-binary-search-tree/solution/san-chong-jie-fa-xiang-xi-tu-jie-99-hui-fu-er-cha-/)，根据二叉搜索树的特性，如果我们中序遍历二叉搜索树存在 list 里面，那么他一定是有序的，所以我们就可以利用这个特性，然后对比遍历后的值，最后替换即可，但是这种方法需要我们开拓额外的空间，所以我们有优化的算法。
 
 ```java
 class Solution {
@@ -3123,7 +3372,7 @@ Explanation: The LCA of nodes 5 and 4 is 5, since a node can be a descendant of 
 
 - [二叉树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/solution/er-cha-shu-de-zui-jin-gong-gong-zu-xian-by-leetc-2/)
 - [二叉树的最近公共祖先（后序遍历 DFS ，清晰图解）](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/solution/236-er-cha-shu-de-zui-jin-gong-gong-zu-xian-hou-xu/)
-- [java代码递归和非递归图文详解](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/solution/javadai-ma-di-gui-he-fei-di-gui-tu-wen-xiang-jie-b/)
+- [java 代码递归和非递归图文详解](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/solution/javadai-ma-di-gui-he-fei-di-gui-tu-wen-xiang-jie-b/)
 
 ```java
     public TreeNode lowestCommonAncestor(TreeNode cur, TreeNode p, TreeNode q) {
@@ -3131,14 +3380,14 @@ Explanation: The LCA of nodes 5 and 4 is 5, since a node can be a descendant of 
             return cur;
         TreeNode left = lowestCommonAncestor(cur.left, p, q);
         TreeNode right = lowestCommonAncestor(cur.right, p, q);
-        //如果left为空，说明这两个节点在cur结点的右子树上，我们只需要返回右子树查找的结果即可
+        //如果 left 为空，说明这两个节点在 cur 结点的右子树上，我们只需要返回右子树查找的结果即可
         if (left == null)
             return right;
         //同上
         if (right == null)
             return left;
-        //如果left和right都不为空，说明这两个节点一个在cur的左子树上一个在cur的右子树上，
-        //我们只需要返回cur结点即可。
+        //如果 left 和 right 都不为空，说明这两个节点一个在 cur 的左子树上一个在 cur 的右子树上，
+        //我们只需要返回 cur 结点即可。
         return cur;
     }
 ```
@@ -3203,7 +3452,6 @@ class Solution {
         dfs(root, res, path, sum);
         return res;
   
-  
     }
     public void dfs(TreeNode root, List<List<Integer>> res, Deque<Integer> path, int sum){
         if(root == null){
@@ -3256,24 +3504,24 @@ Return 3. The paths that sum to 8 are:
 这道题目引入了一个点：前缀和，就是到达当前元素的路径上，之前所有元素的和。
 
 那么在写代码的时候，如何表示前缀和？
-从root开始往下dfs, 记录下所到的每一个节点的前缀和
+从 root 开始往下 dfs, 记录下所到的每一个节点的前缀和
 
-比如：存储当前节点i路径下的所有父节点j到root的和。那么 `sum[i,j] = sum[i] - sum[j]`
+比如：存储当前节点 i 路径下的所有父节点 j 到 root 的和。那么 `sum[i,j] = sum[i] - sum[j]`
 
-如果你看不太懂，那个一步到位使用 hashmap的方法，那么咱们一步一步的拆解。
+如果你看不太懂，那个一步到位使用 hashmap 的方法，那么咱们一步一步的拆解。
 
 咱们抛开链接的题解，先用最朴素的方法来做，代码如下
 
 ```java
 int counter = 0;
 private void helper(TreeNode node, int[] sums, int level, int target){
-    // 先检查本节点是否存在于上面节点的和==target的情况
+    // 先检查本节点是否存在于上面节点的和==target 的情况
     if(sums[level] == target) ++counter;
     for(int i = 0; i < level; ++i){
         // System.out.println(i + "\t" + (sums[level] - sums[i]));
         if(sums[level] - sums[i] == target) ++counter;
     }
-    // sum存储从根节点到本节点，每个节点的到root的和
+    // sum 存储从根节点到本节点，每个节点的到 root 的和
     if(node.left != null){
         sums[level + 1] = sums[level] + node.left.val;
         helper(node.left, sums, level + 1, target);
@@ -3294,7 +3542,7 @@ public int pathSum(TreeNode root, int target) {
 }
 ```
 
-完事了，我们考虑优化：其实所有的和可以用hash表存取，更快。
+完事了，我们考虑优化：其实所有的和可以用 hash 表存取，更快。
 所以，优化之后的代码，如下：
 
 ```java
@@ -3332,7 +3580,7 @@ int counter = 0;
 
 其实，这道题之所以困惑，主要是有
 （1）之前没有接触过前缀和的概念
-（2）题解直接用了hashmap, 缺少最朴素的解法
+（2）题解直接用了 hashmap, 缺少最朴素的解法
 
 所以，先用“ 笨” 办法写出来，再考虑优化
 
@@ -3342,24 +3590,24 @@ int counter = 0;
 
 前缀和怎么应用呢？
 
-如果两个数的**前缀总和**是相同的，那么这些**节点之间的元素总和为零**。进一步扩展相同的想法，如果前缀总和currSum，在节点A和节点B处相差target，则位于节点A和节点B之间的元素之和是target。
+如果两个数的**前缀总和**是相同的，那么这些**节点之间的元素总和为零**。进一步扩展相同的想法，如果前缀总和 currSum，在节点 A 和节点 B 处相差 target，则位于节点 A 和节点 B 之间的元素之和是 target。
 
-因为本题中的路径是一棵树，从根往任一节点的路径上(不走回头路)，**有且仅有一条路径**，因为**不存在环**。(如果存在环，前缀和就不能用了，需要改造算法)
+因为本题中的路径是一棵树，从根往任一节点的路径上（不走回头路），**有且仅有一条路径**，因为**不存在环**。（如果存在环，前缀和就不能用了，需要改造算法）
 
-抵达当前节点(即B节点)后，将前缀和累加，然后查找在前缀和上，有没有**前缀和currSum-target的节点**(即A节点)，存在即表示从A到B有一条路径之和满足条件的情况。结果加上满足**前缀和currSum-target的节点**的数量。然后递归进入左右子树。
+抵达当前节点（即 B 节点）后，将前缀和累加，然后查找在前缀和上，有没有**前缀和 currSum-target 的节点**（即 A 节点），存在即表示从 A 到 B 有一条路径之和满足条件的情况。结果加上满足**前缀和 currSum-target 的节点**的数量。然后递归进入左右子树。
 
 左右子树遍历完成之后，回到当前层，需要把当前节点添加的前缀和去除。避免回溯之后影响上一层。因为思想是前缀和，不属于前缀的，我们就要去掉它。
 
-时间复杂度：每个节点只遍历一次,O(N).
+时间复杂度：每个节点只遍历一次，O(N).
 
-空间复杂度：开辟了一个hashMap,O(N).
+空间复杂度：开辟了一个 hashMap,O(N).
 
 核心代码
 
 ```java
 // 当前路径上的和
 currSum += node.val;
-// currSum-target相当于找路径的起点，起点的sum+target=currSum，当前点到起点的距离就是target
+// currSum-target 相当于找路径的起点，起点的 sum+target=currSum，当前点到起点的距离就是 target
 res += prefixSumCount.getOrDefault(currSum - target, 0);
 // 更新路径上当前节点前缀和的个数
 prefixSumCount.put(currSum, prefixSumCount.getOrDefault(currSum, 0) + 1);
@@ -3377,9 +3625,9 @@ prefixSumCount.put(currSum, prefixSumCount.getOrDefault(currSum, 0) + 1);
  */
 class Solution {
     public int pathSum(TreeNode root, int sum) {
-        // key是前缀和, value是大小为key的前缀和出现的次数
+        // key 是前缀和，value 是大小为 key 的前缀和出现的次数
         Map<Integer, Integer> prefixSumCount = new HashMap<>();
-        // 前缀和为0的一条路径
+        // 前缀和为 0 的一条路径
         prefixSumCount.put(0, 1);
         // 前缀和的递归回溯思路
         return recursionPathSum(root, prefixSumCount, sum, 0);
@@ -3387,39 +3635,39 @@ class Solution {
 
     /**
      * 前缀和的递归回溯思路
-     * 从当前节点反推到根节点(反推比较好理解，正向其实也只有一条)，有且仅有一条路径，因为这是一棵树
-     * 如果此前有和为currSum-target,而当前的和又为currSum,两者的差就肯定为target了
+     * 从当前节点反推到根节点（反推比较好理解，正向其实也只有一条），有且仅有一条路径，因为这是一棵树
+     * 如果此前有和为 currSum-target, 而当前的和又为 currSum, 两者的差就肯定为 target 了
      * 所以前缀和对于当前路径来说是唯一的，当前记录的前缀和，在回溯结束，回到本层时去除，保证其不影响其他分支的结果
      * @param node 树节点
-     * @param prefixSumCount 前缀和Map
+     * @param prefixSumCount 前缀和 Map
      * @param target 目标值
      * @param currSum 当前路径和
      * @return 满足题意的解
      */
     private int recursionPathSum(TreeNode node, Map<Integer, Integer> prefixSumCount, int target, int currSum) {
-        // 1.递归终止条件
+        // 1. 递归终止条件
         if (node == null) {
             return 0;
         }
-        // 2.本层要做的事情
+        // 2. 本层要做的事情
         int res = 0;
         // 当前路径上的和
         currSum += node.val;
 
         //---核心代码
-        // 看看root到当前节点这条路上是否存在节点前缀和加target为currSum的路径
-        // 当前节点->root节点反推，有且仅有一条路径，如果此前有和为currSum-target,而当前的和又为currSum,两者的差就肯定为target了
-        // currSum-target相当于找路径的起点，起点的sum+target=currSum，当前点到起点的距离就是target
+        // 看看 root 到当前节点这条路上是否存在节点前缀和加 target 为 currSum 的路径
+        // 当前节点->root 节点反推，有且仅有一条路径，如果此前有和为 currSum-target, 而当前的和又为 currSum, 两者的差就肯定为 target 了
+        // currSum-target 相当于找路径的起点，起点的 sum+target=currSum，当前点到起点的距离就是 target
         res += prefixSumCount.getOrDefault(currSum - target, 0);
         // 更新路径上当前节点前缀和的个数
         prefixSumCount.put(currSum, prefixSumCount.getOrDefault(currSum, 0) + 1);
         //---核心代码
 
-        // 3.进入下一层
+        // 3. 进入下一层
         res += recursionPathSum(node.left, prefixSumCount, target, currSum);
         res += recursionPathSum(node.right, prefixSumCount, target, currSum);
 
-        // 4.回到本层，恢复状态，去除当前节点的前缀和数量
+        // 4. 回到本层，恢复状态，去除当前节点的前缀和数量
         prefixSumCount.put(currSum, prefixSumCount.get(currSum) - 1);
         return res;
     }
@@ -3454,7 +3702,7 @@ Return the following binary tree:
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20201008232803.png)
 
-利用前序遍历第一个节点就是根节点的特点，我们可以将中序遍历序列拆分，并找到整个树的左右子树，然后我们进一步递归，分别找左子树和右子树的根节点......
+利用前序遍历第一个节点就是根节点的特点，我们可以将中序遍历序列拆分，并找到整个树的左右子树，然后我们进一步递归，分别找左子树和右子树的根节点。.....
 
 递归跳出的条件就是 `preLeft > preRight || inLeft > inRight`
 
@@ -3517,7 +3765,7 @@ Output: 6
 
 思路：
 
-节点node若是同值子树点，则其左右子树首先都是同值子树点，并且左右孩子的val与node的val相同。介于此，遍历node的时候，对左右子树dfs返回一个bool值，若都为真，再将三者的val进行对比，否则直接返回false。
+节点 node 若是同值子树点，则其左右子树首先都是同值子树点，并且左右孩子的 val 与 node 的 val 相同。介于此，遍历 node 的时候，对左右子树 dfs 返回一个 bool 值，若都为真，再将三者的 val 进行对比，否则直接返回 false。
 
 ```java
 /**
@@ -3613,13 +3861,13 @@ Given an array nums of n integers and an integer target, find three integers in 
     Explanation: The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
 
 思路就是双指针，从头扫到尾，在这个过程中创建两个指针，`left = i + 1`, `right = nums.length - 1`。
-然后求`sum = nums[i] + nums[left] + nums[right]`，最后判断和target的接近程度，不断刷新res的值。
+然后求`sum = nums[i] + nums[left] + nums[right]`，最后判断和 target 的接近程度，不断刷新 res 的值。
 
 ```java
 class Solution {
     public int threeSumClosest(int[] nums, int target) {
         Arrays.sort(nums);
-        // 注意这里，我本来初始化res是int最大值，但是在下面 sum - target的过程中，target有可能是负数，就导致整形溢出。这里要考虑一下。
+        // 注意这里，我本来初始化 res 是 int 最大值，但是在下面 sum - target 的过程中，target 有可能是负数，就导致整形溢出。这里要考虑一下。
         int res = Integer.MAX_VALUE / 2;
         for(int i = 0; i < nums.length; i++){
             int left = i + 1;
@@ -3687,15 +3935,15 @@ Given an array of intervals where intervals[i] = [starti, endi], merge all overl
     Output: [[1,5]]
     Explanation: Intervals [1,4] and [4,5] are considered overlapping.
 
-首先重写`Arrays.sort`，根据子数组的第一位，对原数组进行重新sort。
+首先重写`Arrays.sort`，根据子数组的第一位，对原数组进行重新 sort。
 
         1                2             3
     ---------        ---------     --------
         -------        -----                ------
 
-一共有以上三种情况，其中1和2可以归在一类里面考虑，我们只需要比较 res数组中最后一个的第二位 和 待处理数组的第一位的大小，如果待处理的第一位比res数组最后一个的第二位大，那么直接加进去就好。如果小，那么接着比较各自的第二位即可。
+一共有以上三种情况，其中 1 和 2 可以归在一类里面考虑，我们只需要比较 res 数组中最后一个的第二位 和 待处理数组的第一位的大小，如果待处理的第一位比 res 数组最后一个的第二位大，那么直接加进去就好。如果小，那么接着比较各自的第二位即可。
 
-要注意：List转数组用toArray()的正确写法
+要注意：List 转数组用 toArray() 的正确写法
 ```java
 class Solution {
     public int[][] merge(int[][] intervals) {
@@ -3733,7 +3981,6 @@ You may assume that the intervals were initially sorted according to their start
     Output: [[1,2],[3,10],[12,16]]
     Explanation: Because the new interval [4,8] overlaps with [3,5],[6,7],[8,10].
 
-
 ```java
 class Solution {
     public int[][] insert(int[][] intervals, int[] newInterval) {
@@ -3760,7 +4007,6 @@ class Solution {
 }
 ```
 
-
 # Other
 
 ## 9 Palindrome Number
@@ -3781,8 +4027,6 @@ class Solution {
 }
 ```
 
-
-
 ## Maximum Subarray
 
 Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.
@@ -3795,7 +4039,7 @@ Output: 6
 Explanation: [4,-1,2,1] has the largest sum = 6.
 ```
 
-这个题的思路是：从头开始计算，一旦出现子序列和小于0的情况，就重新开始(sum=0)，因为前面的和为负数的话，后面与它相加会变小。
+这个题的思路是：从头开始计算，一旦出现子序列和小于 0 的情况，就重新开始 (sum=0)，因为前面的和为负数的话，后面与它相加会变小。
 
 ```java
 class Solution {
@@ -3889,7 +4133,7 @@ Output: 4
 
 Explanation: There are 4 prime numbers less than 10, they are 2, 3, 5, 7.
 
-思路一:最容易想到的方法就是写两个for，让该数字从1开始除，如果可以除，那么就是素数。这个方法当面临一个特别大的数的时候，就会很耗费时间。所以不推荐
+思路一：最容易想到的方法就是写两个 for，让该数字从 1 开始除，如果可以除，那么就是素数。这个方法当面临一个特别大的数的时候，就会很耗费时间。所以不推荐
 
 ```java
 
@@ -3899,7 +4143,7 @@ Explanation: There are 4 prime numbers less than 10, they are 2, 3, 5, 7.
 
 ![](https://images2017.cnblogs.com/blog/1157228/201709/1157228-20170907193558741-1720107409.gif)
 
-首先，将2到n范围内的所有整数写下来。其中最小的数字2是素数。将表中所有2的倍数都划去。表中剩余的最小数字是3，它不能被更小的数整除，所以是素数。再将表中所有3的倍数全都划去。依次类推，如果表中剩余的最小数字是m时，m就是素数。然后将表中所有m的倍数全部划去。像这样反复操作，就能依次枚举n以内的素数。
+首先，将 2 到 n 范围内的所有整数写下来。其中最小的数字 2 是素数。将表中所有 2 的倍数都划去。表中剩余的最小数字是 3，它不能被更小的数整除，所以是素数。再将表中所有 3 的倍数全都划去。依次类推，如果表中剩余的最小数字是 m 时，m 就是素数。然后将表中所有 m 的倍数全部划去。像这样反复操作，就能依次枚举 n 以内的素数。
 
 ## 20 Valid Parentheses
 
@@ -3912,7 +4156,7 @@ An input string is valid if:
 - Note that an empty string is also considered valid.
 
 思路：
-这个题用Stack是最简单的，利用了Stack的特性：**先进后出，后进先出**，以左半括号为，遇到左括号就把对应的右括号push进stack里面，遇到右括号就把栈里面的pop出来。
+这个题用 Stack 是最简单的，利用了 Stack 的特性：**先进后出，后进先出**，以左半括号为，遇到左括号就把对应的右括号 push 进 stack 里面，遇到右括号就把栈里面的 pop 出来。
 
 ```java
 class Solution {
@@ -3954,7 +4198,7 @@ Output: 2
 
 **思路一：**
 
-看到这个题的时候，第一时间反应是利用hashmap存储，遍历sums中的元素，存在hashmap中，因为是返回众数，所以在存进map的时候可以直接做个判断，如果key的数量 > nums.length / 2，直接返回就行。
+看到这个题的时候，第一时间反应是利用 hashmap 存储，遍历 sums 中的元素，存在 hashmap 中，因为是返回众数，所以在存进 map 的时候可以直接做个判断，如果 key 的数量 > nums.length / 2，直接返回就行。
 
 - 缺点就是太慢了
 
@@ -3983,7 +4227,7 @@ class Solution {
 
 **思路二：**
 
-思路很巧妙，直接对nums进行排序，直接返回中间的元素即可。如果是数量最多的数字(> n / 2 )，那么中间的数字必定是我们需要的结果。
+思路很巧妙，直接对 nums 进行排序，直接返回中间的元素即可。如果是数量最多的数字 (> n / 2 )，那么中间的数字必定是我们需要的结果。
 
 ```java
 class Solution {
@@ -4033,11 +4277,11 @@ Output: 1->1->2->3->4->4
 
 **1. 具体思路：**
 
-设置一个dummyhead，设置pre指针指向head，然后两个指针p,q分别指向l1,l2，当p,q不为空时，判断p.val, q.val的大小，如果p.val小,则pre.next 指向p，然后p指向下一节点。反之亦然。
+设置一个 dummyhead，设置 pre 指针指向 head，然后两个指针 p,q 分别指向 l1,l2，当 p,q 不为空时，判断 p.val, q.val 的大小，如果 p.val 小，则 pre.next 指向 p，然后 p 指向下一节点。反之亦然。
 
-当p,q中一条链表遍历完毕，则pre.next指向剩余的链表即可
+当 p,q 中一条链表遍历完毕，则 pre.next 指向剩余的链表即可
 
-最终返回dummyhead.next
+最终返回 dummyhead.next
 
 ```java
 class Solution {
@@ -4131,12 +4375,12 @@ It doesn't matter what values are set beyond the returned length.
 **思路：**
 
 - 原地改**数组**
-- 定义k = 0；用来记录数组中不等于val的元素的个数
-- 从头开始遍历数组（n =0），若数组中元素与val不相等（ 即 nums[n] != val）则将nums[n]赋给nums[k],然后将k + 1;然后执行下一次循环；若数组中元素与val值相等即（nums[n] != val），则执行下一次循环; 直到循环执行结束
-- 最后返回k
+- 定义 k = 0；用来记录数组中不等于 val 的元素的个数
+- 从头开始遍历数组（n =0），若数组中元素与 val 不相等（ 即 nums[n] != val）则将 nums[n] 赋给 nums[k], 然后将 k + 1; 然后执行下一次循环；若数组中元素与 val 值相等即（nums[n] != val），则执行下一次循环；直到循环执行结束
+- 最后返回 k
 
 **注意：**
-这个题其实一开始我很晕，虽然很简单，但是要搞清楚题目的意思，不用管数组的长度和剩下的元素，只用替换掉前k个元素并且返回k就可以了！
+这个题其实一开始我很晕，虽然很简单，但是要搞清楚题目的意思，不用管数组的长度和剩下的元素，只用替换掉前 k 个元素并且返回 k 就可以了！
 
 ```java
 class Solution {
@@ -4169,7 +4413,7 @@ Output: 5
 ```
 
 思路：
-这个题没难度，为什么我要写出来呢？就是需要注意，有一个小坑，如果字符串最后一个字符是空格的话，那么常规思路写的算法，看答案学到了一个java的方法：`.trim()`，目的是去除字符串两端的多余的空格。
+这个题没难度，为什么我要写出来呢？就是需要注意，有一个小坑，如果字符串最后一个字符是空格的话，那么常规思路写的算法，看答案学到了一个 java 的方法：`.trim()`，目的是去除字符串两端的多余的空格。
 
 ```java
 class Solution {
@@ -4207,7 +4451,7 @@ Output: 1->2->3
 ```
 
 思路：
-很简单的一道题，考的就是对Java链表结点操作的熟练程度。在一开始我们定义一个指针 `cur`，利用cur判断当前与下一个结点的val，相等的话就让cur的next指向next.next。记住每次操作完将cur向后移动一个位置就可以了。
+很简单的一道题，考的就是对 Java 链表结点操作的熟练程度。在一开始我们定义一个指针 `cur`，利用 cur 判断当前与下一个结点的 val，相等的话就让 cur 的 next 指向 next.next。记住每次操作完将 cur 向后移动一个位置就可以了。
 
 ```java
 class Solution {
@@ -4244,8 +4488,8 @@ Output: [1,2,2,3,5,6]\
 ```
 
 思路：
-这个题其实很简单，我们只需要创建一个新数组，然后把要合并的两个数组挨个遍历，然后挨个放进新数组就可以了。但是这种思路**太简单**，我们可以不生成新数组的情况下合并，从nums1的末尾从后往前放就可以了。
-还有一种方法更加暴力，直接把两个数组拼接起来，然后Array.sort()排序，这里不再写方法。
+这个题其实很简单，我们只需要创建一个新数组，然后把要合并的两个数组挨个遍历，然后挨个放进新数组就可以了。但是这种思路**太简单**，我们可以不生成新数组的情况下合并，从 nums1 的末尾从后往前放就可以了。
+还有一种方法更加暴力，直接把两个数组拼接起来，然后 Array.sort() 排序，这里不再写方法。
 
 ```java
  class Solution {
@@ -4446,7 +4690,7 @@ Output:
 [2,3]
 ```
 
-思路：题目中要求不要使用额外空间和O(n)时间复杂度，所以我们不能使用HashMap或者暴力搜索法。这道题其实思路也算是HashMap，只不过我们使用数组自己本身作为键值对配对。遍历数组中的元素，然后将该数 - 1作为index（因为数组长度正好等于最大数），然后将index对应的原数取负数，继续遍历，若此index对应的数为负，则说明已经出现过。
+思路：题目中要求不要使用额外空间和 O(n) 时间复杂度，所以我们不能使用 HashMap 或者暴力搜索法。这道题其实思路也算是 HashMap，只不过我们使用数组自己本身作为键值对配对。遍历数组中的元素，然后将该数 - 1 作为 index（因为数组长度正好等于最大数），然后将 index 对应的原数取负数，继续遍历，若此 index 对应的数为负，则说明已经出现过。
 
 ```java
 class Solution {
@@ -4538,31 +4782,31 @@ Input: 120
 Output: 21
 ```
 
-思路：**先转成int再进行字符串反转** 或者利用下面的数学方法。
+思路：**先转成 int 再进行字符串反转** 或者利用下面的数学方法。
 
 看起来这道题就这么解决了，但请注意，题目上还有这么一句
 
 > 设我们的环境只能存储得下 32 位的有符号整数，则其数值范围为 `[−2^31,  2^31 − 1]`。
 
 也就是说我们不能用 `long`存储最终结果，而且有些数字可能是合法范围内的数字，但是反转过来就超过范围了。
-假设有 `1147483649`这个数字，它是小于最大的32位整数 `2147483647`的，但是将这个数字反转过来后就变成了 `9463847411`，这就比最大的32位整数还要大了，这样的数字是没法存到int里面的，所以肯定要返回0(溢出了)。
-甚至，我们还需要提前判断:
+假设有 `1147483649`这个数字，它是小于最大的 32 位整数 `2147483647`的，但是将这个数字反转过来后就变成了 `9463847411`，这就比最大的 32 位整数还要大了，这样的数字是没法存到 int 里面的，所以肯定要返回 0（溢出了）。
+甚至，我们还需要提前判断：
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200831114818.png)
 
-上图中，绿色的是最大32位整数
-第二排数字中，橘子的是 `5`，它是大于上面同位置的 `4`，这就意味着 `5`后跟任何数字，都会比最大32为整数都大。
-所以，我们到【最大数的1/10】时，就要开始判断了
+上图中，绿色的是最大 32 位整数
+第二排数字中，橘子的是 `5`，它是大于上面同位置的 `4`，这就意味着 `5`后跟任何数字，都会比最大 32 为整数都大。
+所以，我们到【最大数的 1/10】时，就要开始判断了
 如果某个数字大于 `214748364`那后面就不用再判断了，肯定溢出了。
-如果某个数字等于 `214748364`呢，这对应到上图中第三、第四、第五排的数字，需要要跟最大数的末尾数字比较，如果这个数字比7还大，说明溢出了。
+如果某个数字等于 `214748364`呢，这对应到上图中第三、第四、第五排的数字，需要要跟最大数的末尾数字比较，如果这个数字比 7 还大，说明溢出了。
 
 对于负数也是一样的
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20200831114859.png)
 
-上图中绿色部分是最小的32位整数，同样是在【最小数的 1/10】时开始判断
+上图中绿色部分是最小的 32 位整数，同样是在【最小数的 1/10】时开始判断
 如果某个数字小于 `-214748364`说明溢出了
-如果某个数字等于 `-214748364`，还需要跟最小数的末尾比较，即看它是否小于8
+如果某个数字等于 `-214748364`，还需要跟最小数的末尾比较，即看它是否小于 8
 
 ```java
 class Solution {
@@ -4603,7 +4847,7 @@ Input: s = "rat", t = "car"
 Output: false
 ```
 
-思路：[LeetCode解法](https://leetcode-cn.com/problems/valid-anagram/solution/you-xiao-de-zi-mu-yi-wei-ci-by-leetcode/) 一种是排序，一种是哈希表。
+思路：[LeetCode 解法](https://leetcode-cn.com/problems/valid-anagram/solution/you-xiao-de-zi-mu-yi-wei-ci-by-leetcode/) 一种是排序，一种是哈希表。
 
 ```java
 public boolean isAnagram(String s, String t) {
@@ -4746,8 +4990,8 @@ Output: 3
 Explanation: We slide A to right by 1 unit and down by 1 unit.
 ```
 
-思路:这个题是一个很傻逼的题,我们采取Brute Force的方法,四个for循环嵌套.
-巧妙的点在于,我们new一个 N * 2 的数组用来存放偏移量,若果下次的偏移量一样的话,那么数组里的值++.
+思路：这个题是一个很傻逼的题，我们采取 Brute Force 的方法，四个 for 循环嵌套。
+巧妙的点在于，我们 new 一个 N * 2 的数组用来存放偏移量，若果下次的偏移量一样的话，那么数组里的值++.
 
 ```java
 class Solution {
@@ -4876,9 +5120,9 @@ The robot moves from (0, 0) -> (0, 1) -> (-1, 1) -> (-1, 0) -> (0, 0) -> ...
 ```java
 public boolean isRobotBounded(String instructions) {
   
-	int dir = 0; // 方向: 0上   1右   2下   3左
-	int x = 0;   // x轴坐标
-	int y = 0;   // y轴坐标
+	int dir = 0; // 方向：0 上   1 右   2 下   3 左
+	int x = 0;   // x 轴坐标
+	int y = 0;   // y 轴坐标
 	char ch;
 	for(int i = 0; i < instructions.length(); i ++){
 		ch = instructions.charAt(i); // 逐个读取字符
@@ -4903,10 +5147,10 @@ public boolean isRobotBounded(String instructions) {
 			}
 		}
 	}
-	// 情况1: 走完一轮回到原点
+	// 情况 1: 走完一轮回到原点
 	if(x == 0 && y == 0)
 		return true;
-	// 情况2: 走完一轮,只要方向改变了(即不是直走了),最后不管走多少轮总会回到起点
+	// 情况 2: 走完一轮，只要方向改变了（即不是直走了）, 最后不管走多少轮总会回到起点
 	if(dir != 0)
 		return true;
 
@@ -4937,16 +5181,16 @@ Output: [1,2]
 
 思路：这个题由于限制了时间和空间，所以我们不能采用常规的方法，这里介绍一种新方法：[**摩尔投票法**](https://leetcode-cn.com/problems/majority-element-ii/solution/liang-fu-dong-hua-yan-shi-mo-er-tou-piao-fa-zui-zh/)
 
-明确一点就是众数最多只能有2个，如果两个数出现的次数分别为a和b，`a>n/ 3`, `b>n/3`，这两个数为众数，设其他数字的出现次数为c，那么 `a+b+c=n`，有 `a+b>2n/3`，`c<n/3`，因此最多只能有两个众数。
+明确一点就是众数最多只能有 2 个，如果两个数出现的次数分别为 a 和 b，`a>n/ 3`, `b>n/3`，这两个数为众数，设其他数字的出现次数为 c，那么 `a+b+c=n`，有 `a+b>2n/3`，`c<n/3`，因此最多只能有两个众数。
 
-我们每次移除3个不同的数，因为a和b都大于c，a-c以及b-c都大于0，最后剩下的就一定是众数。
+我们每次移除 3 个不同的数，因为 a 和 b 都大于 c，a-c 以及 b-c 都大于 0，最后剩下的就一定是众数。
 
-但是众数有可能是0个或者1个，因此为了确认选出来的两个数是否是众数，还要进行一次遍历确认其出现次数是否大于 `n/3`
+但是众数有可能是 0 个或者 1 个，因此为了确认选出来的两个数是否是众数，还要进行一次遍历确认其出现次数是否大于 `n/3`
 
-- 如果当前元素等于cand1，则cand1次数加1
-- 如果当前元素等于cand2，则cand2次数加1
-- 如果都不等，如果其中候选者的次数为0，则更换候选
-- 若num符合前面3个条件的其中一个，就要需要考虑下一个元素，因为如果满足了前面3个条件的其中一个num就成了候选者，如果前面3个条件都不满足，说明cand1、cand2与当前元素num各不相等，且cand1和cand2至少存在1个，那么同时移除一个cand1、cand2和num
+- 如果当前元素等于 cand1，则 cand1 次数加 1
+- 如果当前元素等于 cand2，则 cand2 次数加 1
+- 如果都不等，如果其中候选者的次数为 0，则更换候选
+- 若 num 符合前面 3 个条件的其中一个，就要需要考虑下一个元素，因为如果满足了前面 3 个条件的其中一个 num 就成了候选者，如果前面 3 个条件都不满足，说明 cand1、cand2 与当前元素 num 各不相等，且 cand1 和 cand2 至少存在 1 个，那么同时移除一个 cand1、cand2 和 num
 - 最后为了确保选出来的候选者是众数，还要一次遍历统计判断是否为众数
 
 ```java
@@ -4961,30 +5205,30 @@ class Solution {
         int cnt1 = 0, cnt2 = 0;
         // 投票过程
         for (int num : nums) {
-            // 如果是候选者1，票数++
+            // 如果是候选者 1，票数++
             if (num == cand1) {
                 cnt1++;
-                // 一遍遍历，如果你不想写continue，你写多个else if也可以
+                // 一遍遍历，如果你不想写 continue，你写多个 else if 也可以
                 continue;
             }
-            // 如果是候选者2，票数++
+            // 如果是候选者 2，票数++
             if (num == cand2) {
                 cnt2++;
                 continue;
             }
-            // 既不是cand1也不是cand2，如果cnt1为0，那它就去做cand1
+            // 既不是 cand1 也不是 cand2，如果 cnt1 为 0，那它就去做 cand1
             if (cnt1 == 0) {
                 cand1 = num;
                 cnt1++;
                 continue;
             }
-            // 如果cand1的数量不为0但是cand2的数量为0，那他就去做cand2
+            // 如果 cand1 的数量不为 0 但是 cand2 的数量为 0，那他就去做 cand2
             if (cnt2 == 0) {
                 cand2 = num;
                 cnt2++;
                 continue;
             }
-            // 如果cand1和cand2的数量都不为0，那就都-1
+            // 如果 cand1 和 cand2 的数量都不为 0，那就都-1
             cnt1--;
             cnt2--;
         }
@@ -4994,8 +5238,8 @@ class Solution {
             if (num == cand1) {
                 cnt1++;
             } else if (num == cand2) {  
-                // 这里一定要用else if
-                // 因为可能出现[0,0,0]这种用例，导致两个cand是一样的，写两个if结果就变为[0,0]了
+                // 这里一定要用 else if
+                // 因为可能出现 [0,0,0] 这种用例，导致两个 cand 是一样的，写两个 if 结果就变为 [0,0] 了
                 cnt2++;
             }
         }
