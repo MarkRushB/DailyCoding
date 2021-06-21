@@ -411,6 +411,10 @@ class Solution {
 
 ## [307. Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/)
 
+<div style="position: relative; padding: 30% 45%;">
+<iframe style="position: absolute; width: 100%; height: 100%; left: 0; top: 0;" src="https://player.bilibili.com/player.html?aid=798173870&bvid=BV1gy4y1D7dx&cid=268408786&page=1&high_quality=1&danmaku=0" frameborder="no" scrolling="no" allowfullscreen="true"></iframe>
+</div>
+
 关于线段树，leetcode中有一道题就是让我们实现一个线段树，就是上面这道题。
 
 一般来说线段树有两种实现方式
