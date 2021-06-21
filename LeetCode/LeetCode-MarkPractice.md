@@ -8,24 +8,35 @@
 
 ## 需要注意的一些 API
 
-### java.lang.Character.isLetterOrDigit(int codePoint) 
+### java.lang.Character.isLetterOrDigit(int codePoint)
+
 确定指定字符 (Unicode 代码点）是一个字母或数字。
 字符被确定是字母或数字，如果不是 isLetter(codePoint) 也不是 isDigit(codePoint) 的字符，则返回 true。
+
 ### getOrDefault(Object key, V defaultValue)
+
 Returns the value to which the specified key is mapped, or defaultValue if this map contains no mapping for the key.
+
 ### Character.toLowerCase
+
 ### Map.Entry<K,V>
+
 A map entry (key-value pair). The Map.entrySet method returns a collection-view of the map, whose elements are of this class. The only way to obtain a reference to a map entry is from the iterator of this collection-view. These Map.Entry objects are valid only for the duration of the iteration; more formally, the behavior of a map entry is undefined if the backing map has been modified after the entry was returned by the iterator, except through the setValue operation on the map entry.
+
 ### List 转数组
+
 使用 toArray() 方法
 需要特别注意，不能这样写：
+
 ```java
 ArrayList<String> list=new ArrayList<String>();
 String strings[]=(String [])list.toArray();
 ```
+
 这样写编译没有什么问题，但是运行时会报 ClassCastException，这是因为 Java 中允许向上和向下转型，但是这个转型是否成功是根据 Java 虚拟机中这个对象的类型来实现的。Java 虚拟机中保存了每个对象的类型。而数组也是一个对象。数组的类型是 java.lang.Object。把 java.lang.Object 转换成 java.lang.String 是显然不可能的事情，因为这里是一个向下转型，而虚拟机只保存了这是一个 Object 的数组，不能保证数组中的元素是 String 的，所以这个转型不能成功。数组里面的元素只是元素的引用，不是存储的具体元素，所以数组中元素的类型还是保存在 Java 虚拟机中的。
 
 因此正确的方法是这样的：
+
 ```java
 //要转换的 list 集合
 List<String> testList = new ArrayList<String>(){{add("aa");add("bb");add("cc");}};
@@ -244,24 +255,23 @@ Your class will be called like this: `MyCalendar cal = new MyCalendar()`; `MyCal
 
 **Example 1:**
 
-    MyCalendar();
-    MyCalendar.book(10, 20); // returns true
-    MyCalendar.book(15, 25); // returns false
-    MyCalendar.book(20, 30); // returns true
+MyCalendar();
+MyCalendar.book(10, 20); // returns true
+MyCalendar.book(15, 25); // returns false
+MyCalendar.book(20, 30); // returns true
 
-    Explanation: 
-    The first event can be booked.  The second can't because time 15 is already booked by another event.
-    The third event can be booked, as the first event takes every time less than 20, but not including 20.
- 
 
+Explanation:
+The first event can be booked.  The second can't because time 15 is already booked by another event.
+The third event can be booked, as the first event takes every time less than 20, but not including 20.
 **Note:**
 
-- The number of calls to `MyCalendar.book` per test case will be at most `1000`.
-- In calls to `MyCalendar.book(start, end)`, start and end are integers in the `range [0, 10^9]`.
+- The number of calls to`MyCalendar.book` per test case will be at most`1000`.
+- In calls to`MyCalendar.book(start, end)`, start and end are integers in the`range [0, 10^9]`.
 
 如果加进来一个，就对所有的books进行一遍遍历，这样效率太低，所以就想到了利用TreeMap的特性。
 
-其中`ceilingKey()`和`floorKey()`分别代表返回TreeMap中大于等于/小于等于i的key值。
+其中 `ceilingKey()`和 `floorKey()`分别代表返回TreeMap中大于等于/小于等于i的key值。
 
 具体步骤如下：
 1.将已存在的books维护成升序排序
@@ -279,9 +289,9 @@ class MyCalendar {
     TreeMap<Integer, Integer> map;
 
     public MyCalendar() {
-        map = new TreeMap<>();    
+        map = new TreeMap<>();  
     }
-    
+  
     public boolean book(int start, int end) {
         Integer right = map.ceilingKey(start);
         Integer left = map.floorKey(start);
@@ -294,8 +304,176 @@ class MyCalendar {
 }
 ```
 
-# Priority Queue / Heap
+# TrieTree
 
+## [336. Palindrome Pairs](https://leetcode.com/problems/palindrome-pairs/)
+
+Given a list of unique words, return all the pairs of the distinct indices (i, j) in the given list, so that the concatenation of the two words words[i] + words[j] is a palindrome.
+
+ 
+
+**Example 1:**
+
+    Input: words = ["abcd","dcba","lls","s","sssll"]
+    Output: [[0,1],[1,0],[3,2],[2,4]]
+    Explanation: The palindromes are ["dcbaabcd","abcddcba","slls","llssssll"]
+    Example 2:
+
+    Input: words = ["bat","tab","cat"]
+    Output: [[0,1],[1,0]]
+    Explanation: The palindromes are ["battab","tabbat"]
+
+视频解析：
+<div style="position: relative; padding: 30% 45%;">
+<iframe style="position: absolute; width: 100%; height: 100%; left: 0; top: 0;" src="https://player.bilibili.com/player.html?aid=886503250&bvid=BV1xK4y1p7MN&cid=294487009&page=1&as_wide=1&high_quality=1&danmaku=0" frameborder="no" scrolling="no" allowfullscreen="true"></iframe>
+</div>
+
+
+
+```java
+class Solution {
+    class TrieNode {
+        TrieNode[] children = new TrieNode[26];
+        int wordIndex = -1;
+        List<Integer> restIsPalindrome;
+        TrieNode() {
+            restIsPalindrome = new ArrayList<>();
+        }
+    }
+    
+    TrieNode root = new TrieNode();
+    int n;
+    List<List<Integer>> res = new ArrayList<>();
+    public List<List<Integer>> palindromePairs(String[] words) {
+        n = words.length;
+        
+        for (int i = 0; i < n; i++) {
+            add(words[i], i);
+        }
+        
+        for (int i = 0; i < n; i++) {
+            search(words[i], i);
+        }
+        
+        return res;
+    }
+    
+    private void search(String word, int wordIndex) {
+        TrieNode cur = root;
+        char[] chs = word.toCharArray();
+        for (int i = 0; i < chs.length; i++) {
+            int j = chs[i] - 'a';
+            if (cur.wordIndex != -1 && isPalindrome(chs, i, chs.length - 1)) {
+                res.add(Arrays.asList(wordIndex, cur.wordIndex));
+            }
+            if (cur.children[j] == null) return;
+            cur = cur.children[j];
+        }
+        
+        if (cur.wordIndex != -1 && cur.wordIndex != wordIndex) {
+            res.add(Arrays.asList(wordIndex, cur.wordIndex));
+        }
+        
+        for (int j : cur.restIsPalindrome) {
+            res.add(Arrays.asList(wordIndex, j));
+        }
+    }
+    
+    private void add(String word, int wordIndex) {
+        TrieNode cur = root;
+        char[] chs = word.toCharArray();
+        for (int i = chs.length - 1; i >= 0; i--) {
+            int j = chs[i] - 'a';
+            if (isPalindrome(chs, 0, i)) {
+                cur.restIsPalindrome.add(wordIndex);
+            }
+            
+            if (cur.children[j] == null) {
+                cur.children[j] = new TrieNode();
+            }
+            cur = cur.children[j];
+        }
+        
+        cur.wordIndex = wordIndex;
+    }
+    
+    private boolean isPalindrome(char[] chs, int i, int j) {
+        while (i < j) {
+            if (chs[i++] != chs[j--]) return false;
+        }
+        
+        return true;
+    }
+}
+```
+
+# Segment Tree (normal / zkw)
+
+## [307. Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/)
+
+关于线段树，leetcode中有一道题就是让我们实现一个线段树，就是上面这道题。
+
+一般来说线段树有两种实现方式
+ - zkw张昆伟线段树
+ - 普通线段树
+
+### zkw Segment Tree
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210620225046.png)
+
+
+上图所示的是一棵完美二叉树，叶子数（即数据数组nums的大小4）刚好是2的幂，此时st的大小是2n（算上了无用的st[0]），而且可立即得到第一个叶子结点nums[0]存放在st[4]，第二个叶子节点nums[1]存放在st[5]，以此类推。
+
+**初始化数据数组：**
+```java
+int n;
+int[] st;
+public NumArray(int[] nums) {
+    n = nums.length;
+    st = new int[2 * n];
+    for(int i = n; i < 2 * n; i++){
+        st[i] = nums[i - n];
+    }
+    for(int i = n - 1; i >= 1; i--){
+        st[i] = st[2 * i] + st[2 * i + 1];
+    }        
+}
+```
+**update():**
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210620225923.png)
+
+看图可以发现，当某个元素发生变化时，我们只需要跟着改动该元素即他的向上的各个父结点即可
+```java
+public void update(int index, int val) {
+    // index + n 是为了找到该元素在数据数组中的正确下标
+    int diff = val - st[index + n];
+    for(int i = index + n; i >= 1; i /= 2){
+        st[i] += diff;
+    } 
+}
+```
+**rangeSum():**
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210620230306.png)
+
+```java
+public int sumRange(int left, int right) {
+    int res = 0;
+    for(int i = left + n, j = right + n; i <= j; i /= 2, j /= 2 ){
+        if(i % 2 == 1){
+            res += st[i++];
+        }
+        if(j % 2 == 0){
+            res += st[j--];
+        } 
+    }
+    return res;
+}
+```
+
+
+
+# Priority Queue / Heap
 ## [1383. Maximum Performance of a Team](https://leetcode.com/problems/maximum-performance-of-a-team/)
 
 You are given two integers n and k and two integer arrays speed and efficiency both of length n. There are n engineers numbered from 1 to n. `speed[i]` and `efficiency[i]` represent the speed and efficiency of the ith engineer respectively.
@@ -308,19 +486,17 @@ Return the maximum performance of this team. Since the answer can be a huge numb
 
 **Example 1:**
 
-    Input: n = 6, speed = [2,10,3,1,5,8], efficiency = [5,4,3,9,7,2], k = 2
-    Output: 60
-    Explanation: 
-    We have the maximum performance of the team by selecting engineer 2 (with speed=10 and efficiency=4) and engineer 5 (with speed=5 and efficiency=7). That is, performance = (10 + 5) * min(4, 7) = 60.
-
-
+Input: n = 6, speed = [2,10,3,1,5,8], efficiency = [5,4,3,9,7,2], k = 2
+Output: 60
+Explanation:
+We have the maximum performance of the team by selecting engineer 2 (with speed=10 and efficiency=4) and engineer 5 (with speed=5 and efficiency=7). That is, performance = (10 + 5) * min(4, 7) = 60.
 开一个2d数组，用来存放speed和efficiency的对应关系，然后根据efficiency从大到小排序。
 
 ![](https://pic.leetcode-cn.com/a3b459b5c8401c57a2a5f4f74153b0e2a4df4f94255ef625307f2d3db5e514f4-图片.png)
 
 然后遍历数组，其实这里运用了贪心的算法思想，我们只看当前元素左边的，这样的话每个人作为最低效率时，在其左侧找出至多K - 1个最大速度即可。
 
-其中我们利用Priority Queue（默认小顶堆）来存放speed，这样的好处是当`pq.size() > k - 1`时，我们就从pq里poll出一个，由于小顶堆的特性，我们poll出的一定是当前speed最小的。
+其中我们利用Priority Queue（默认小顶堆）来存放speed，这样的好处是当 `pq.size() > k - 1`时，我们就从pq里poll出一个，由于小顶堆的特性，我们poll出的一定是当前speed最小的。
 
 ```java
 class Solution {
@@ -346,14 +522,14 @@ class Solution {
 }
 ```
 
-
-
 # Dynamic Programming
 
 ```
 一部分详见 Data Structures & Algorithms 中的专题部分
 ```
+
 ## 基本型 I
+
 ## 区间型 I
 
 ## 区间型 II
@@ -368,37 +544,35 @@ Bob found that he will always lose this game (poor Bob, he always loses), so he 
 
 Given an array of integers stones where `stones[i]` represents the value of the `ith` stone from the left, return the difference in Alice and Bob's score if they both play optimally.
 
- 
-
 **Example 1:**
 
-    Input: stones = [5,3,1,4,2]
-    Output: 6
-    Explanation: 
-    - Alice removes 2 and gets 5 + 3 + 1 + 4 = 13 points. Alice = 13, Bob = 0, stones = [5,3,1,4].
-    - Bob removes 5 and gets 3 + 1 + 4 = 8 points. Alice = 13, Bob = 8, stones = [3,1,4].
-    - Alice removes 3 and gets 1 + 4 = 5 points. Alice = 18, Bob = 8, stones = [1,4].
-    - Bob removes 1 and gets 4 points. Alice = 18, Bob = 12, stones = [4].
-    - Alice removes 4 and gets 0 points. Alice = 18, Bob = 12, stones = [].
-    The score difference is 18 - 12 = 6.
+Input: stones = [5,3,1,4,2]
+Output: 6
+Explanation:
 
-这道题是典型的区间dp。附上视频。
+- Alice removes 2 and gets 5 + 3 + 1 + 4 = 13 points. Alice = 13, Bob = 0, stones = [5,3,1,4].
+- Bob removes 5 and gets 3 + 1 + 4 = 8 points. Alice = 13, Bob = 8, stones = [3,1,4].
+- Alice removes 3 and gets 1 + 4 = 5 points. Alice = 18, Bob = 8, stones = [1,4].
+- Bob removes 1 and gets 4 points. Alice = 18, Bob = 12, stones = [4].
+- Alice removes 4 and gets 0 points. Alice = 18, Bob = 12, stones = [].
+  The score difference is 18 - 12 = 6.
+  这道题是典型的区间dp。附上视频。
 
 <div style="position: relative; padding: 30% 45%;">
 <iframe style="position: absolute; width: 100%; height: 100%; left: 0; top: 0;" src="https://player.bilibili.com/player.html?aid=713199646&bvid=BV1eX4y1u7ua&cid=266796910&page=1&as_wide=1&high_quality=1&danmaku=0" frameborder="no" scrolling="no" allowfullscreen="true"></iframe>
 </div>
 
-令`dp[i][j]`表示我方在先手处理`[i:j]`时可以得到的最多的、领先对手的分差。注意，这里的分差是相对于对手在这个区间内的得分而言。
+令 `dp[i][j]`表示我方在先手处理 `[i:j]`时可以得到的最多的、领先对手的分差。注意，这里的分差是相对于对手在这个区间内的得分而言。
 
-我方在处理`[i:j]`区间时就两种选择。
+我方在处理 `[i:j]`区间时就两种选择。
 
-第一种是我方选择第i个元素。这样我方在本轮得分`sum[i+1:j]`，之后的局势是对方处理`[i+1:j]`，从递归的角度来看，对手可以在此区间内领先我方的最大分差是`dp[i+1][j]`。所以回溯到本轮，我方先手处理`[i:j]`区间能够得到的最大分差就是`sum[i+1:j]-dp[i+1:j]`。
+第一种是我方选择第i个元素。这样我方在本轮得分 `sum[i+1:j]`，之后的局势是对方处理 `[i+1:j]`，从递归的角度来看，对手可以在此区间内领先我方的最大分差是 `dp[i+1][j]`。所以回溯到本轮，我方先手处理 `[i:j]`区间能够得到的最大分差就是 `sum[i+1:j]-dp[i+1:j]`。
 
-第二种是我方选择第j个元素，同理我方可以得到的最大分差就是`sum[i:j-1]-dp[i:j-1]`。
+第二种是我方选择第j个元素，同理我方可以得到的最大分差就是 `sum[i:j-1]-dp[i:j-1]`。
 
 综上，我方会在上面两种方案中选择更优的一种。
 
-最后答案的输出就是`dp[1:n]`。
+最后答案的输出就是 `dp[1:n]`。
 
 ```java
 class Solution {
@@ -409,7 +583,7 @@ class Solution {
             preSum[i] = preSum[i - 1] + stones[i - 1];
         }
         int[][] dp = new int[n + 1][n + 1];
-        
+  
         for(int len = 2; len < n + 1; len++){
             for(int i = 1, j = i + len - 1; j < n + 1; i++, j++){
                 dp[i][j] = Math.max(preSum[j] - preSum[i] - dp[i + 1][j], preSum[j - 1] - preSum[i - 1] - dp[i][j - 1]);
@@ -634,7 +808,7 @@ class Solution {
                     // System.out.println(dp[i]);
                     // System.out.println("----------");
                     dp[i] += dp[i - 1];
-          
+  
                 }else{
                     dp[i] += dp[i - 2];
                 }
@@ -783,7 +957,7 @@ Given an unsorted array of integers, find the length of longest increasing subse
 ```
 Input: [10,9,2,5,3,7,101,18]
 Output: 4 
-Explanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4. 
+Explanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4.
 ```
 
 **Note:**
@@ -920,7 +1094,9 @@ class Solution {
     }
 }
 ```
+
 ## [256. Paint House](https://leetcode.com/problems/paint-house/)
+
 There is a row of n houses, where each house can be painted one of three colors: red, blue, or green. The cost of painting each house with a certain color is different. You have to paint all the houses such that no two adjacent houses have the same color.
 
 The cost of painting each house with a certain color is represented by an n x 3 cost matrix costs.
@@ -928,15 +1104,12 @@ The cost of painting each house with a certain color is represented by an n x 3 
 For example, costs[0][0] is the cost of painting house 0 with the color red; costs[1][2] is the cost of painting house 1 with color green, and so on...
 Return the minimum cost to paint all houses.
 
- 
-
 **Example 1:**
 
-    Input: costs = [[17,2,17],[16,16,5],[14,3,19]]
-    Output: 10
-    Explanation: Paint house 0 into blue, paint house 1 into green, paint house 2 into blue.
-    Minimum cost: 2 + 5 + 3 = 10.
-
+Input: costs = [[17,2,17],[16,16,5],[14,3,19]]
+Output: 10
+Explanation: Paint house 0 into blue, paint house 1 into green, paint house 2 into blue.
+Minimum cost: 2 + 5 + 3 = 10.
 动态规划，看图：
 ![](https://leetcode.com/problems/paint-house/Figures/256/dp_func_call_grid.png)
 ![](https://leetcode.com/problems/paint-house/Figures/256/dp_in_grid.png)
@@ -959,7 +1132,7 @@ class Solution {
 
 ## [97. Interleaving String](https://leetcode.com/problems/interleaving-string/)
 
-## [1696. Jump Game VI](https://leetcode.com/problems/jump-game-vi/) 
+## [1696. Jump Game VI](https://leetcode.com/problems/jump-game-vi/)
 
 You are given a 0-indexed integer array nums and an integer k.
 
@@ -971,10 +1144,9 @@ Return the maximum score you can get.
 
 **Example 1:**
 
-    Input: nums = [1,-1,-2,4,-7,3], k = 2
-    Output: 7
-    Explanation: You can choose your jumps forming the subsequence [1,-1,4,3] (underlined above). The sum is 7.
-
+Input: nums = [1,-1,-2,4,-7,3], k = 2
+Output: 7
+Explanation: You can choose your jumps forming the subsequence [1,-1,4,3] (underlined above). The sum is 7.
 本题初看很像第二类序列型DP，令dp[i]表示跳到第i个位置所能得到的最大得分。很容易写出状态转移方程：
 
 `dp[i] = max(dp[j] + nums[i]) for j=i-k, i-k+1, ... i-1`
@@ -1002,13 +1174,14 @@ class Solution {
             int cur = Integer.MIN_VALUE;
             for (int j = Math.max(0, i-k); j < i; j++)
                 cur = Math.max(cur, dp[j]);
-            
+    
             dp[i] = nums[i] + cur;
         }
         return dp[n-1];
     }
 }
 ```
+
 很遗憾，超时了，下面进行优化
 
 **2.优先队列**
@@ -1034,6 +1207,7 @@ class Solution {
     }  
 }
 ```
+
 **3.单调队列**
 
 再次进行优化，上述堆中移除堆顶元素，并重新调整堆仍费时
@@ -1050,7 +1224,7 @@ class Solution {
             res = queue.peek()[0] + nums[i];
             while (!queue.isEmpty() && res > queue.peekLast()[0])
                 queue.pollLast();
-            
+    
             queue.offer(new int[]{res, i});
 
             while (i - queue.peek()[1] >= k)
@@ -1062,24 +1236,23 @@ class Solution {
 ```
 
 优先队列的好处是在于我们不需要手动控制排序的过程，我们事先重写好了排序规则，所以我们只需要手动控制队列的size满足题目要求即可：
+
 ```java
 while (i - queue.peek()[1] > k)
     queue.poll();
 ```
+
 但是单调队列由于本质是一个双端队列，我们一方面需要控制队列的size，一方面也要控制队列中的元素是有序的，这个有序用一种更合适的说法就是：确保队列顶部的下一个就是备选的元素，顶部一旦出队列，下一个替补上来就能直接使用：
+
 ```java
- while (!queue.isEmpty() && res > queue.peekLast()[0])
+while (!queue.isEmpty() && res > queue.peekLast()[0])
     queue.pollLast();
-            
+    
 queue.offer(new int[]{res, i});
 
 while (i - queue.peek()[1] >= k)
     queue.poll();
 ```
-
-
-
-
 
 # BackTrack
 
@@ -1090,28 +1263,24 @@ while (i - queue.peek()[1] >= k)
 排列问题，讲究顺序（即 [2, 2, 3] 与 [2, 3, 2] 视为不同列表时），需要记录哪些数字已经使用过，此时用 used 数组。
 
 组合问题，不讲究顺序（即 [2, 2, 3] 与 [2, 3, 2] 视为相同列表时），需要按照某种顺序搜索，此时使用 start 变量。
+
 - 变量可以重复使用，那么传进递归中的 start = i
 - 变量不可以重复使用，那么传进递归中的 start = i + 1
-
 
 ### [46. Permutations](https://leetcode.com/problems/permutations/)
 
 Given an array nums of distinct integers, return all the possible permutations. You can return the answer in any order.
 
- 
 **Example 1:**
 
-    Input: nums = [1,2,3]
-    Output: [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
-
+Input: nums = [1,2,3]
+Output: [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
 **Example 2:**
 
-    Input: nums = [0,1]
-    Output: [[0,1],[1,0]]
-
+Input: nums = [0,1]
+Output: [[0,1],[1,0]]
 思路：backtracking的典型题目，初始化 `List<List<Integer>> res`用来存放结果，`Deque<Integer> path` 存放单次搜索结果，`boolean[] vis` 保存搜索记录。
 唯一注意的一点是，很多题解使用 `int index` 来记录当前遍历的层数，这一参数可有可无，也可以直接用 `path.size()`来进行判断，当作递归终止的条件。
-
 
 ```java
 class Solution {
@@ -1152,17 +1321,15 @@ Given a collection of numbers, nums, that might contain duplicates, return all p
 
 **Example 1:**
 
-    Input: nums = [1,1,2]
-    Output:
-    [[1,1,2],
-     [1,2,1],
-     [2,1,1]]
-
+Input: nums = [1,1,2]
+Output:
+[[1,1,2],
+[1,2,1],
+[2,1,1]]
 **Example 2:**
 
-    Input: nums = [1,2,3]
-    Output: [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
-
+Input: nums = [1,2,3]
+Output: [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
 思路：跟上一题一样，但是多了一点，需要剪枝，因为可能会出现重复的元素。
 总体上其实和第一种思路没有太大区别，要注意的是思路：**在一定会产生重复结果集的地方剪枝**。
 
@@ -1182,6 +1349,7 @@ Given a collection of numbers, nums, that might contain duplicates, return all p
 2. **在图中 ① 处，搜索的数也和上一次一样，但是上一次的 1 刚刚被撤销，正是因为刚被撤销，下面的搜索中还会使用到，因此会产生重复，剪掉的就应该是这样的分支。**
 
 所以我们要在代码上加上
+
 ```java
 if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
     continue;
@@ -1203,7 +1371,7 @@ class Solution {
         }
         dfs(nums);
         return res;
-        
+  
     }
     private void dfs(int[] nums){
         if(path.size() == nums.length){
@@ -1228,6 +1396,7 @@ class Solution {
     }
 }
 ```
+
 ### 39 Combination Sum
 
 Given an array of distinct integers candidates and a target integer target, return a list of all unique combinations of candidates where the chosen numbers sum to target. You may return the combinations in any order.
@@ -1310,6 +1479,7 @@ All elements of candidates are distinct.
 即：从每一层的第 2 个结点开始，都不能再搜索产生同一层结点已经使用过的 candidate 里的元素。
 
 我用的方法：
+
 ```java
 class Solution {
     List<List<Integer>> res;
@@ -1323,7 +1493,7 @@ class Solution {
         }
         dfs(candidates, target, 0);
         return res;
-        
+  
     }
     private void dfs(int[] candidates, int target, int start){
         if(sum == target){
@@ -1341,7 +1511,9 @@ class Solution {
     }
 }
 ```
+
 题解方法：
+
 ```java
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -1499,6 +1671,7 @@ A solution set is:
 将数组先排序的思路来自于这个问题：去掉一个数组中重复的元素。很容易想到的方案是：先对数组 升序 排序，重复的元素一定不是排好序以后相同的连续数组区域的第 11 个元素。也就是说，剪枝发生在：同一层数值相同的结点第 22、33 ... 个结点，因为数值相同的第 11 个结点已经搜索出了包含了这个数值的全部结果，同一层的其它结点，候选数的个数更少，搜索出的结果一定不会比第 11 个结点更多，并且是第 11 个结点的子集。（说明：这段文字很拗口，大家可以结合具体例子，在纸上写写画画进行理解。）
 
 我用的方法：
+
 ```java
 class Solution {
     List<List<Integer>> res;
@@ -1510,7 +1683,7 @@ class Solution {
         Arrays.sort(candidates);
         dfs(candidates, target, 0);
         return res;
-        
+  
     }
     private void dfs(int[] candidates, int target, int start){
         if(sum == target){
@@ -1533,7 +1706,9 @@ class Solution {
     }
 }
 ```
+
 题解的方法：
+
 ```java
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -1621,12 +1796,12 @@ public class Solution {
                2      这种情况确是允许的
               /
              2  
-      
+  
 为何会有这种神奇的效果呢？
 首先 cur-1 == cur 是用于判定当前元素是否和之前元素相同的语句。这个语句就能砍掉例 1。
 可是问题来了，如果把所有当前与之前一个元素相同的都砍掉，那么例二的情况也会消失。 
 因为当第二个 2 出现的时候，他就和前一个 2 相同了。
-      
+  
 那么如何保留例 2 呢？
 那么就用 cur > begin 来避免这种情况，你发现例 1 中的两个 2 是处在同一个层级上的，
 例 2 的两个 2 是处在不同层级上的。
@@ -1687,21 +1862,20 @@ class Solution {
     }
 }
 ```
+
 ### [78. Subsets](https://leetcode.com/problems/subsets/)
 
 Given an integer array nums of unique elements, return all possible subsets (the power set).
 
 The solution set must not contain duplicate subsets. Return the solution in any order.
 
- 
 **Example 1:**
 
-    Input: nums = [1,2,3]
-    Output: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
-
+Input: nums = [1,2,3]
+Output: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
 回溯，做到这里其实一目了然了，首先子集，肯定用begin变量，因为不可以重复。
 
-其次因为是子集，没有特殊条件，所以dfs func里面直接`res.add(new ArrayList<>(path))`即可
+其次因为是子集，没有特殊条件，所以dfs func里面直接 `res.add(new ArrayList<>(path))`即可
 
 ```java
 class Solution {
@@ -1712,7 +1886,7 @@ class Solution {
         path = new ArrayDeque<>();
         dfs(nums, 0);
         return res;
-        
+  
     }
     private void dfs(int[] nums, int start){
         res.add(new ArrayList<>(path));
@@ -1733,10 +1907,10 @@ The solution set must not contain duplicate subsets. Return the solution in any 
 
 **Example 1:**
 
-    Input: nums = [1,2,2]
-    Output: [[],[1],[1,2],[1,2,2],[2],[2,2]]
-
+Input: nums = [1,2,2]
+Output: [[],[1],[1,2],[1,2,2],[2],[2,2]]
 跟上个题目多了一点，就是元素可能会有重复，思路不变，加一个判断即可：
+
 ```
 if(i > start && nums[i] == nums[i - 1]){
     continue;
@@ -1753,7 +1927,7 @@ class Solution {
         Arrays.sort(nums);
         dfs(nums, 0);
         return res;
-        
+  
     }
     private void dfs(int[] nums, int start){
         res.add(new ArrayList<>(path));
@@ -1769,6 +1943,244 @@ class Solution {
 }
 ```
 
+## Backtacking in String
+
+### [22. Generate Parentheses](https://leetcode.com/problems/generate-parentheses/)
+
+Given n pairs of parentheses, write a function to generate all combinations of well-formed parentheses.
+
+ 
+
+**Example 1:**
+
+    Input: n = 3
+    Output: ["((()))","(()())","(())()","()(())","()()()"]
+
+**Example 2:**  
+
+    Input: n = 1
+    Output: ["()"]
+
+这里如果是严格按照「回溯法」的定义去做，是这样写的。大家可以比对一下，与直接使用字符串拼接在实现细节上的不同。
+
+在强调一下重点：「回溯算法」强调了在状态空间特别大的时候，只用一份状态变量去搜索所有可能的状态，在搜索到符合条件的解的时候，通常会做一个拷贝，这就是为什么经常在递归终止条件的时候，有 res.add(new ArrayList<>(path)); 这样的代码。正是因为全程使用一份状态变量，因此它就有「恢复现场」和「撤销选择」的需要。
+
+```java
+class Solution {
+    List<String> res = new ArrayList<>();
+    String path = "";
+    public List<String> generateParenthesis(int n) {
+        if(n == 0){
+            return res;
+        }
+        dfs(n, 0, 0);
+        return res;
+    }
+    private void dfs(int n, int left, int right){
+        if(left == n && right == n){
+            res.add(path);
+            return;
+        }
+        if(left < right){
+            return;
+        }
+        if(left < n){
+            path = path + "(";
+            dfs(n, left + 1, right);
+            path = path.substring(0, path.length() - 1);
+        }
+        if(right < n){
+            path = path + ")";
+            dfs(n, left, right + 1);
+            path = path.substring(0, path.length() - 1);
+        }
+    }
+}
+```
+
+当然这个题也可以不用显示的回溯
+
+![](https://pic.leetcode-cn.com/efbe574e5e6addcd1c9dc5c13a50c6f162a2b14a95d6aed2c394e18287a067fa-image.png)
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class Solution {
+
+    // 做加法
+
+    public List<String> generateParenthesis(int n) {
+        List<String> res = new ArrayList<>();
+        // 特判
+        if (n == 0) {
+            return res;
+        }
+
+        dfs("", 0, 0, n, res);
+        return res;
+    }
+
+    /**
+     * @param curStr 当前递归得到的结果
+     * @param left   左括号已经用了几个
+     * @param right  右括号已经用了几个
+     * @param n      左括号、右括号一共得用几个
+     * @param res    结果集
+     */
+    private void dfs(String curStr, int left, int right, int n, List<String> res) {
+        if (left == n && right == n) {
+            res.add(curStr);
+            return;
+        }
+
+        // 剪枝
+        if (left < right) {
+            return;
+        }
+
+        if (left < n) {
+            dfs(curStr + "(", left + 1, right, n, res);
+        }
+        if (right < n) {
+            dfs(curStr + ")", left, right + 1, n, res);
+        }
+    }
+}
+```
+到最后其实可以发现，主要是跟字符串的特点有关，Java 和 Python 里 + 生成了新的字符串，每次往下面传递的时候，都是新字符串。因此在搜索的时候不用回溯。
+
+
+### [784. Letter Case Permutation](https://leetcode.com/problems/letter-case-permutation/)
+Given a string s, we can transform every letter individually to be lowercase or uppercase to create another string.
+
+Return a list of all possible strings we could create. You can return the output in any order.
+
+ 
+
+**Example 1:**
+
+    Input: s = "a1b2"
+    Output: ["a1b2","a1B2","A1b2","A1B2"]
+
+**Example 2:**
+
+    Input: s = "3z4"
+    Output: ["3z4","3Z4"]
+
+这个题其实也是回溯的思路，难点有两个：
+1. 如何小写字母（大写字母）转 大写字母（小写字母）
+   - `Character.toLowerCase()` / `Character.toUpperCase()`
+   - 位运算：`^= 1 << 5`
+2. 因为是对每一位都做转换处理，所以一个字符串有很多种处理结果，**这就导致我们递归的时候还要在判断字母大小写的条件外面再来个递归**
+
+下面的是比较笨拙的写法
+
+```java
+class Solution {
+    List<String> res = new ArrayList<>();
+    StringBuilder sb;
+    int len;
+    public List<String> letterCasePermutation(String s) {
+        sb = new StringBuilder(s);
+        len = s.length();
+        dfs(0);
+        return res;
+    }
+    private void dfs(int index){
+        System.out.println(index);
+        if(index == len){
+            res.add(sb.toString());
+            return;
+        }
+        char c = sb.charAt(index);
+        dfs(index + 1);
+        if(Character.isUpperCase(c)){
+            sb.setCharAt(index, Character.toLowerCase(c));
+            dfs(index + 1);
+            sb.setCharAt(index, c);
+        }
+        if(Character.isLowerCase(c)){
+            sb.setCharAt(index, Character.toUpperCase(c));
+            dfs(index + 1);
+            sb.setCharAt(index, c);
+        }
+    }
+}
+```
+如果用位运算的话，代码会更加简洁，而且高效。
+```java
+public class Solution {
+
+    public List<String> letterCasePermutation(String S) {
+        List<String> res = new ArrayList<>();
+        char[] charArray = S.toCharArray();
+        dfs(charArray, 0, res);
+        return res;
+    }
+
+    private void dfs(char[] charArray, int index, List<String> res) {
+        if (index == charArray.length) {
+            res.add(new String(charArray));
+            return;
+        }
+
+        dfs(charArray, index + 1, res);
+        if (Character.isLetter(charArray[index])) {
+            charArray[index] ^= 1 << 5;
+            dfs(charArray, index + 1, res);
+        }
+    }
+}
+```
+
+### [17. Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/)
+
+Given a string containing digits from 2-9 inclusive, return all possible letter combinations that the number could represent. Return the answer in any order.
+
+A mapping of digit to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.
+
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Telephone-keypad2.svg/200px-Telephone-keypad2.svg.png)
+
+**Example 1:**
+
+    Input: digits = "23"
+    Output: ["ad","ae","af","bd","be","bf","cd","ce","cf"]
+
+注意更便捷的HashMap初始化方式。
+```java
+class Solution {
+    Map<Character, String> map = Map.of(
+        '2', "abc", '3', "def", '4', "ghi", '5', "jkl",
+        '6', "mno", '7', "pqrs", '8', "tuv", '9', "wxyz"
+    );
+    List<String> res = new ArrayList<>();
+    String path = "";
+    public List<String> letterCombinations(String digits) {
+        if(digits.length() == 0 || digits == null){
+            return res;
+        }
+        dfs(digits, 0);
+        return res;
+        
+    }
+    private void dfs(String digits, int index){
+        if(index == digits.length()){
+            res.add(path);
+            return;
+        }
+        char c = digits.charAt(index);
+        String s = map.get(c);
+        for(int j = 0; j < s.length(); j++){
+            char option = s.charAt(j);
+            path = path + option;
+            dfs(digits, index + 1);
+            path = path.substring(0, path.length() - 1);
+        }        
+    }
+}
+```
 ## [79. Word Search](https://leetcode.com/problems/word-search/)
 
 Given an `m x n` grid of characters `board` and a string `word`, return `true` if `word` exists in the grid.
@@ -1778,8 +2190,8 @@ The word can be constructed from letters of sequentially adjacent cells, where a
 **Example 1:**
 ![](https://assets.leetcode.com/uploads/2020/11/04/word2.jpg)
 
-    Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"
-    Output: true
+Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"
+Output: true
 
 ```java
 class Solution {
@@ -1822,9 +2234,6 @@ class Solution {
 }
 ```
 
-
-
-
 ## [212. Word Search II](https://leetcode.com/problems/word-search-ii/)
 
 Given an m x n board of characters and a list of strings words, return all words on the board.
@@ -1835,9 +2244,8 @@ Each word must be constructed from letters of sequentially adjacent cells, where
 
 ![](https://assets.leetcode.com/uploads/2020/11/07/search1.jpg)
 
-    Input: board = [["o","a","a","n"],["e","t","a","e"],["i","h","k","r"],["i","f","l","v"]], words = ["oath","pea","eat","rain"]
-    Output: ["eat","oath"]
-
+Input: board = [["o","a","a","n"],["e","t","a","e"],["i","h","k","r"],["i","f","l","v"]], words = ["oath","pea","eat","rain"]
+Output: ["eat","oath"]
 思路：这个题如果单纯的使用 dfs，时间一定会超出限制，所以我们采用 TrieTree（字典树）来优化。关于这个题，B 站这个老姐讲的特别好：
 
 <div style="position: relative; padding: 30% 45%;">
@@ -1872,10 +2280,10 @@ class Solution {
                 }
             }
         }
-        return res;      
+        return res;  
     }
     private void dfs(char[][] board, int x, int y, TrieNode cur){
-        
+  
         if(x < 0 || x > m - 1 || y < 0 || y > n - 1){
             return;
         }
@@ -1895,7 +2303,7 @@ class Solution {
             dfs(board, nx, ny, cur);
         }
         board[x][y] = c;
-        
+  
     }
     private void buildTrie(String[] words, TrieNode root){
         for(String s : words){
@@ -1911,6 +2319,7 @@ class Solution {
     }
 }
 ```
+
 
 # Subarray (preSum)
 
@@ -1978,7 +2387,7 @@ public class Solution {
             if (k != 0) {
                 sum = sum % k;
             }
-      
+  
             if (map.containsKey(sum)) {
                 if (i - map.get(sum) > 1) {
                     return true;
@@ -1996,27 +2405,25 @@ public class Solution {
 # DFS
 
 ## Tree Question
+
 ### [1469. Find All The Lonely Nodes](https://leetcode.com/problems/find-all-the-lonely-nodes/)
 
 In a binary tree, a lonely node is a node that is the only child of its parent node. The root of the tree is not lonely because it does not have a parent node.
 
 Given the root of a binary tree, return an array containing the values of all lonely nodes in the tree. Return the list in any order.
 
- 
-
 **Example 1:**
 
 ![](https://assets.leetcode.com/uploads/2020/06/03/e1.png)
 
-    Input: root = [1,2,3,null,4]
-    Output: [4]
-    Explanation: Light blue node is the only lonely node.
-    Node 1 is the root and is not lonely.
-    Nodes 2 and 3 have the same parent and are not lonely.
-
+Input: root = [1,2,3,null,4]
+Output: [4]
+Explanation: Light blue node is the only lonely node.
+Node 1 is the root and is not lonely.
+Nodes 2 and 3 have the same parent and are not lonely.
 这个题的思路就是利用 dfs 去查找孤独的子节点，为了方便 dfs，我们不仅需要传入当前的 node，还需要把 node 的 parent 也传进去，方便我们做判断。
 
-要注意的是，虽然传入的是两个 node，但是跳出递归的条件还是`node==null`
+要注意的是，虽然传入的是两个 node，但是跳出递归的条件还是 `node==null`
 
 ```java
 class Solution {
@@ -2024,7 +2431,7 @@ class Solution {
     public List<Integer> getLonelyNodes(TreeNode root) {
         dfs(root, null);
         return res;
-        
+  
     }
     private void dfs(TreeNode node, TreeNode parent){
         // 递归跳出的条件
@@ -2045,6 +2452,7 @@ class Solution {
     }
 }
 ```
+
 ### [897. Increasing Order Search Tree](https://leetcode.com/problems/increasing-order-search-tree/)
 
 Given the root of a binary search tree, rearrange the tree in in-order so that the leftmost node in the tree is now the root of the tree, and every node has no left child and only one right child.
@@ -2053,9 +2461,8 @@ Given the root of a binary search tree, rearrange the tree in in-order so that t
 
 ![](https://assets.leetcode.com/uploads/2020/11/17/ex1.jpg)
 
-    Input: root = [5,3,6,2,4,null,8,1,null,null,null,7,9]
-    Output: [1,null,2,null,3,null,4,null,5,null,6,null,7,null,8,null,9]
-
+Input: root = [5,3,6,2,4,null,8,1,null,null,null,7,9]
+Output: [1,null,2,null,3,null,4,null,5,null,6,null,7,null,8,null,9]
 这个题算是比较简单的 dfs，思路很好想，首先这是个 BST, 直接 inorder 然后重新构建一棵树就好。中间用 List 临时保存节点。
 需要注意一点是，最好保存 node.val，构建新树的时候，初始化新节点，这样做的好处就是不用担心之前的树结构，否则我们需要在构建节点前先清空之前的节点结构。
 
@@ -2075,7 +2482,7 @@ class Solution {
             cur.left = null;
             cur.right = node;
             cur = cur.right;
-            
+    
         }
         return tmp.right;
     }
@@ -2089,6 +2496,7 @@ class Solution {
     }
 }
 ```
+
 ### [124. Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)
 
 A path in a binary tree is a sequence of nodes where each pair of adjacent nodes in the sequence has an edge connecting them. A node can only appear in the sequence at most once. Note that the path does not need to pass through the root.
@@ -2101,9 +2509,9 @@ Given the root of a binary tree, return the maximum path sum of any path.
 
 ![](https://assets.leetcode.com/uploads/2020/10/13/exx2.jpg)
 
-    Input: root = [-10,9,20,null,null,15,7]
-    Output: 42
-    Explanation: The optimal path is 15 -> 20 -> 7 with a path sum of 15 + 20 + 7 = 42.
+Input: root = [-10,9,20,null,null,15,7]
+Output: 42
+Explanation: The optimal path is 15 -> 20 -> 7 with a path sum of 15 + 20 + 7 = 42.
 
 ```java
 class Solution {
@@ -2116,7 +2524,7 @@ class Solution {
         if(node == null){
             return 0;
         }
-        
+  
         int left = Math.max(dfs(node.left), 0);
         int right = Math.max(dfs(node.right), 0);
         int tmp = left + right + node.val;
@@ -2125,6 +2533,7 @@ class Solution {
     }
 }
 ```
+
 ### [1448. Count Good Nodes in Binary Tree](https://leetcode.com/problems/count-good-nodes-in-binary-tree/)
 
 Given a binary tree root, a node X in the tree is named good if in the path from root to X there are no nodes with a value greater than X.
@@ -2134,14 +2543,13 @@ Return the number of good nodes in the binary tree.
 **Example 1:**
 ![](https://assets.leetcode.com/uploads/2020/04/02/test_sample_1.png)
 
-    Input: root = [3,1,4,3,null,1,5]
-    Output: 4
-    Explanation: Nodes in blue are good.
-    Root Node (3) is always a good node.
-    Node 4 -> (3,4) is the maximum value in the path starting from the root.
-    Node 5 -> (3,4,5) is the maximum value in the path
-    Node 3 -> (3,1,3) is the maximum value in the path.
-
+Input: root = [3,1,4,3,null,1,5]
+Output: 4
+Explanation: Nodes in blue are good.
+Root Node (3) is always a good node.
+Node 4 -> (3,4) is the maximum value in the path starting from the root.
+Node 5 -> (3,4,5) is the maximum value in the path
+Node 3 -> (3,1,3) is the maximum value in the path.
 dfs解题，要注意一点，搜索的过程中保存当前最大节点值即可
 
 ```java
@@ -2150,7 +2558,7 @@ class Solution {
     public int goodNodes(TreeNode root) {
         dfs(root, Integer.MIN_VALUE);
         return res;
-        
+  
     }
     private void dfs(TreeNode node, int max){
         if(node == null){
@@ -2165,10 +2573,6 @@ class Solution {
     }
 }
 ```
-
-
-
-
 
 ## Island Question
 
@@ -2557,6 +2961,7 @@ boolean inArea(int[][] grid, int r, int c) {
 ```
 
 ### [130. Surrounded Regions](https://leetcode.com/problems/surrounded-regions/)
+
 Given an `m x n` matrix `board` containing `'X'` and `'O'`, capture all regions surrounded by 'X'.
 
 A region is captured by flipping all `'O'`s into `'X'`s in that surrounded region.
@@ -2565,13 +2970,12 @@ A region is captured by flipping all `'O'`s into `'X'`s in that surrounded regio
 
 ![](https://assets.leetcode.com/uploads/2021/02/19/xogrid.jpg)
 
-    Input: board = [["X","X","X","X"],["X","O","O","X"],["X","X","O","X"],["X","O","X","X"]]
-    Output: [["X","X","X","X"],["X","X","X","X"],["X","X","X","X"],["X","O","X","X"]]
-    Explanation: Surrounded regions should not be on the border, which means that any 'O' on the border of the board are not flipped to 'X'. Any 'O' that is not on the border and it is not connected to an 'O' on the border will be flipped to 'X'. Two cells are connected if they are adjacent cells connected horizontally or vertically.
-
+Input: board = [["X","X","X","X"],["X","O","O","X"],["X","X","O","X"],["X","O","X","X"]]
+Output: [["X","X","X","X"],["X","X","X","X"],["X","X","X","X"],["X","O","X","X"]]
+Explanation: Surrounded regions should not be on the border, which means that any 'O' on the border of the board are not flipped to 'X'. Any 'O' that is not on the border and it is not connected to an 'O' on the border will be flipped to 'X'. Two cells are connected if they are adjacent cells connected horizontally or vertically.
 针对这个题，第一思路肯定是dfs，但是有一点点脑筋急转弯，如果按照正常的搜索思路来的话，我们怎么区别当前岛屿跟边界接壤呢？如果说我们的搜索搜索到边界了，那么我们怎么给之前的路线打上标记呢?
 
-那么问题来了，我们可以逆向思维，我们从边界的岛屿开始搜索，如果说存在完全独立的岛屿，那么我们是肯定不会搜索到的。所以我们从四条边开始，对于这些岛屿我们打上标记。搜索完成后我们再次进行遍历，将打上标签的岛屿恢复为`'O'`，将为`'O'`的岛屿标记为`'X'`即可。
+那么问题来了，我们可以逆向思维，我们从边界的岛屿开始搜索，如果说存在完全独立的岛屿，那么我们是肯定不会搜索到的。所以我们从四条边开始，对于这些岛屿我们打上标记。搜索完成后我们再次进行遍历，将打上标签的岛屿恢复为 `'O'`，将为 `'O'`的岛屿标记为 `'X'`即可。
 
 ```java
 class Solution {
@@ -2598,7 +3002,7 @@ class Solution {
                 }
             }
         }
-        
+  
     }
     private void dfs(char[][] board, int x, int y){
         if(x < 0 || x > m - 1 || y < 0 || y > n - 1){
@@ -2613,10 +3017,11 @@ class Solution {
             int ny = y + d[1];
             dfs(board, nx ,ny);
         }
-        
+  
     }
 }
 ```
+
 ## [1631. Path With Minimum Effort](https://leetcode.com/problems/path-with-minimum-effort/)
 
 You are a hiker preparing for an upcoming hike. You are given heights, a 2D array of size rows x columns, where heights[row][col] represents the height of cell (row, col). You are situated in the top-left cell, (0, 0), and you hope to travel to the bottom-right cell, (rows-1, columns-1) (i.e., 0-indexed). You can move up, down, left, or right, and you wish to find a route that requires the minimum effort.
@@ -2629,12 +3034,12 @@ Return the minimum effort required to travel from the top-left cell to the botto
 
 ![](https://assets.leetcode.com/uploads/2020/10/04/ex1.png)
 
-    Input: heights = [[1,2,2],[3,8,2],[5,3,5]]
-    Output: 2
-    Explanation: The route of [1,3,5,3,5] has a maximum absolute difference of 2 in consecutive cells.
-    This is better than the route of [1,2,2,2,5], where the maximum absolute difference is 3.
-
+Input: heights = [[1,2,2],[3,8,2],[5,3,5]]
+Output: 2
+Explanation: The route of [1,3,5,3,5] has a maximum absolute difference of 2 in consecutive cells.
+This is better than the route of [1,2,2,2,5], where the maximum absolute difference is 3.
 **Constraints:**
+
 - rows == heights.length
 - columns == heights[i].length
 - 1 <= rows, columns <= 100
@@ -2644,7 +3049,7 @@ Return the minimum effort required to travel from the top-left cell to the botto
 
 所以一开始我并没有太多的思考用 dfs 和回溯，结果肯定是超时的。后来看到解析中说可以用二分法来缩短时间，觉得这个思路很好。
 
-二分法其实是转换了思路，因为题目给出了`1 <= heights[i][j] <= 1000000`，所以最大的 effort 也不会超过 1000000，所以我们可以在 0 和 1000000 这个范围中不断地二分搜索，去看每一步的 effort 在不在这个范围内，如果在，缩小二分边界，如果不在，证明找到了最小值。
+二分法其实是转换了思路，因为题目给出了 `1 <= heights[i][j] <= 1000000`，所以最大的 effort 也不会超过 1000000，所以我们可以在 0 和 1000000 这个范围中不断地二分搜索，去看每一步的 effort 在不在这个范围内，如果在，缩小二分边界，如果不在，证明找到了最小值。
 
 ```java
 class Solution {
@@ -2802,19 +3207,19 @@ class Solution {
                 int[] rott = queue.poll();
                 int i = rott[0];
                 int j = rott[1];
-      
+  
                 if(i - 1 >= 0 && grid[i - 1][j] == 1){
                     grid[i - 1][j] = 2;
                     count--;
                     queue.add(new int[]{i - 1, j});
                 }
-      
+  
                 if(i + 1 < N && grid[i + 1][j] ==1){
                     grid[i + 1][j] = 2;
                     count--;
                     queue.add(new int[]{i + 1, j});
                 }
-                    
+            
                 if(j - 1 >= 0 && grid[i][j - 1] ==1){
                     grid[i][j - 1] = 2;
                     count--;
@@ -2913,6 +3318,7 @@ class Solution {
 ```
 
 ## [752. Open the Lock](https://leetcode.com/problems/open-the-lock/)
+
 You have a lock in front of you with 4 circular wheels. Each wheel has 10 slots: `'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'`. The wheels can rotate freely and wrap around: for example we can turn `'9'` to be `'0'`, or `'0'` to be `'9'`. Each move consists of turning one wheel one slot.
 
 The lock initially starts at `'0000'`, a string representing the state of the 4 wheels.
@@ -2923,18 +3329,18 @@ Given a target representing the value of the wheels that will unlock the lock, r
 
 **Example 1:**
 
-    Input: deadends = ["0201","0101","0102","1212","2002"], target = "0202"
-    Output: 6
-    Explanation:
-    A sequence of valid moves would be "0000" -> "1000" -> "1100" -> "1200" -> "1201" -> "1202" -> "0202".
-    Note that a sequence like "0000" -> "0001" -> "0002" -> "0102" -> "0202" would be invalid,
-    because the wheels of the lock become stuck after the display becomes the dead end "0102".
-
+Input: deadends = ["0201","0101","0102","1212","2002"], target = "0202"
+Output: 6
+Explanation:
+A sequence of valid moves would be "0000" -> "1000" -> "1100" -> "1200" -> "1201" -> "1202" -> "0202".
+Note that a sequence like "0000" -> "0001" -> "0002" -> "0102" -> "0202" would be invalid,
+because the wheels of the lock become stuck after the display becomes the dead end "0102".
 这个题的本质其实是在求最短路径，转化成图的问题就是 BFS 求最短路径。
 
 由于是转轮锁，所以我们一次有两个选择，往上拨或者往下拨，所以四位数的密码一次就有八种可能，这就把这个问题转换成了 8 叉的 dfs。
 
 只需要注意这三个问题：
+
 1. 密码的临界问题，9 往前就是 0，0 往后就是 9。
 2. 走回头路。比如说我们从 "0000" 拨到 "1000"，但是等从队列拿出 "1000" 时，还会拨出一个 "0000"，这样的话会产生死循环。
 3. 终止条件，按照题目要求，我们找到 target 就应该结束并返回拨动的次数。
@@ -2952,7 +3358,7 @@ class Solution {
         int res = 0;
         q.offer("0000");
         vis.add("0000");
-        
+  
         while(!q.isEmpty()){
             int size = q.size();
             for(int i = 0; i < size; i++){
@@ -3013,7 +3419,7 @@ Given a string, find the length of the longest substring without repeating chara
 ```
 Input: "abcabcbb"
 Output: 3 
-Explanation: The answer is "abc", with the length of 3. 
+Explanation: The answer is "abc", with the length of 3.
 ```
 
 **Example 2:**
@@ -3245,7 +3651,7 @@ class Solution {
         if(minLen == N + 1) return 0;
         else return minLen;
     }
-} 
+}
 ```
 
 ## 239 Sliding Window Maximum
@@ -3524,10 +3930,45 @@ class Solution {
         return count;
     }
 }
-
 ```
 
 # Tree
+
+## [938. Range Sum of BST](https://leetcode.com/problems/range-sum-of-bst/)
+
+Given the root `node` of a binary search tree and two integers `low` and `high`, return the sum of values of all nodes with a value in the inclusive range `[low, high]`.
+
+**Example 1:**
+
+![](https://assets.leetcode.com/uploads/2020/11/05/bst1.jpg)
+
+    Input: root = [10,5,15,3,7,null,18], low = 7, high = 15
+    Output: 32
+    Explanation: Nodes 7, 10, and 15 are in the range [7, 15]. 7 + 10 + 15 = 32.
+
+dfs，二叉搜索树的普通解法，看代码即可：
+
+```java
+class Solution {
+    int res = 0;
+    public int rangeSumBST(TreeNode root, int low, int high) {
+        dfs(root, low, high);
+        return res;
+        
+    }
+    private void dfs(TreeNode node, int low, int high){
+        if(node == null){
+            return;
+        }
+        if(node.val >= low && node.val <= high){
+            res += node.val;
+        }
+        dfs(node.left, low, high);
+        dfs(node.right, low, high);
+
+    }
+}
+```
 
 ## 1305 All Elements in Two Binary Search Trees
 
@@ -3723,7 +4164,7 @@ a binary tree in which the left and right subtrees of every node differ in heigh
 Given the following tree `[3,9,20,null,null,15,7]`:
 
 ```
-      3
+3
      / \
     9  20
       /  \
@@ -3737,7 +4178,7 @@ Return true.
 Given the following tree `[1,2,2,3,3,null,null,4,4]`:
 
 ```
-      1
+1
      / \
     2   2
    / \
@@ -3908,7 +4349,7 @@ Both the left and right subtrees must also be binary search trees.
 **Example 1:**
 
 ```
-  2
+2
  / \
 1   3
 
@@ -3919,7 +4360,7 @@ Output: true
 **Example 2:**
 
 ```
- 5
+5
 / \
 1   4
    / \
@@ -4092,7 +4533,7 @@ Explanation: The LCA of nodes 5 and 4 is 5, since a node can be a descendant of 
 - [java 代码递归和非递归图文详解](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/solution/javadai-ma-di-gui-he-fei-di-gui-tu-wen-xiang-jie-b/)
 
 ```java
-    public TreeNode lowestCommonAncestor(TreeNode cur, TreeNode p, TreeNode q) {
+public TreeNode lowestCommonAncestor(TreeNode cur, TreeNode p, TreeNode q) {
         if (cur == null || cur == p || cur == q)
             return cur;
         TreeNode left = lowestCommonAncestor(cur.left, p, q);
@@ -4120,7 +4561,7 @@ Note: A leaf is a node with no children.
 Given the below binary tree and sum = 22,
 
 ```
-      5
+5
      / \
     4   8
    /   / \
@@ -4408,7 +4849,7 @@ inorder = [9,3,15,20,7]
 Return the following binary tree:
 
 ```
-    3
+3
    / \
   9  20
     /  \
@@ -4536,6 +4977,7 @@ class Solution {
 ```
 
 # Array
+
 ## N sum Question
 
 ### [1. Two Sum](https://leetcode.com/problems/two-sum/)
@@ -4549,7 +4991,7 @@ You may assume that each input would have exactly one solution, and you may not 
 ```
 Given nums = [2, 7, 11, 15], target = 9,
 Because nums[0] + nums[1] = 2 + 7 = 9,
-return [0, 1]. 
+return [0, 1].
 ```
 
 ```java
@@ -4567,18 +5009,18 @@ class Solution {
     }
 }
 ```
+
 ### [16. 3Sum Closest](https://leetcode.com/problems/3sum-closest/)
 
 Given an array nums of n integers and an integer target, find three integers in nums such that the sum is closest to target. Return the sum of the three integers. You may assume that each input would have exactly one solution.
 
- **Example 1:**
+**Example 1:**
 
-    Input: nums = [-1,2,1,-4], target = 1
-    Output: 2
-    Explanation: The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
-
+Input: nums = [-1,2,1,-4], target = 1
+Output: 2
+Explanation: The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
 思路就是双指针，从头扫到尾，在这个过程中创建两个指针，`left = i + 1`, `right = nums.length - 1`。
-然后求`sum = nums[i] + nums[left] + nums[right]`，最后判断和 target 的接近程度，不断刷新 res 的值。
+然后求 `sum = nums[i] + nums[left] + nums[right]`，最后判断和 target 的接近程度，不断刷新 res 的值。
 
 ```java
 class Solution {
@@ -4607,21 +5049,21 @@ class Solution {
     }
 }
 ```
+
 ## Interval Question (insert, merge)
+
 ### 252. [Meeting Rooms](https://leetcode.com/problems/meeting-rooms/)
 
 Given an array of meeting time intervals where intervals[i] = [starti, endi], determine if a person could attend all meetings.
 
 **Example 1:**
 
-    Input: intervals = [[0,30],[5,10],[15,20]]
-    Output: false
-
+Input: intervals = [[0,30],[5,10],[15,20]]
+Output: false
 **Example 2:**
 
-    Input: intervals = [[7,10],[2,4]]
-    Output: true
-
+Input: intervals = [[7,10],[2,4]]
+Output: true
 思路很简单，看代码即可。
 
 ```java
@@ -4637,30 +5079,37 @@ class Solution {
     }
 }
 ```
+
 ### [56. Merge Intervals](https://leetcode.com/problems/merge-intervals/)
+
 Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.
 
 **Example 1:**
 
-    Input: intervals = [[1,3],[2,6],[8,10],[15,18]]
-    Output: [[1,6],[8,10],[15,18]]
-    Explanation: Since intervals [1,3] and [2,6] overlaps, merge them into [1,6].
-
+Input: intervals = [[1,3],[2,6],[8,10],[15,18]]
+Output: [[1,6],[8,10],[15,18]]
+Explanation: Since intervals [1,3] and [2,6] overlaps, merge them into [1,6].
 **Example 2:**
 
-    Input: intervals = [[1,4],[4,5]]
-    Output: [[1,5]]
-    Explanation: Intervals [1,4] and [4,5] are considered overlapping.
+Input: intervals = [[1,4],[4,5]]
+Output: [[1,5]]
+Explanation: Intervals [1,4] and [4,5] are considered overlapping.
+首先重写 `Arrays.sort`，根据子数组的第一位，对原数组进行重新 sort。
 
-首先重写`Arrays.sort`，根据子数组的第一位，对原数组进行重新 sort。
+```
+1                2             3
+```
 
-        1                2             3
-    ---------        ---------     --------
-        -------        -----                ------
+---
+
+```
+-------        -----                ------
+```
 
 一共有以上三种情况，其中 1 和 2 可以归在一类里面考虑，我们只需要比较 res 数组中最后一个的第二位 和 待处理数组的第一位的大小，如果待处理的第一位比 res 数组最后一个的第二位大，那么直接加进去就好。如果小，那么接着比较各自的第二位即可。
 
 要注意：List 转数组用 toArray() 的正确写法
+
 ```java
 class Solution {
     public int[][] merge(int[][] intervals) {
@@ -4680,23 +5129,22 @@ class Solution {
     }
 }
 ```
+
 ### [57. Insert Interval](https://leetcode.com/problems/insert-interval/)
+
 Given a set of non-overlapping intervals, insert a new interval into the intervals (merge if necessary).
 
 You may assume that the intervals were initially sorted according to their start times.
 
- 
-
 **Example 1:**
 
-    Input: intervals = [[1,3],[6,9]], newInterval = [2,5]
-    Output: [[1,5],[6,9]]
-
+Input: intervals = [[1,3],[6,9]], newInterval = [2,5]
+Output: [[1,5],[6,9]]
 **Example 2:**
 
-    Input: intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
-    Output: [[1,2],[3,10],[12,16]]
-    Explanation: Because the new interval [4,8] overlaps with [3,5],[6,7],[8,10].
+Input: intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
+Output: [[1,2],[3,10],[12,16]]
+Explanation: Because the new interval [4,8] overlaps with [3,5],[6,7],[8,10].
 
 ```java
 class Solution {
@@ -4784,14 +5232,14 @@ If there is no common prefix, return an empty string "".
 
 ```
 Input: ["flower","flow","flight"]  
-Output: "fl"  
+Output: "fl"
 ```
 
 **Example 2:**
 
 ```
 Input: ["dog","racecar","car"]  
-Output: ""  
+Output: ""
 ```
 
 Explanation: There is no common prefix among the input strings.
@@ -4845,7 +5293,7 @@ Count the number of prime numbers less than a non-negative number, n.
 
 ```
 Input: 10  
-Output: 4  
+Output: 4
 ```
 
 Explanation: There are 4 prime numbers less than 10, they are 2, 3, 5, 7.
@@ -5027,8 +5475,9 @@ class Solution {
 
 **2. 复杂度：**
 
+
 | 时间复杂度 | 空间复杂度 | 耗时 | 内存   |
-| ---------- | ---------- | ---- | ------ |
+| ------------ | ------------ | ------ | -------- |
 | O(n)       | O(1)       | 6ms  | 41.3MB |
 
 **思路二：** 递归
@@ -5053,8 +5502,9 @@ public ListNode mergeTwoLists(ListNode l1, ListNode l2){
 
 **2. 复杂度**
 
+
 | 时间复杂度 | 空间复杂度 | 耗时 | 内存   |
-| ---------- | ---------- | ---- | ------ |
+| ------------ | ------------ | ------ | -------- |
 | O(n)       | O(1)       | 6ms  | 41.3MB |
 
 ## 27 Remove Element
@@ -5157,7 +5607,7 @@ Given a sorted linked list, delete all duplicates such that each element appear 
 
 ```
 Input: 1->1->2
-Output: 1->2  
+Output: 1->2
 ```
 
 **Example 2:**
@@ -5209,7 +5659,7 @@ Output: [1,2,2,3,5,6]\
 还有一种方法更加暴力，直接把两个数组拼接起来，然后 Array.sort() 排序，这里不再写方法。
 
 ```java
- class Solution {
+class Solution {
     public void merge(int[] nums1, int m, int[] nums2, int n) {
         int i = m - 1;
         int j = n - 1;
@@ -5291,7 +5741,7 @@ class Solution {
             return false;
         return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
     }
-} 
+}
 ```
 
 ## 101 Symmetric Tree
@@ -5301,7 +5751,7 @@ Given a binary tree, check whether it is a mirror of itself (ie, symmetric aroun
 For example, this binary tree `[1,2,2,3,4,4,3]` is symmetric:
 
 ```
-    1
+1
    / \
   2   2
  / \ / \
@@ -5311,7 +5761,7 @@ For example, this binary tree `[1,2,2,3,4,4,3]` is symmetric:
 But the following `[1,2,2,null,3,null,3]` is not:
 
 ```
-    1
+1
    / \
   2   2
    \   \
@@ -5503,7 +5953,7 @@ Output: 21
 
 看起来这道题就这么解决了，但请注意，题目上还有这么一句
 
-> 设我们的环境只能存储得下 32 位的有符号整数，则其数值范围为 `[−2^31,  2^31 − 1]`。
+> 设我们的环境只能存储得下 32 位的有符号整数，则其数值范围为 `[−2^31,  2^31 − 1]`。
 
 也就是说我们不能用 `long`存储最终结果，而且有些数字可能是合法范围内的数字，但是反转过来就超过范围了。
 假设有 `1147483649`这个数字，它是小于最大的 32 位整数 `2147483647`的，但是将这个数字反转过来后就变成了 `9463847411`，这就比最大的 32 位整数还要大了，这样的数字是没法存到 int 里面的，所以肯定要返回 0（溢出了）。
