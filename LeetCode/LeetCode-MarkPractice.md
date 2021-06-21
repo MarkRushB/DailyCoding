@@ -407,7 +407,7 @@ class Solution {
 }
 ```
 
-# Segment Tree (normal / zkw)
+# Segment Tree (ordinary / zkw)
 
 ## [307. Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/)
 
@@ -475,8 +475,60 @@ public int sumRange(int left, int right) {
 }
 ```
 
+### ordinary Segment Tree
 
+Tree based ST
 
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210621103252.png)
+
+```java
+class SegmentTree{
+    int[] nums;
+    Node root;
+    public SegmentTree(int[] nums){
+        this.nums = nums;
+        this.root = buildTree(nums, 0, numslength - 1);
+    }
+    private Node buildTree(int[] nums, int start, int end){
+        if(start > end) return null;
+        Node node = new Node(start, end);
+        if(start == end) node.sum = nums[start];
+        else{
+            int mid = start + (end - start) / 2;
+            node.left = buildTree(nums, start, mid);
+            node.right = buildTree(nums, mid + 1, end);
+            node.sum = node.left.sum + node.right.sum;
+        }
+        return node;
+    }
+    public void update(Node node, int i, int val){
+        if(node.start == node.end){
+            node.sum = val;
+            return;
+        }
+        int mid = node.start + (node.end - node.start) / 2;
+        if(i <= mid) update(node.left, i, val);
+        else if(i > mid) update(node.right, i, val);
+        node.sum - node.left.sum + node.right.sum;
+    }
+    public int sumRange(Node node, int start, int end){
+        if(start > end) return 0;
+        if(node.start == srart && node.end == end) return node.sum;
+        int mid = node.start + (node.end - node.start) / 2;
+        if(end <= mid) return sumRange(node.left, node.right);
+        else if(start > mid) return sumRange(node.right, start, end);
+        else return sumRange(node.left, start, mid) + sumRange(node.right, mid + 1, end);
+    }
+}
+class Node{
+    int start, end, sum;
+    Node left, right;
+    Node(int start, int end){
+        this.start = start;
+        this.end = end;
+    }
+}
+```
 # Priority Queue / Heap
 ## [1383. Maximum Performance of a Team](https://leetcode.com/problems/maximum-performance-of-a-team/)
 
@@ -2185,6 +2237,58 @@ class Solution {
     }
 }
 ```
+
+### [257. Binary Tree Paths](https://leetcode.com/problems/binary-tree-paths/)
+
+Given the root of a binary tree, return all root-to-leaf paths in any order.
+
+A leaf is a node with no children.
+
+**Example 1:**
+
+![](https://assets.leetcode.com/uploads/2021/03/12/paths-tree.jpg)
+
+    Input: root = [1,2,3,null,5]
+    Output: ["1->2->5","1->3"]
+
+这个题用回溯，没毛病。
+需要注意的是两点：
+1. 递归结束的处理，一般情况下我们都是`node == null`的时候写终止处理逻辑，但是这个题其实是要在找到叶子结点的时候就要开始处理结束逻辑了，所以我们需要在`node.left == null && node.right == null`的时候就要把`path`放进结果集里面。
+2. revoke for every recursion steps (`dfs(node.left) && dfs(node.right)`)
+
+```java
+class Solution {
+    List<String> res = new ArrayList<>();
+    StringBuilder sb = new StringBuilder();
+    public List<String> binaryTreePaths(TreeNode root) {
+        if(root == null){
+            return res;
+        }
+        dfs(root);
+        return res;
+        
+    }
+    private void dfs(TreeNode node){
+        if(node == null){
+            return;
+        }
+        sb.append(node.val);
+        if(node.left == null && node.right == null){
+            res.add(sb.toString());
+        }
+        sb.append("->");
+        int size = sb.length();
+        dfs(node.left);
+        sb.delete(size, sb.length());
+        dfs(node.right);
+        sb.delete(size, sb.length());
+
+
+    }
+}
+```
+
+
 ## [79. Word Search](https://leetcode.com/problems/word-search/)
 
 Given an `m x n` grid of characters `board` and a string `word`, return `true` if `word` exists in the grid.
