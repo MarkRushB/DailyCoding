@@ -239,6 +239,7 @@ class Solution {
 }
 ```
 
+
 # TreeMaps
 
 ## [729. My Calendar I](https://leetcode.com/problems/my-calendar-i/)
@@ -3852,6 +3853,7 @@ class Solution {
     }
 }
 ```
+# Binary Search
 
 # Topological Sorting
 
@@ -6631,6 +6633,252 @@ class Solution {
     }
 }
 ```
+
+# Sweep Line
+
+## 391. Number of Airplanes in the Sky (LintCode)
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210721164125.png)
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210721164301.png)
+
+碰到interval的start，也就是起飞一架飞机，当前天上的飞机数++。
+碰到interval的end，也就是降落一架飞机，当前天上的飞机数--。
+我们分别把所有的start和所有的end放进两个数组，并排序。
+然后从第一个start开始统计，碰到start就加一，碰到end就减一。并且同时维护一个最大飞机数的max。
+注意图上在4这个位置，有一上一下。题目说先算降落的再算起飞的。
+当所有的start统计过以后，我们就有答案了。后面的end只会往下减，所以不用再看了。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210721164348.png)
+
+## [252. Meeting Rooms](https://leetcode.com/problems/meeting-rooms/)
+
+Given an array of meeting time intervals where intervals[i] = [starti, endi], determine if a person could attend all meetings.
+
+**Example 1:**
+
+    Input: intervals = [[0,30],[5,10],[15,20]]
+    Output: false
+
+```java
+class Solution {
+    public boolean canAttendMeetings(int[][] intervals) {
+        Arrays.sort(intervals, (a, b) -> a[0] - b[0]);
+        for(int i = 1; i < intervals.length; i++){
+            if(intervals[i][0] < intervals[i - 1][1]){
+                return false;
+            }
+        }
+        return true;
+    }
+}
+```
+## [253. Meeting Rooms II](https://leetcode.com/problems/meeting-rooms-ii/)
+Given an array of meeting time intervals intervals where intervals[i] = [starti, endi], return the minimum number of conference rooms required.
+
+**Example 1:**
+
+    Input: intervals = [[0,30],[5,10],[15,20]]
+    Output: 2
+
+method 1: 
+count plane
+```java
+class Solution {
+    public int minMeetingRooms(int[][] intervals) {
+        List<int[]> list = new ArrayList<>();
+        for(int[] i : intervals){
+            list.add(new int[]{i[0], 1});
+            list.add(new int[]{i[1], -1});
+        }
+        
+        Collections.sort(list, (a, b) -> a[0] != b[0] ? a[0] - b[0] : a[1] - b[1]);
+        int count = 0;
+        int res = 0;
+        for(int[] cur : list){
+            count += cur[1];
+            res = Math.max(res, count);
+        }
+        return res;
+    }
+}
+```
+method 2:
+priotriyQueue
+```java
+class Solution {
+    public int minMeetingRooms(int[][] intervals) {
+        Arrays.sort(intervals, (a, b) -> a[0] - b[0]);
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);
+        if(intervals != null) pq.offer(intervals[0]);
+        for(int i = 1; i < intervals.length; i++){
+            int[] cur = pq.poll();
+            if(intervals[i][0] >= cur[1]){
+                pq.offer(intervals[i]);
+                
+            }else{
+                pq.offer(intervals[i]);
+                pq.offer(cur);
+            }
+        }
+        return pq.size();
+    }
+}
+```
+## [56. Merge Intervals](https://leetcode.com/problems/merge-intervals/)
+
+```java
+class Solution {
+    public int[][] merge(int[][] intervals) {
+        List<int[]> res = new ArrayList<>();
+        Arrays.sort(intervals, (a, b) -> a[0] - b[0]);
+        for(int[] cur : intervals){
+            int size = res.size();
+            if(size == 0 || res.get(size - 1)[1] < cur[0]){
+                res.add(cur);
+            }else{
+                res.get(size - 1)[1] = Math.max(cur[1], res.get(size - 1)[1]);
+            }
+        }
+        return res.toArray(new int[res.size()][2]);
+    }
+}
+```
+## [57. Insert Interval](https://leetcode.com/problems/insert-interval/)
+Given a set of non-overlapping intervals, insert a new interval into the intervals (merge if necessary).
+
+You may assume that the intervals were initially sorted according to their start times.
+
+**Example 1:**
+
+    Input: intervals = [[1,3],[6,9]], newInterval = [2,5]
+    Output: [[1,5],[6,9]]
+
+**Example 2:**
+
+    Input: intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
+    Output: [[1,2],[3,10],[12,16]]
+    Explanation: Because the new interval [4,8] overlaps with [3,5],[6,7],[8,10].
+
+just iterate the intervals and compare the `newInterval[0]` with `interval[i][1]`,
+if `intervals[i][1] < newInterval[0]`, just add intervals[i] into res array,
+if `intervals[i][0] <= newInterval[1]`, which means inetrvals[i] has the intersection with newInterval, see if `intervals[i][0] > newInterval[1]`, it would be `---- **** ----`
+after that, almost done, then just put the rest intervals into res array.
+
+```java
+class Solution {
+    public int[][] insert(int[][] intervals, int[] newInterval) {
+        
+        List<int[]> res = new ArrayList<>();
+        int i = 0;
+        int n = intervals.length;
+        while(i < n && intervals[i][1] < newInterval[0]){
+            res.add(intervals[i]);
+            i++;
+        }
+        while(i < n && intervals[i][0] <= newInterval[1]){
+            newInterval[0] = Math.min(intervals[i][0], newInterval[0]);
+            newInterval[1] = Math.max(intervals[i][1], newInterval[1]);
+            i++;
+        }
+        res.add(newInterval);
+        while(i < n){
+            res.add(intervals[i]);
+            i++;
+        }
+        return res.toArray(new int[res.size()][2]);
+    }
+}
+```
+## [1272. Remove Interval](https://leetcode.com/problems/remove-interval/)
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210725184606.png)
+
+```java
+class Solution {
+    public List<List<Integer>> removeInterval(int[][] intervals, int[] toBeRemoved) {
+        List<List<Integer>> res = new ArrayList<>();
+        for(int[] cur : intervals){
+            if(cur[1] <= toBeRemoved[0] || cur[0] >= toBeRemoved[1]){
+                res.add(Arrays.asList(cur[0], cur[1]));
+            }else{
+                if(cur[0] < toBeRemoved[0]){
+                    res.add(Arrays.asList(cur[0], toBeRemoved[0]));
+                }
+                if(cur[1] > toBeRemoved[1]){
+                    res.add(Arrays.asList(toBeRemoved[1], cur[1]));
+                }
+            }
+        }
+        return res;
+    }
+}
+```
+## [435. Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/)
+
+Given an array of intervals intervals where intervals[i] = [starti, endi], return the minimum number of intervals you need to remove to make the rest of the intervals non-overlapping.
+
+**Example 1:**
+
+    Input: intervals = [[1,2],[2,3],[3,4],[1,3]]
+    Output: 1
+    Explanation: [1,3] can be removed and the rest of the intervals are non-overlapping.
+
+use a variable end to record last value which is less or equal than cur[0], if so, update end, if not, res++.
+
+```java
+class Solution {
+    public int eraseOverlapIntervals(int[][] intervals) {
+        Arrays.sort(intervals, (a, b) -> a[1] - b[1]);
+        int res = 0;
+        int end = Integer.MIN_VALUE;
+        for(int[] cur : intervals){
+            if(end <= cur[0]){
+                end = cur[1];
+            }else{
+                res++;
+            }
+        }
+        return res;
+    }
+}   
+```
+## [1288. Remove Covered Intervals](https://leetcode.com/problems/remove-covered-intervals/)
+
+Given a list of `intervals`, remove all intervals that are covered by another interval in the list.
+
+Interval `[a,b)` is covered by interval `[c,d)` if and only if `c <= a` and `b <= d`.
+
+After doing so, return the number of remaining intervals.
+
+ 
+
+**Example 1:**
+
+    Input: intervals = [[1,4],[3,6],[2,8]]
+    Output: 2
+    Explanation: Interval [3,6] is covered by [2,8], therefore it is removed.
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210725231848.png)
+
+```java
+class Solution {
+    public int removeCoveredIntervals(int[][] intervals) {
+        Arrays.sort(intervals, (a, b) -> a[0] == b[0] ? b[1] - a[1] : a[0] - b[0]);
+        int end = Integer.MIN_VALUE;
+        int res = 0;
+        for(int[] cur : intervals){
+            if(end < cur[1]){
+                res++;
+                end = cur[1];
+            }
+        }
+        return res;
+    }
+}
+```
+
+
+
 
 # Array
 
