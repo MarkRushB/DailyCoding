@@ -6860,6 +6860,12 @@ After doing so, return the number of remaining intervals.
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210725231848.png)
 
+sort `interval[0]` in increasing order, sort `interval[1]` in descending order.
+
+use end to represent last `interval[1]`, so just need to focus on the end and `cur[1]`.
+
+if `end < cur[1]`, which means not cover, res++, then update end.
+
 ```java
 class Solution {
     public int removeCoveredIntervals(int[][] intervals) {
@@ -6876,9 +6882,245 @@ class Solution {
     }
 }
 ```
+## [352. Data Stream as Disjoint Intervals](https://leetcode.com/problems/data-stream-as-disjoint-intervals/)
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210726120522.png)
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210726120556.png)
+
+need to master some APIs of **TreeSet: lower, higher**
+```java
+  // 返回Set的第一个元素
+    public E first() {
+        return m.firstKey();
+    }
+
+    // 返回Set的最后一个元素
+    public E last() {
+        return m.lastKey();
+    }
+
+    // 返回Set中小于e的最大元素
+    public E lower(E e) {
+        return m.lowerKey(e);
+    }
+
+    // 返回Set中小于/等于e的最大元素
+    public E floor(E e) {
+        return m.floorKey(e);
+    }
+
+    // 返回Set中大于/等于e的最小元素
+    public E ceiling(E e) {
+        return m.ceilingKey(e);
+    }
+
+    // 返回Set中大于e的最小元素
+    public E higher(E e) {
+        return m.higherKey(e);
+    }
+
+    // 获取第一个元素，并将该元素从TreeMap中删除。
+    public E pollFirst() {
+        Map.Entry<E,?> e = m.pollFirstEntry();
+        return (e == null)? null : e.getKey();
+    }
+
+    // 获取最后一个元素，并将该元素从TreeMap中删除。
+    public E pollLast() {
+        Map.Entry<E,?> e = m.pollLastEntry();
+        return (e == null)? null : e.getKey();
+    }
+```
+
+```java
+class SummaryRanges {
+    TreeSet<int[]> set;
+
+    /** Initialize your data structure here. */
+    public SummaryRanges() {
+        set = new TreeSet<>((a, b) -> a[0] == b[0] ? a[1] - b[1] : a[0] - b[0]);
+    }
+    
+    public void addNum(int val) {
+        int[] interval = new int[]{val, val};
+        if(set.contains(interval)) return;
+        int[] low = set.lower(interval), high = set.higher(interval);
+        if(high != null && high[0] == val) return;
+        if(low != null && low[1] + 1 == val && high != null && val + 1 == high[0]){
+            low[1] = high[1];
+            set.remove(high);
+        }else if(low != null && low[1] + 1 >= val){
+            low[1] = Math.max(low[1], val);
+        }else if(high != null && val + 1 == high[0]){
+            high[0] = val;
+        }else{
+            set.add(interval);
+        }
+    }
+    
+    public int[][] getIntervals() {
+        List<int[]> res = new ArrayList<>();
+        for(int[] cur : set){
+            res.add(cur);
+        }
+        return res.toArray(new int[set.size()][2]);
+    }
+}
+
+/**
+ * Your SummaryRanges object will be instantiated and called as such:
+ * SummaryRanges obj = new SummaryRanges();
+ * obj.addNum(val);
+ * int[][] param_2 = obj.getIntervals();
+ */
+```
+## [1229. Meeting Scheduler](https://leetcode.com/problems/meeting-scheduler/)
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210726123248.png)
+
+- sort each slot's start time in increasing order
+- two pointer to iterate
+- get the max start time and min end time
+- then determine whether end - start >= duration
+- if not, **greedy**, move the pointer that ends first
 
 
 
+```java
+class Solution {
+    public List<Integer> minAvailableDuration(int[][] slots1, int[][] slots2, int duration) {
+        Arrays.sort(slots1, (a, b) -> a[0] - b[0]);
+        Arrays.sort(slots2, (a, b) -> a[0] - b[0]);
+        int index1 = 0;
+        int index2 = 0;
+        while(index1 < slots1.length && index2 < slots2.length){
+            int start = Math.max(slots1[index1][0], slots2[index2][0]);
+            int end = Math.min(slots1[index1][1], slots2[index2][1]);
+            if(end - start >= duration){
+                return List.of(start, start + duration);
+            }else if(slots1[index1][1] < slots2[index2][1]){
+                index1++;
+            }else{
+                index2++;
+            }
+        }
+        return new ArrayList<>();
+    }
+}
+
+
+```
+## [986. Interval List Intersections](https://leetcode.com/problems/interval-list-intersections/)
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210726124200.png)
+
+- **same with last one(1229. Meeting Scheduler)**
+- just in this question, we don't need to determine the duration
+
+```java
+class Solution {
+    public int[][] intervalIntersection(int[][] firstList, int[][] secondList) {
+        List<int[]> res = new ArrayList<>();
+        int index1 = 0, index2 = 0;
+        while(index1 < firstList.length && index2 < secondList.length){
+            int start = Math.max(firstList[index1][0], secondList[index2][0]);
+            int end = Math.min(firstList[index1][1], secondList[index2][1]);
+            if(end >= start){
+                res.add(new int[]{start, end});
+            }
+            if(firstList[index1][1] < secondList[index2][1]){
+                index1++;
+            }else{
+                index2++;
+            }
+        }
+        return res.toArray(new int[res.size()][2]);
+    }
+}
+```
+
+## [759. Employee Free Time](https://leetcode.com/problems/employee-free-time/)
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210726124625.png)
+
+- put all the time intervals into PriorityQueue, sort a.start in increasing order
+- if cur.end > next.start, which means they got intersection, merge them.
+- if not, add to res array(cur.end, next.start), update cur 
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210726125902.png)
+
+```java
+class Solution {
+    public List<Interval> employeeFreeTime(List<List<Interval>> schedule) {
+        List<Interval> res = new ArrayList<>();
+        
+        PriorityQueue<Interval> pq = new PriorityQueue<>((a, b) -> a.start - b.start);
+        for(List<Interval> list : schedule){
+            for(Interval interval : list){
+                pq.add(interval);
+            }
+        }
+        Interval cur = pq.poll();
+        while(!pq.isEmpty()){
+            if(cur.end >= pq.peek().start){
+                cur.end = Math.max(cur.end, pq.poll().end);
+            }else{
+                res.add(new Interval(cur.end, pq.peek().start));
+                cur = pq.poll();
+            }
+        }
+        return res;
+    }
+}
+```
+
+## [218. The Skyline Problem](https://leetcode.com/problems/the-skyline-problem/)
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210726130347.png)
+
+- hard, high freq
+- first, reconstruct the height array, we use 2d array to represent the height, just like count plane, for example: `[2, 9, 10]` -> `[2, 9] & [2, -9]`. Try to convert this question to another scenario: 
+  - `height[0]` -> take off
+  - `height[1]` -> land
+  - `height[2]` -> height change.
+- then sort the height list: `Collections.sort(height, (a, b) -> a[0] == b[0] ? b[1] - a[1] : a[0] - b[0])` 
+  - why `b[1] - a[1]`? cuz take off is postive, landing is negetive, but the take off ahead of landing 
+- use PriorityQueue to record current largest height
+- iterate height list, if `height[1] > 0`, which means take off, add to queue, if < 0, which means landing, remove from queue.
+- get current largest height from pq, if curMax != preMax, means largest height got changed, that is what we want, so add into res list
+- update preMax
+- pq.remove()时间复杂度：search是O(n)删是logn 随机删= search + delete
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210726171053.png)
+
+```java
+class Solution {
+    public List<List<Integer>> getSkyline(int[][] buildings) {
+        List<List<Integer>> res = new ArrayList<>();
+        List<int[]> height = new ArrayList<>();
+        for(int[] cur : buildings){
+            height.add(new int[]{cur[0], cur[2]});
+            height.add(new int[]{cur[1], -cur[2]});
+        }
+        
+        Collections.sort(height, (a, b) -> a[0] == b[0] ? b[1] - a[1] : a[0] - b[0]);
+        PriorityQueue<Integer> pq = new PriorityQueue<>((a, b) -> b - a);
+        pq.offer(0);
+        int preMax = 0;
+        for(int[] h : height){
+            if(h[1] > 0) pq.offer(h[1]);
+            else pq.remove(-h[1]);
+            int curMax = pq.peek();
+            if(curMax != preMax){
+                res.add(List.of(h[0], curMax));
+                preMax = curMax;
+            }
+        }
+        return res;
+    }
+}
+```
 
 # Array
 
