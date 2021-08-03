@@ -3854,7 +3854,224 @@ class Solution {
 }
 ```
 # Binary Search
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210726184651.png)
 
+# Divide and Conquer (分治法)
+
+**Divide and conquer concept**
+1. Divide the problem into a number of subproblems that are smaller instances of the same problem.
+2. Conquer the subproblems by solving them recursively. If the subproblem sizes are small enough, however, just solve the subproblems in a straightforward manner.
+3. Combine the solutions to the subproblems into the solution for the original problem.
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210726185406.png)
+
+
+## [Closest Pair of Points using Divide and Conquer algorithm](https://www.geeksforgeeks.org/closest-pair-of-points-using-divide-and-conquer-algorithm/)
+
+We are given an array of n points in the plane, and the problem is to find out the closest pair of points in the array. This problem arises in a number of applications. For example, in air-traffic control, you may want to monitor planes that come too close together, since this may indicate a possible collision. Recall the following formula for distance between two points p and q.
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210728113647.png)   
+The Brute force solution is O(n^2), compute the distance between each pair and return the smallest. We can calculate the smallest distance in O(nLogn) time using Divide and Conquer strategy. In this post, a O(n x (Logn)^2) approach is discussed. We will be discussing a O(nLogn) approach in a separate post.
+
+**Algorithm**
+Following are the detailed steps of a O(n (Logn)^2) algorithm. 
+Input: An array of n points P[] 
+Output: The smallest distance between two points in the given array.
+
+1. Find the middle point in the sorted array, we can take `P[n/2]` as middle point. 
+2. Divide the given array in two halves. The first subarray contains points from `P[0]` to `P[n/2]`. The second subarray contains points from `P[n/2+1]` to `P[n-1]`.
+3. Recursively find the smallest distances in both subarrays. Let the distances be dl and dr. Find the minimum of dl and dr. Let the minimum be d.
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210728113854.png)
+4. From the above 3 steps, we have an upper bound d of minimum distance. Now we need to consider the pairs such that one point in pair is from the left half and the other is from the right half. Consider the vertical line passing through `P[n/2]` and find all points whose x coordinate is closer than d to the middle vertical line. Build an array strip[] of all such points. 
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210728113910.png)
+5. Sort the array strip[] according to y coordinates. This step is O(nLogn). It can be optimized to O(n) by recursively sorting and merging. 
+6. Find the smallest distance in strip[]. This is tricky. From the first look, it seems to be a O(n^2) step, but it is actually O(n). It can be proved geometrically that for every point in the strip, we only need to check at most 7 points after it (note that strip is sorted according to Y coordinate). See this for more analysis.
+7. Finally return the minimum of d and distance calculated in the above step (step 6)  
+
+```java
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class ClosestPairOfPoints {
+
+    private long findClosedPair(int[] xs, int[] ys){
+        int len = xs.length;
+        Point[] points = new Point[len];
+        for (int i = 0; i < len; i++) {
+            points[i] = new Point(xs[i], ys[i]);
+        }
+        return divide(0, len - 1, points);
+    }
+
+    private long divide(int left, int right, Point[] points){
+        
+        long curMinDis = Long.MAX_VALUE; // 当前最小两点距离，初始值设置为无穷大
+        if(left == right) return curMinDis; // 如果只有一个点，则不存在最近两点距离，返回无穷大
+        if(left + 1 == right) return calDistance(points[left], points[right]); // 这里是判断是否只有两个点，如果只有两个点的话，直接求解
+        
+        // 分治法：第一步：分区，并求取左右分区最小两点距离
+        int mid = left + (right - left) / 2;
+        long leftMinDis = divide(left, mid, points); // 通过右移运算除2，对区域进行合理的划分，使得左右两边保持大致相等个数点
+        long rightMinDis = divide(mid, right, points);
+        curMinDis = Math.min(leftMinDis, rightMinDis);
+
+        // 分治法：第二步：假设距离最近的两点分别在左右分区中
+        // 关键代码，距离最近的两个点，一个位于左边区域，一个位于右边区域，x轴搜索范围[mid - cueMinDis, mid + curMinDis]
+        // 记录搜索区间内的点的索引，便于进一步计算最小距离
+        List<Integer> validPointIndex = new ArrayList<>();
+        for (int i = left; i <= right; i++) {
+            if(Math.abs(points[mid].x - points[i].x)<= curMinDis){
+                validPointIndex.add(i);
+            }
+        }
+        Collections.sort(validPointIndex, (a, b) -> points[a].y - points[b].y);
+        for (int i = 0; i < validPointIndex.size() - 1; i++) { // 基于索引，进一步计算区间内最小两点距离
+            for (int j = i + 1; j < validPointIndex.size(); j++) {
+                // 如果区间内的两点y轴距大于curMinDis，则没有必要计算了，因为，他们的距离肯定大于curMinDis
+                if(Math.abs(points[validPointIndex.get(i)].y - points[validPointIndex.get(j)].y) > curMinDis){
+                    continue;
+                }
+                long tmpDis = calDistance(points[validPointIndex.get(i)], points[validPointIndex.get(j)]);
+                curMinDis = Math.min(curMinDis, tmpDis);
+            }
+        }
+        return curMinDis;
+    }
+
+    private long calDistance(Point p1, Point p2){
+        return (long) Math.sqrt((p2.y - p1.y) * (p2.y - p1.y) + (p2.x - p1.x) * (p2.x - p1.x));
+    }
+
+    public static void main(String[] args) {
+        int[] xs = {2, 12, 40, 5, 12, 3};
+        int[] ys = {3, 30, 50, 1, 10, 4};
+        ClosestPairOfPoints cpp = new ClosestPairOfPoints();
+        long res = cpp.findClosedPair(xs, ys);
+        System.out.println(res);
+    }
+}
+// 自定义Point类去封装所有的点，便于计算
+class Point{
+    int x;
+    int y;
+    public Point(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+```
+
+## [Count Inversions in an array](https://www.geeksforgeeks.org/counting-inversions/)
+
+Inversion Count for an array indicates – how far (or close) the array is from being sorted. If the array is already sorted, then the inversion count is 0, but if the array is sorted in the reverse order, the inversion count is the maximum. 
+Formally speaking, two elements `a[i]` and `a[j]` form an inversion if `a[i]` > `a[j]` and i < j 
+
+**Example:**
+
+    Input: arr[] = {8, 4, 2, 1}
+    Output: 6
+
+    Explanation: Given array has six inversions:
+    (8, 4), (4, 2), (8, 2), (8, 1), (4, 1), (2, 1).
+
+
+    Input: arr[] = {3, 1, 2}
+    Output: 2
+
+    Explanation: Given array has two inversions:
+    (3, 1), (3, 2) 
+
+**Algorithm:**
+1. The idea is similar to merge sort, divide the array into two equal or almost equal halves in each step until the base case is reached.
+2. Create a function merge that counts the number of inversions when two halves of the array are merged, create two indices `i` and `j`, i is the index for the first half, and j is an index of the second half. if `a[i]` is greater than `a[j]`, then there are `(mid – i)` inversions. because left and right subarrays are sorted, so all the remaining elements in left-subarray `(a[i+1], a[i+2] … a[mid])` will be greater than `a[j]`.
+3. Create a recursive function to divide the array into halves and find the answer by summing the number of inversions is the first half, the number of inversion in the second half and the number of inversions by merging the two.
+4. The base case of recursion is when there is only one element in the given half.
+5. Print the answer
+
+
+**highly recommond this video!**
+<div style="position: relative; padding: 30% 45%;">
+<iframe style="position: absolute; width: 100%; height: 100%; left: 0; top: 0;" src="https://player.bilibili.com/player.html?aid=52676501&bvid=BV114411J7QQ&cid=92185430&page=1&as_wide=1&high_quality=1&danmaku=0" frameborder="no" scrolling="no" allowfullscreen="true"></iframe>
+</div>
+
+
+```java
+// Java implementation of the approach
+import java.util.Arrays;
+
+public class GFG {
+
+	// Function to count the number of inversions
+	// during the merge process
+	private static int mergeAndCount(int[] arr, int l,
+									int m, int r)
+	{
+
+		// Left subarray
+		int[] left = Arrays.copyOfRange(arr, l, m + 1);
+
+		// Right subarray
+		int[] right = Arrays.copyOfRange(arr, m + 1, r + 1);
+
+		int i = 0, j = 0, k = l, swaps = 0;
+
+		while (i < left.length && j < right.length) {
+			if (left[i] <= right[j])
+				arr[k++] = left[i++];
+			else {
+				arr[k++] = right[j++];
+				swaps += (m + 1) - (l + i);
+			}
+		}
+		while (i < left.length)
+			arr[k++] = left[i++];
+		while (j < right.length)
+			arr[k++] = right[j++];
+		return swaps;
+	}
+
+	// Merge sort function
+	private static int mergeSortAndCount(int[] arr, int l,
+										int r)
+	{
+
+		// Keeps track of the inversion count at a
+		// particular node of the recursion tree
+		int count = 0;
+
+		if (l < r) {
+			int m = (l + r) / 2;
+
+			// Total inversion count = left subarray count
+			// + right subarray count + merge count
+
+			// Left subarray count
+			count += mergeSortAndCount(arr, l, m);
+
+			// Right subarray count
+			count += mergeSortAndCount(arr, m + 1, r);
+
+			// Merge count
+			count += mergeAndCount(arr, l, m, r);
+		}
+
+		return count;
+	}
+
+	// Driver code
+	public static void main(String[] args)
+	{
+		int[] arr = { 1, 20, 6, 4, 5 };
+
+		System.out.println(
+			mergeSortAndCount(arr, 0, arr.length - 1));
+	}
+}
+
+// This code is contributed by Pradip Basak
+
+
+```
 # Topological Sorting
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210623104044.png)
@@ -4579,6 +4796,249 @@ class Solution {
     }
 }
 ```
+
+# Monotonic Stack
+
+## 数组中每个数右边比它大的第一个数
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210729111422.png)
+
+```java
+private static int[] nextGreaterElement(int[] nums){
+    int[] res = new int[nums.length];
+    Deque<Integer> stack = new ArrayDeque<>();
+    for(int i = nums.length - 1; i >= 0; i--){
+        while(!stack.isEmpty() && nums[i] >= stack.peekLast()){
+            stack.removeLast();
+        }
+        res[i] = stack.isEmpty() ? -1 : stack.peekLast();
+        stack.addLast(nums[i]);
+    }
+    return res;
+}
+```
+## [496. Next Greater Element I](https://leetcode.com/problems/next-greater-element-i/)
+
+The next greater element of some element x in an array is the first greater element that is to the right of x in the same array.
+
+You are given two distinct 0-indexed integer arrays nums1 and nums2, where nums1 is a subset of nums2.
+
+For each 0 <= i < nums1.length, find the index j such that `nums1[i] == nums2[j]` and determine the next greater element of `nums2[j]` in nums2. If there is no next greater element, then the answer for this query is -1.
+
+Return an array ans of length nums1.length such that `ans[i]` is the next greater element as described above.
+
+ 
+
+**Example 1:**
+
+    Input: nums1 = [4,1,2], nums2 = [1,3,4,2]
+    Output: [-1,3,-1]
+    Explanation: The next greater element for each value of nums1 is as follows:
+    - 4 is underlined in nums2 = [1,3,4,2]. There is no next greater element, so the answer is -1.
+    - 1 is underlined in nums2 = [1,3,4,2]. The next greater element is 3.
+    - 2 is underlined in nums2 = [1,3,4,2]. There is no next greater element, so the answer is -1.
+
+**same as last question, only one thing we need to do is use a HashMao to cache the relationship between index and the changed value.**
+
+```java
+class Solution {
+    public int[] nextGreaterElement(int[] nums1, int[] nums2) {
+        int[] res = new int[nums1.length];
+        Map<Integer, Integer> map = new HashMap<>();
+        Deque<Integer> deque = new ArrayDeque<>();
+        for(int i = nums2.length - 1; i >= 0; i--){
+            while(!deque.isEmpty() && nums2[i] >= deque.peekLast()){
+                deque.removeLast();
+            }
+            map.put(nums2[i], deque.isEmpty() ? -1 : deque.peekLast());
+            deque.addLast(nums2[i]);
+        }
+        for(int i = 0; i < nums1.length; i++){
+            res[i] = map.get(nums1[i]);
+        }
+        return res;
+    }
+}
+```
+
+## [316. Remove Duplicate Letters](https://leetcode.com/problems/remove-duplicate-letters/)
+
+> Same as Leetcode [1081. Smallest Subsequence of Distinct Characters](https://leetcode.com/problems/smallest-subsequence-of-distinct-characters/)
+
+Given a string s, remove duplicate letters so that every letter appears once and only once. You must make sure your result is the smallest in lexicographical order among all possible results.
+
+**Example 1:**
+
+    Input: s = "bcabc"
+    Output: "abc"
+
+**Example 2:**
+
+    Input: s = "cbacdcbc"
+    Output: "acdb"
+    
+- use `int[] last = new int[128]` to store the last index of the character
+- **key step:** 
+  - `!deque.isEmpty()`
+  -  cur char < deque.peek()
+  -  deque.peek() is not the last one: which means we could drop the peek() one, cuz we still have one in the later
+
+```java
+class Solution {
+    public String smallestSubsequence(String s) {
+         Deque<Integer> deque = new ArrayDeque<>();
+        int[] last = new int[128];
+        Set<Integer> set = new HashSet<>();
+        for(int i = 0; i < s.length(); i++){
+            last[s.charAt(i)] = i;
+        }
+        for(int i = 0; i < s.length(); i++){
+            int c = s.charAt(i);
+            if(!set.contains(c)){
+                set.add(c);
+                while(!deque.isEmpty() && c < deque.peekLast() && i < last[deque.peekLast()]){
+                    set.remove(deque.removeLast());
+                }
+                deque.addLast(c);
+            }
+
+        }
+        StringBuilder sb = new StringBuilder();
+        for(int i : deque){
+            sb.append((char) i);
+        }
+        return sb.toString();
+    }
+}
+```
+## [402. Remove K Digits](https://leetcode.com/problems/remove-k-digits/)
+
+Given string num representing a non-negative integer num, and an integer k, return the smallest possible integer after removing k digits from num.
+
+**Example 1:**
+
+    Input: num = "1432219", k = 3
+    Output: "1219"
+    Explanation: Remove the three digits 4, 3, and 2 to form the new number 1219 which is the smallest.
+
+- same idea with `316. Remove Duplicate Letters`
+- for monotonic stack part:
+  - `!deqeue.isEmpty()`
+  - k > 0
+  - cur value < deque.peekLast()
+- **ATTENTION:** there is a possible that the number only have 1 digit, like num = "9", k = 1, in that case, we would not run the monotonic part, instead, it would be directly push into stack. so after for loop, we still need to remove the element in k times
+- **ATTENTION:** after processing, we need to remove the meannigless 0 element in the front
+- **ATTENTION:** if res is "", we should return 0, not null String.
+
+
+```java
+class Solution {
+    public String removeKdigits(String num, int k) {
+        Deque<Character> deque = new ArrayDeque<>();
+        for(int i = 0; i < num.length(); i++){
+            char c = num.charAt(i);
+            while(!deque.isEmpty() && k > 0 && c < deque.peekLast()){  
+                deque.removeLast();
+                k--;
+            }
+            deque.addLast(c);
+        }
+        while(k-- > 0){
+            deque.removeLast();
+        }
+        StringBuilder sb = new StringBuilder();
+        boolean zero = true;
+        for(char c : deque){
+            if(zero && c == '0'){
+                continue;
+            }else{
+                zero = false;
+            }
+            sb.append(c);
+        }
+        return sb.length() == 0 ? "0" : sb.toString();
+    }
+}
+```  
+
+## [42. Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
+
+Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.
+
+**Example 1:**
+
+![](https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png)
+
+    Input: height = [0,1,0,2,1,0,1,3,2,1,2,1]
+    Output: 6
+    Explanation: The above elevation map (black section) is represented by array [0,1,0,2,1,0,1,3,2,1,2,1]. In this case, 6 units of rain water (blue section) are being trapped.
+
+- 单调栈解法，首先一直往栈里压墙的高度，只有高度从低变高的时候我们才需要计算储水，高度递减的时候我们不需要管，因为这时候不储存水量
+- 如果当前高度大于栈顶的高度，我们先pop出栈顶的元素保存起来，这个是我们的水池底部
+- 如果这时候栈空了，直接break，因为没有左边的墙了，此时蓄不住水
+- 求出当前水池最矮的墙`Math.min(height[deque.peekLast()], height[i])`，
+- 高度*长度求出当前level的蓄水量，循环往复
+- 不要忘记往栈里压入当前墙
+
+```java
+class Solution {
+    public int trap(int[] height) {
+        Deque<Integer> deque = new ArrayDeque<>();
+        int n = height.length;
+        int res = 0;
+        for(int i = 0; i < n; i++){
+            while(!deque.isEmpty() && height[i] > height[deque.peekLast()]){
+                int pre = deque.removeLast();
+                if(deque.isEmpty()) break;
+                int minHeight = Math.min(height[deque.peekLast()], height[i]);
+                res += (minHeight - height[pre]) * (i - deque.peekLast() - 1);
+            }
+            deque.addLast(i);
+        }
+        return res;
+    }
+}
+```
+
+## [84. Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/)
+
+Given an array of integers heights representing the histogram's bar height where the width of each bar is 1, return the area of the largest rectangle in the histogram.
+
+**Example 1:**
+
+![](https://assets.leetcode.com/uploads/2021/01/04/histogram.jpg)
+
+    Input: heights = [2,1,5,6,2,3]
+    Output: 10
+    Explanation: The above is a histogram where width of each bar is 1.
+    The largest rectangle is shown in the red area, which has an area = 10 units.
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210802223849.png)
+
+```java
+class Solution {
+    public int largestRectangleArea(int[] heights) {
+        Deque<Integer> deque = new ArrayDeque<>();
+        int res = 0;
+        int n = heights.length;
+        for(int i = 0; i < n; i++){
+            while(!deque.isEmpty() && heights[i] <= heights[deque.peekLast()]){
+                int pre = heights[deque.removeLast()];
+                int width = i - (deque.isEmpty() ? 0 : deque.peekLast() + 1);
+                res = Math.max(res, pre * width);
+            }
+            deque.addLast(i);
+        }
+        while(!deque.isEmpty()){
+            int pre = heights[deque.removeLast()];
+            int width = heights.length - (deque.isEmpty() ? 0 : deque.peekLast() + 1);
+            res = Math.max(res, pre * width);
+        }
+        return res;
+    }
+}
+```
+
 
 # Tree
 
