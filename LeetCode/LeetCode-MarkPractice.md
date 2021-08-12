@@ -4275,6 +4275,14 @@ class Solution {
 
 # Sliding Window
 
+滑动窗口算法可以用以解决数组/字符串的子元素问题，它可以将嵌套的循环问题，转换为单循环问题，降低时间复杂度。
+
+如何识别滑动窗口？
+1. 连续的元素，比如string, subarray, LinkedList
+2. min, max, longest, shortest, key word
+
+滑动窗口基本题型：
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210805110328.png)
 ## 3 Longest Substring Without Repeating Characters
 
 Given a string, find the length of the longest substring without repeating characters.
@@ -4334,6 +4342,60 @@ Input: S = "ADOBECODEBANC", T = "ABC"
 Output: "BANC"
 ```
 
+- map存的 t 的 char 和 freq，理解成凑成我们需要的substring还需要的元素
+- 
+
+```java
+class Solution {
+    public String minWindow(String s, String t) {
+        // map存的其实是我们sliding window里面还需要的元素们，这样理解的话就会清晰的多
+        Map<Character, Integer> map = new HashMap<>();
+        int left = 0;
+        int res = 0;
+        int n = s.length();
+        int minLen = Integer.MAX_VALUE;
+        int minLeft = 0;
+        int count = 0;
+        for(int i = 0; i < t.length(); i++){
+            char c = t.charAt(i);
+            map.put(c, map.getOrDefault(c, 0) + 1);
+        }
+        for(int i = 0; i < n; i++){
+            
+            char c = s.charAt(i);
+            if(map.containsKey(c)){
+                // 这里map.get(c) > 0表示的是：符合t中char的个数的才算数，超过的其实不算数
+                // 举个例子，s = "AAAA" t = "A" 这里其实substring中只要有一个A就是合格的，剩下的A都是无用功
+                if(map.get(c) > 0){
+                    count++;
+                }
+                // 既然出现了，那么我们还需要的元素就 - 1
+                map.put(c, map.get(c) - 1);
+            }
+            
+            while(count == t.length()){
+                if(i - left + 1 < minLen){
+                    minLen = i - left + 1;
+                    minLeft = left;
+                }
+                char cur = s.charAt(left);
+                if(map.containsKey(cur)){
+                    // 这里代表我们把s.charAt(left) 从 substring踢出去
+                    // 如果踢出去的是我们正好需要的，那么代表map里存的我们需要的元素个数变多了
+                    map.put(cur, map.get(cur) + 1);
+                    //  > 0 一定需要
+                    if(map.get(cur) > 0){
+                        count--;
+                    }
+                }
+                left++;     
+            }
+        }
+        return minLen == Integer.MAX_VALUE ? "" : s.substring(minLeft, minLeft + minLen);
+    }
+}
+```
+
 ```java
 class Solution {
     public String minWindow(String s, String t) {
@@ -4358,7 +4420,7 @@ class Solution {
             //说明该字符不被目标字符串需要，此时有两种情况
             // 1. 循环刚开始，那么直接移动右指针即可，不需要做多余判断
             // 2. 循环已经开始一段时间，此处又有两种情况
-            //  2.1 上一次条件不满足，已有字符串指定字���出现次数不满足目标字符串指定字符出现次数，那么此时
+            //  2.1 上一次条件不满足，已有字符串指定字出现次数不满足目标字符串指定字符出现次数，那么此时
             //      如果该字符还不被目标字符串需要，就不需要进行多余判断，右指针移动即可
             //  2.2 左指针已经移动完毕，那么此时就相当于循环刚开始，同理直接移动右指针
             if (need[r] == 0) {
@@ -4404,6 +4466,42 @@ class Solution {
         }
         //返回的为以记录的起始位置为起点，记录的最短长度为距离的指定字符串中截取的子串
         return s.substring(start, start + min);
+    }
+}
+```
+## [159. Longest Substring with At Most Two Distinct Characters](https://leetcode.com/problems/longest-substring-with-at-most-two-distinct-characters/)
+
+Given a string s, return the length of the longest substring that contains at most two distinct characters.
+
+**Example 1:**
+
+    Input: s = "eceba"
+    Output: 3
+    Explanation: The substring is "ece" which its length is 3.
+
+- **at most**
+- use map to store the freq of each character
+
+```java
+class Solution {
+    public int lengthOfLongestSubstringTwoDistinct(String s) {
+        int n = s.length();
+        int left = 0, res = 0;
+        Map<Character, Integer> map = new HashMap<>();
+        for(int i = 0; i < n; i++){
+            char c = s.charAt(i);
+            map.put(c, map.getOrDefault(c, 0) + 1);
+            while(map.size() > 2){
+                char tmp = s.charAt(left);
+                map.put(tmp, map.get(tmp) - 1);
+                if(map.get(tmp) == 0){
+                    map.remove(tmp);
+                }
+                left++;
+            }
+            res = Math.max(res, i - left + 1);
+        }
+        return res;
     }
 }
 ```
@@ -4598,7 +4696,82 @@ class Solution {
     }
 }
 ```
+## [340. Longest Substring with At Most K Distinct Characters](https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters/)
 
+Given a string s and an integer k, return the length of the longest substring of s that contains at most k distinct characters.
+
+**Example 1:**
+
+    Input: s = "eceba", k = 2
+    Output: 3
+    Explanation: The substring is "ece" with length 3.
+
+- same with last problem
+
+```java
+class Solution {
+    public int lengthOfLongestSubstringKDistinct(String s, int k) {
+        Map<Character, Integer> map = new HashMap<>();
+        int left = 0, res = 0, n = s.length();
+        for(int right = 0; right < n; right++){
+            char c = s.charAt(right);
+            map.put(c, map.getOrDefault(c, 0) + 1);
+            while(map.size() > k){
+                char tmp = s.charAt(left);
+                map.put(tmp, map.get(tmp) - 1);
+                if(map.get(tmp) == 0){
+                    map.remove(tmp);
+                }
+                left++;
+            }
+            res = Math.max(res, right - left + 1);
+        }
+        return res;
+    }
+}
+```
+
+## [395. Longest Substring with At Least K Repeating Characters](https://leetcode.com/problems/longest-substring-with-at-least-k-repeating-characters/)
+
+Given a string s and an integer k, return the length of the longest substring of s such that the frequency of each character in this substring is greater than or equal to k.
+
+ 
+
+**Example 1:**
+
+    Input: s = "aaabb", k = 3
+    Output: 3
+    Explanation: The longest substring is "aaa", as 'a' is repeated 3 times.
+
+- brute force 26 alphabers
+- then same with last question
+
+```java
+class Solution {
+    public int longestSubstring(String s, int k) {
+        int res = 0;
+        for(int num = 0; num <= 26; num++){
+            Map<Character, Integer> map = new HashMap<>();
+            int left = 0;
+            int validCnt = 0;
+            for(int i = 0; i < s.length(); i++){
+                char c = s.charAt(i);
+                map.put(c, map.getOrDefault(c, 0) + 1);
+                if(map.get(c) == k) validCnt++;
+                while(map.size() > num){
+                    char tmp = s.charAt(left);
+                    if(map.get(tmp) == k) validCnt--;
+                    map.put(tmp, map.get(tmp)-1);
+                    if(map.get(tmp) == 0) map.remove(tmp);
+                    left++;
+                }
+                if(validCnt == num) res = Math.max(res, i - left + 1);
+            }
+        }
+        return res;
+    }
+}
+```
 ## 424 Longest Repeating Character Replacement
 
 Given a string s that consists of only uppercase English letters, you can perform at most k operations on that string.
@@ -5039,8 +5212,226 @@ class Solution {
 }
 ```
 
+# Monotonic Queue
 
-# Tree
+什么是单调队列？
+
+单调队列，顾名思义其中所有的元素都是单调的(递增或者递减)，承载的基础数据结构是队列，实现是双端队列，队列中存入的元素为数组索引，队头元素为窗口的最大(最小)元素。
+
+**队头删除不符合有效窗口的元素，队尾删除不符合最值的候选元素。**
+
+单调队列不是真正的队列。因为队列都是FIFO的，统一从队尾入列，从对首出列。但单调队列是从队尾入列，从队首或队尾出列，所以单调队列不遵守FIFO。
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210803111228.png)
+
+如何实现单调队列？
+
+`Deque<Integer> q = new ArrayDeque()`
+
+如何使用单调队列？
+
+一般能用单调队列的题目也能用PQ去写，只不过单调队列是pq的优化解。
+
+模版如下：
+1. **去尾操作：队尾元素出队列。**当队列有新元素待入队，需要从队尾开始，删除影响队列单调性的元素，维护队列的单调性。（删除一个队尾元素后，就重新判断新的队尾元素）
+2. 去尾操作结束后，将该新元素重新入队列
+3. **删头操作：队头元素出队列。**判断队头元素是否在待求解的区间之内，如果不在，就将其删除。（这个很好理解，因为单调队列的队头元素就是待求解区间的极值）
+4. **取解操作：**经过上面两个操作，取出**队列的头元素**，就是**当前区间的极值**。
+
+## [239. Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/)
+
+跳转：在Sliding Window中也讲过，[点击跳转](##239-Sliding-Window-Maximum)
+
+## [862. Shortest Subarray with Sum at Least K](https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/)
+
+Given an integer array nums and an integer k, return the length of the shortest non-empty subarray of nums with a sum of at least k. If there is no such subarray, return -1.
+
+A subarray is a contiguous part of an array.
+
+**Example 1:**
+
+    Input: nums = [1], k = 1
+    Output: 1
+
+**Example 2:**
+
+    Input: nums = [1,2], k = 4
+    Output: -1
+
+- preSum is necessary
+- `j > i && preSum[i] - preSum[j] >= k && (j - i)最小` 
+- when the first `sum[i] - sum[deque.peekFirst()] >= k` comes out, we do not have to calculate the rest result, cuz we need the shortest subarray 
+
+```java
+class Solution {
+    public int shortestSubarray(int[] nums, int k) {
+        int n = nums.length;
+        int res = n + 1;
+        int[] sum = new int[n + 1];
+        for(int i = 0; i < n; i++){
+            sum[i + 1] = nums[i] + sum[i];
+        }
+        Deque<Integer> deque = new ArrayDeque<>();
+        for(int i = 0; i < sum.length; i++){
+            while(!deque.isEmpty() && sum[i] - sum[deque.peekFirst()] >= k){
+                int start = deque.removeFirst();
+                res = Math.min(res, i - start);
+            }
+            while(!deque.isEmpty() && sum[i] <= sum[deque.peekLast()]){
+                deque.removeLast();
+            }
+            deque.addLast(i);
+        }
+        return res <= n ? res : -1;
+    }
+}
+```
+## [1425. Constrained Subsequence Sum](https://leetcode.com/problems/constrained-subsequence-sum/)
+
+Given an integer array nums and an integer k, return the maximum sum of a non-empty subsequence of that array such that for every two consecutive integers in the subsequence, `nums[i]` and `nums[j]`, where `i < j`, the condition `j - i <= k` is satisfied.
+
+A subsequence of an array is obtained by deleting some number of elements (can be zero) from the array, leaving the remaining elements in their original order.
+
+**Example 1:**
+
+    Input: nums = [10,2,-10,5,20], k = 2
+    Output: 37
+    Explanation: The subsequence is [10, 2, 5, 20].
+
+- sum[i] means local max sum till i;
+
+```java
+class Solution {
+    public int constrainedSubsetSum(int[] nums, int k) {
+        int n = nums.length;
+        Deque<Integer> deque = new ArrayDeque<>();
+        int[] sum = new int[n];
+        int res = nums[0];
+        for(int i = 0; i < n; i++){
+            sum[i] = nums[i];
+            if(!deque.isEmpty()){
+                sum[i] += sum[deque.peekFirst()];
+            }
+            res = Math.max(res, sum[i]);
+            while(!deque.isEmpty() && i - deque.peekFirst() >= k){
+                deque.removeFirst();
+            }
+            while(!deque.isEmpty() && sum[i] >= sum[deque.peekLast()]){
+                deque.removeLast();
+            }
+            if(sum[i] > 0){
+                deque.addLast(i);
+            }
+        }
+        return res;
+    }
+}
+```
+
+## [1438. Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit](https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/)
+
+
+Given an array of integers nums and an integer limit, return the size of the longest non-empty subarray such that the absolute difference between any two elements of this subarray is less than or equal to limit.
+
+ 
+
+**Example 1:**
+
+    Input: nums = [8,2,4,7], limit = 4
+    Output: 2 
+    Explanation: All subarrays are: 
+    [8] with maximum absolute diff |8-8| = 0 <= 4.
+    [8,2] with maximum absolute diff |8-2| = 6 > 4. 
+    [8,2,4] with maximum absolute diff |8-2| = 6 > 4.
+    [8,2,4,7] with maximum absolute diff |8-2| = 6 > 4.
+    [2] with maximum absolute diff |2-2| = 0 <= 4.
+    [2,4] with maximum absolute diff |2-4| = 2 <= 4.
+    [2,4,7] with maximum absolute diff |2-7| = 5 > 4.
+    [4] with maximum absolute diff |4-4| = 0 <= 4.
+    [4,7] with maximum absolute diff |4-7| = 3 <= 4.
+    [7] with maximum absolute diff |7-7| = 0 <= 4. 
+    Therefore, the size of the longest subarray is 2.
+
+- 2 deque: ascending deque / descending deque
+- maintain the monotonism of 2 deqeus
+- if max(`maxDeque.peekFirst()`) - min(`minDeque.peekFirst()`) > limit, which means we need shrink the range, use left pointer to control.
+
+```java
+class Solution {
+    public int longestSubarray(int[] nums, int limit) {
+        Deque<Integer> maxd = new ArrayDeque<>();
+        Deque<Integer> mind = new ArrayDeque<>();
+        int left = 0;
+        int res = 0;
+        for(int i = 0;i < nums.length; i++){
+            while(!maxd.isEmpty() && maxd.peekLast() < nums[i]){
+                maxd.removeLast();
+            }
+            while(!mind.isEmpty() && mind.peekLast() > nums[i]){
+                mind.removeLast();
+            }
+            maxd.addLast(nums[i]);
+            mind.addLast(nums[i]);
+            if(maxd.peekFirst() - mind.peekFirst() > limit){
+                if(maxd.peekFirst() == nums[left]) maxd.removeFirst();
+                if(mind.peekFirst() == nums[left]) mind.removeFirst();
+                left++;
+            }
+            res = Math.max(res, i - left + 1);
+        }
+        return res;
+    }
+}
+```
+
+## [1696. Jump Game VI](https://leetcode.com/problems/jump-game-vi/)
+
+You are given a 0-indexed integer array nums and an integer `k`.
+
+You are initially standing at index 0. In one move, you can jump at most k steps forward without going outside the boundaries of the array. That is, you can jump from index i to any index in the range `[i + 1, min(n - 1, i + k)]` inclusive.
+
+You want to reach the last index of the array (index n - 1). Your score is the sum of all `nums[j]` for each index `j` you visited in the array.
+
+Return the **maximum score** you can get.
+
+**Example 1:**
+
+    Input: nums = [1,-1,-2,4,-7,3], k = 2
+    Output: 7
+    Explanation: You can choose your jumps forming the subsequence [1,-1,4,3] (underlined above). The sum is 7.
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210804214857.png)
+
+- actually this problem's core is dp
+- in the inner 2 while loop, why we use >= and <=?
+  - cuz cur result is in the range k - 1, after deque.addLast(i), it should in the correct range k
+
+![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210804220254.png)
+
+```java
+class Solution {
+    public int maxResult(int[] nums, int k) {
+        Deque<Integer> deque = new ArrayDeque<>();
+        int n = nums.length;
+        int[] dp = new int[n];
+        dp[0] = nums[0];
+        deque.addLast(0);
+        for(int i = 0; i < n - 1; i++){
+            while(!deque.isEmpty() && i - deque.peekFirst() >= k){
+                deque.removeFirst();
+            }
+            while(!deque.isEmpty() && dp[deque.peekLast()] <= dp[i]){
+                deque.removeLast();
+            }
+            deque.addLast(i);
+            dp[i + 1] = dp[deque.peekFirst()] + nums[i + 1];
+        }
+        return dp[n - 1];
+    }
+}
+```
+
+# Tree 
 
 ![](https://markpersonal.oss-us-east-1.aliyuncs.com/pic/20210708111855.png)
 
